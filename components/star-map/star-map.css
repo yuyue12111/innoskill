@@ -1,0 +1,66 @@
+.sm-root { --hair: rgba(20,20,15,.19); position: fixed; inset: 0; background: var(--paper); color: var(--foreground); overflow: hidden; }
+.sm-header { position: fixed; inset: 0 0 auto 0; z-index: 50; padding: 20px 26px; display: flex; align-items: center; justify-content: space-between; gap: 16px; pointer-events: none; opacity: 0; transition: opacity .7s ease .35s; }
+.sm-header.in { opacity: 1 } .sm-header > * { pointer-events: auto }
+.sm-logo { font-weight: 800; letter-spacing: -.02em; font-size: 16px; text-decoration: none; color: inherit } .sm-logo span { color: var(--primary) }
+.sm-nav { display: flex; gap: 8px; align-items: center }
+.sm-nlink { font-size: 12.5px; color: var(--muted-foreground); text-decoration: none; border: 1px solid var(--border); padding: 7px 14px; border-radius: 999px; background: rgba(251,250,248,.82); backdrop-filter: blur(6px); white-space: nowrap; transition: .18s }
+.sm-nlink:hover { color: var(--foreground); border-color: #c3bdaf; transform: translateY(-1px) }
+.sm-nlink.solid { background: var(--foreground); color: #fff; border-color: var(--foreground) } .sm-nlink.solid:hover { background: #000 }
+
+.sm-viewport { position: absolute; inset: 0; overflow: hidden; cursor: grab; touch-action: none }
+.sm-viewport.dragging { cursor: grabbing }
+.sm-stage { position: absolute; top: 0; left: 0; transform-origin: 0 0; will-change: transform }
+.sm-wires { position: absolute; top: 0; left: 0; overflow: visible; pointer-events: none }
+.sm-wire { stroke: var(--hair); stroke-width: .9; fill: none; transition: stroke .28s, stroke-width .28s, opacity .28s }
+.sm-wire.alt { stroke-dasharray: 3 4; opacity: .62 }
+.sm-wire.lit { stroke: var(--sc, #3f5c48); stroke-width: 1.7; opacity: 1 }
+
+.sm-corner { position: absolute; font-size: 168px; font-weight: 400; letter-spacing: -.025em; color: var(--foreground); user-select: none; pointer-events: none; white-space: nowrap; line-height: 1; transform-origin: 50% 50%; will-change: transform; transition: transform 1.35s cubic-bezier(.62,.03,.2,1), opacity .55s ease; opacity: 0 }
+.sm-corner.noAnim { transition: none }
+.sm-cornerA { left: 34px; top: 56px } .sm-cornerB { right: 34px; bottom: 64px }
+.sm-nodes, .sm-wires { transition: opacity .95s ease .28s }
+.sm-stage.intro .sm-nodes, .sm-stage.intro .sm-wires { opacity: 0 }
+.sm-stage.armed .sm-corner { opacity: 1 }
+.sm-hud { position: fixed; z-index: 40; display: flex; align-items: center; gap: 8px; opacity: 0; transition: opacity .7s ease .5s }
+.sm-hud.in { opacity: 1 }
+.sm-cue { position: fixed; left: 50%; bottom: 46px; transform: translateX(-50%); z-index: 45; display: inline-flex; align-items: center; gap: 8px; font-size: 13px; color: var(--muted-foreground); background: rgba(251,250,248,.9); border: 1px solid var(--border); border-radius: 999px; padding: 10px 18px; opacity: 0; transition: opacity .6s ease .9s; pointer-events: none }
+.sm-cue.in { opacity: 1 } .sm-cue.out { opacity: 0; transition: opacity .3s ease }
+.sm-cue i { font-style: normal; animation: sm-bob 1.9s ease-in-out infinite }
+@keyframes sm-bob { 0%,100% { transform: translateY(0) } 50% { transform: translateY(3px) } }
+
+.sm-cluster { position: absolute; width: 360px; margin-left: -180px; text-align: center; cursor: pointer; user-select: none; transition: opacity .3s }
+.sm-cluster h2 { font-size: 31px; font-weight: 600; line-height: 1.28; letter-spacing: -.01em; transition: color .22s }
+.sm-cluster p { margin-top: 10px; font-size: 15px; line-height: 1.62; color: var(--muted-foreground); transition: opacity .22s }
+.sm-cluster .cnt { display: inline-block; margin-top: 11px; font-size: 13px; font-weight: 700; letter-spacing: .08em; padding: 3px 9px; border-radius: 999px; transition: .22s }
+.sm-cluster:hover h2 { color: var(--sc) } .sm-cluster:hover .cnt { transform: translateY(-1px) }
+
+.sm-tile { position: absolute; padding: 0; border: 0; background: none; cursor: pointer; line-height: 0; transition: filter .3s, opacity .3s; will-change: transform; border-radius: 1px; animation: sm-drift var(--dur, 8s) var(--delay, 0s) ease-in-out infinite alternate }
+@keyframes sm-drift { from { transform: translate(0,0) rotate(0deg) } to { transform: translate(var(--fx, 14px), var(--fy, -16px)) rotate(var(--rot, 1deg)) } }
+.sm-tile svg { display: block; box-shadow: 0 1px 3px rgba(20,20,15,.12); transition: transform .34s cubic-bezier(.22,.68,.24,1) }
+.sm-tile:hover { z-index: 5; filter: drop-shadow(0 12px 22px rgba(20,20,15,.22)) } .sm-tile:hover svg { transform: scale(1.28) translateY(-3px) }
+.sm-tile:focus-visible { outline: 2px solid var(--primary); outline-offset: 3px }
+.sm-tile .vtag { position: absolute; right: -4px; top: -5px; width: 13px; height: 13px; border-radius: 50%; background: var(--primary); color: #fff; font-size: 8px; line-height: 13px; text-align: center; font-weight: 800 }
+.sm-tile .dtag { position: absolute; left: -3px; bottom: -4px; font-size: 7.5px; font-weight: 800; letter-spacing: .05em; background: var(--foreground); color: #fff; padding: 1px 4px; border-radius: 2px; line-height: 1.35 }
+.dim .sm-tile:not(.on) { opacity: .12; filter: grayscale(.85) }
+.dim .sm-cluster:not(.on) { opacity: .26 }
+.dim .sm-wire:not(.lit) { opacity: .05 }
+.dim .sm-tile.on { z-index: 4; filter: drop-shadow(0 7px 16px rgba(20,20,15,.2)) saturate(1.15) } .dim .sm-tile.on svg { transform: scale(1.12) }
+
+.sm-hint { left: 26px; bottom: 24px; font-size: 12.5px; color: var(--muted-foreground); background: rgba(251,250,248,.86); border: 1px solid var(--border); padding: 9px 15px; border-radius: 999px; backdrop-filter: blur(6px) }
+.sm-zoom { right: 26px; bottom: 24px; font-size: 12.5px; color: var(--muted-foreground) }
+.sm-zoom button { width: 34px; height: 34px; border-radius: 50%; border: 1px solid var(--border); background: rgba(251,250,248,.9); font-size: 16px; cursor: pointer; color: var(--foreground); font-family: inherit; transition: .16s; backdrop-filter: blur(6px) }
+.sm-zoom button:hover:not(:disabled) { border-color: #b9b3a5; transform: translateY(-1px) } .sm-zoom button:disabled { opacity: .38; cursor: default }
+
+/* 详情弹层 */
+.sm-detail { width: min(430px, 92vw); max-height: 92vh; overflow-y: auto; text-align: center }
+.sm-bigart { display: inline-block; line-height: 0; box-shadow: 0 26px 60px -18px rgba(20,20,15,.4) }
+.sm-bigart svg, .sm-bigart img { display: block; width: min(320px, 70vw); height: auto }
+.sm-bigart.portrait svg, .sm-bigart.portrait img { width: auto; height: min(302px, 36vh) }
+.sm-dcard { position: relative; margin-top: -16px; background: #fbfaf8; border: 1px solid var(--border); border-radius: 12px; padding: 20px 20px 18px; text-align: left; box-shadow: 0 20px 44px -20px rgba(20,20,15,.3) }
+
+@media (max-width: 760px) {
+	.sm-corner { font-size: 108px } .sm-cornerA { left: 18px; top: 44px } .sm-cornerB { right: 18px; bottom: 50px }
+	.sm-cluster { width: 250px; margin-left: -125px } .sm-cluster h2 { font-size: 26px }
+	.sm-hint { left: 14px; bottom: 16px; font-size: 11.5px; padding: 8px 12px } .sm-zoom { right: 14px; bottom: 16px }
+	.sm-header { padding: 14px 16px } .sm-logo { white-space: nowrap; font-size: 14.5px } .sm-nlink { padding: 6px 11px; font-size: 11.5px }
+}

@@ -127,3 +127,70 @@
     @apply font-sans;
     }
 }
+/* ───────── Innoskill 纸色主题(覆盖上面 shadcn 的默认令牌) ───────── */
+:root {
+	--font-sans: "Inter", "Helvetica Neue", -apple-system, BlinkMacSystemFont, "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", "Noto Sans CJK SC", sans-serif;
+	--font-serif: Georgia, "Times New Roman", "Songti SC", "Source Han Serif SC", "Noto Serif SC", serif;
+	--paper: #f7f4ed;
+	--background: #f2f0ec;
+	--foreground: #14140f;
+	--card: #fbfaf8;
+	--card-foreground: #14140f;
+	--popover: #fbfaf8;
+	--popover-foreground: #14140f;
+	--primary: #1f6f4a;
+	--primary-foreground: #ffffff;
+	--secondary: #ebe8e0;
+	--secondary-foreground: #14140f;
+	--muted: #ebe8e0;
+	--muted-foreground: #6f6c63;
+	--accent: #e8f0ea;
+	--accent-foreground: #1f6f4a;
+	--border: #e2ded6;
+	--input: #e2ded6;
+	--ring: #1f6f4a;
+	--radius: 0.55rem;
+}
+body { background: var(--background); color: var(--foreground); font-family: var(--font-sans); -webkit-font-smoothing: antialiased; }
+.serif { font-family: var(--font-serif); }
+.label { font-size: 11px; letter-spacing: .14em; text-transform: uppercase; color: var(--muted-foreground); font-weight: 600; }
+
+/* ───────── 卡片(列表页)───────── */
+.gcard { --e: cubic-bezier(.22,.68,.24,1); transition: transform .34s var(--e), box-shadow .34s var(--e), border-color .24s ease; will-change: transform; }
+.gcard:hover { transform: translateY(-6px); box-shadow: 0 22px 48px -16px rgba(20,20,15,.24), 0 6px 16px -8px rgba(20,20,15,.12); border-color: #cec8ba; }
+.gcard .rings { transition: transform .62s var(--e), opacity .4s ease; }
+.gcard:hover .rings { transform: scale(1.16) rotate(9deg); opacity: .62; }
+.gcard .demoImg { transition: transform .62s var(--e); }
+.gcard:hover .demoImg { transform: scale(1.07); }
+.gcard .num { transition: transform .34s var(--e); }
+.gcard:hover .num { transform: translateY(-2px) scale(1.07); }
+.gcard .bars i { transition: height .38s var(--e); }
+.gcard:hover .bars i:nth-child(1) { height: 13px } .gcard:hover .bars i:nth-child(2) { height: 6px }
+.gcard:hover .bars i:nth-child(3) { height: 15px } .gcard:hover .bars i:nth-child(4) { height: 9px }
+.gcard .arrow { transition: transform .3s var(--e), background .2s ease; }
+.gcard:hover .arrow { transform: translateX(4px); background: #175a3b; }
+.gcard .iname { transition: color .2s ease; }
+.gcard:hover .iname { color: var(--primary); }
+
+/* ───────── Markdown 正文 ───────── */
+.md { font-size: 14.5px; line-height: 1.75; color: #26241d; overflow-wrap: anywhere; }
+.md h1, .md h2, .md h3, .md h4 { font-weight: 700; letter-spacing: -.01em; margin: 1.6em 0 .6em; line-height: 1.3; }
+.md h1 { font-size: 1.6em } .md h2 { font-size: 1.32em; padding-bottom: .3em; border-bottom: 1px solid var(--border) } .md h3 { font-size: 1.12em } .md h4 { font-size: 1em }
+.md p, .md ul, .md ol, .md pre, .md table, .md blockquote { margin: 0 0 1em; }
+.md ul { padding-left: 1.4em; list-style: disc } .md ol { padding-left: 1.4em; list-style: decimal } .md li { margin: .25em 0 }
+.md li > ul, .md li > ol { margin: .3em 0 0 }
+.md a { color: var(--primary); text-decoration: underline; text-underline-offset: 2px }
+.md code { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; font-size: .9em; background: #eeebe3; padding: .12em .38em; border-radius: 4px; }
+.md pre { background: #14140f; color: #ece9df; padding: 14px 16px; border-radius: 8px; overflow-x: auto; font-size: 12.5px; line-height: 1.6 }
+.md pre code { background: none; padding: 0; font-size: inherit; color: inherit }
+.md blockquote { border-left: 3px solid #cfc9bb; padding: .2em 1em; color: var(--muted-foreground) }
+.md table { border-collapse: collapse; width: 100%; font-size: 13px; display: block; overflow-x: auto }
+.md th, .md td { border: 1px solid var(--border); padding: 6px 10px; text-align: left; vertical-align: top }
+.md th { background: #eeebe3; font-weight: 600 }
+.md hr { border: 0; border-top: 1px solid var(--border); margin: 1.6em 0 }
+.md img { max-width: 100%; border-radius: 6px }
+
+@media (prefers-reduced-motion: reduce) {
+	*, *::before, *::after { transition: none !important; animation: none !important; scroll-behavior: auto !important }
+	.gcard:hover { transform: none }
+}

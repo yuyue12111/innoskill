@@ -17,13 +17,26 @@ export interface PresetRow {
 }
 
 export interface SkillSummary {
+	num: string;
 	id: string; name: string; description: string; category: string; tagline: string; group: string; type: string;
 	verified: boolean; refText: string; refUrl: string; demo: string; hasDemo: boolean;
 	scenario: string; also: string[]; example: string;
 }
 
+const numCache = globalThis as unknown as { __innoskillNum?: { key: string; map: Map<string, string> } };
+/** id → 两位序号,按 id 全局排序;随同步刷新 */
+export function numOf(id: string): string {
+	const key = kvGet("last_sync") ?? "";
+	if (!numCache.__innoskillNum || numCache.__innoskillNum.key !== key) {
+		const ids = (getDb().prepare("SELECT id FROM skill ORDER BY id").all() as unknown as Array<{ id: string }>).map((r) => r.id);
+		numCache.__innoskillNum = { key, map: new Map(ids.map((x, i) => [x, String(i + 1).padStart(2, "0")])) };
+	}
+	return numCache.__innoskillNum.map.get(id) ?? "";
+}
+
 export function toSummary(r: SkillRow): SkillSummary {
 	return {
+		num: numOf(r.id),
 		id: r.id, name: r.name, description: r.description, category: r.category, tagline: r.tagline,
 		group: r.grp, type: r.type, verified: r.verified === 1, refText: r.ref_text, refUrl: r.ref_url,
 		demo: r.demo_path ? `${config.publicUrl}/${r.demo_path}` : "", hasDemo: !!r.demo_path,
@@ -102,6 +115,11 @@ export function safeJoin(root: string, rel: string): string | null {
 export function skillFilePath(id: string, rel: string): string | null {
 	if (!isSafeItemName(id)) return null;
 	return safeJoin(join(sourceDir(), config.source.skillsPath, id), rel);
+}
+
+export function presetFilePath(id: string, rel: string): string | null {
+	if (!isSafeItemName(id)) return null;
+	return safeJoin(join(sourceDir(), config.source.presetsPath, id), rel);
 }
 
 export function assetFilePath(rel: string): string | null {
