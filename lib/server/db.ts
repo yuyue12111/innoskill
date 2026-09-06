@@ -78,6 +78,8 @@ CREATE TABLE IF NOT EXISTS user_install (
 CREATE TABLE IF NOT EXISTS skill_stat (
   skill_id TEXT PRIMARY KEY, install_count INTEGER NOT NULL DEFAULT 0, view_count INTEGER NOT NULL DEFAULT 0
 );
+CREATE INDEX IF NOT EXISTS idx_user_install_skill ON user_install (skill_id, uninstalled_at);
+CREATE INDEX IF NOT EXISTS idx_pack_skill_skill ON pack_skill (skill_id);
 `;
 
 // 挂在 globalThis 上:Next dev 热更新会重新执行模块,但进程只该开一个库

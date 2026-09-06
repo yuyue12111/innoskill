@@ -10,6 +10,9 @@ export async function GET(req: NextRequest) {
 		category: sp.get("category")?.trim() || undefined,
 		scenario: sp.get("scenario")?.trim() || undefined,
 		featured: sp.get("featured") === "1",
+		subject: sp.get("subject")?.trim() || undefined,
+		kind: sp.get("kind")?.trim() || undefined,
+		pack: sp.get("pack")?.trim() || undefined,
 		page: Number(sp.get("page") ?? 1),
 		size: Number(sp.get("size") ?? 50),
 	}));

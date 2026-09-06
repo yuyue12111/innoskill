@@ -16,6 +16,7 @@ services:
       SYNC_INTERVAL_MIN: ${INNOSKILL_SYNC_INTERVAL_MIN:-10}
       SYNC_SECRET: ${INNOSKILL_SYNC_SECRET:-}
       HUB_TOKEN: ${INNOSKILL_HUB_TOKEN:-}
+      SERVICE_KEY: ${INNOSKILL_SERVICE_KEY:-}
     volumes:
       - innoskill-data:/data
     restart: unless-stopped

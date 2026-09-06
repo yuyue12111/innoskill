@@ -5,7 +5,9 @@ import { SiteFooter, SiteHeader } from "@/components/site-header";
 import { SkillCard } from "@/components/skill-card";
 import { Input } from "@/components/ui/input";
 import { Skeleton } from "@/components/ui/skeleton";
-import { useMeta, useSkills } from "@/lib/api";
+import { useMeta, usePacks, useSkills } from "@/lib/api";
+import { PresetIcon } from "@/components/preset-icon";
+import Link from "next/link";
 import { cn } from "@/lib/utils";
 
 export default function SkillsPage() {
@@ -32,7 +34,7 @@ function Pill({ active, onClick, children }: { active: boolean; onClick: () => v
 
 function SkillsBrowser() {
 	const sp = useSearchParams(); const router = useRouter(); const path = usePathname();
-	const q = sp.get("q") ?? "", category = sp.get("category") ?? "", scenario = sp.get("scenario") ?? "", featured = sp.get("featured") === "1";
+	const q = sp.get("q") ?? "", category = sp.get("category") ?? "", scenario = sp.get("scenario") ?? "", featured = sp.get("featured") === "1", pack = sp.get("pack") ?? "";
 	const [draft, setDraft] = useState(q);
 	// URL 里的 q 变了(前进/后退、清除),把输入框同步过去 —— 渲染期调整状态,不走 effect
 	const [seenQ, setSeenQ] = useState(q);
@@ -51,9 +53,11 @@ function SkillsBrowser() {
 	}, [draft]);
 
 	const { data: meta } = useMeta();
-	const { data, isLoading } = useSkills({ q, category, scenario, featured });
+	const { data: packs } = usePacks();
+	const { data, isLoading } = useSkills({ q, category, scenario, featured, pack });
 	const list = data?.items ?? [];
-	const filters = [featured && "精选", category, scenario, q && `“${q}”`].filter(Boolean);
+	const packName = packs?.items.find((p) => p.id === pack)?.name;
+	const filters = [featured && "精选", pack && `技能包:${packName ?? pack}`, category, scenario, q && `“${q}”`].filter(Boolean);
 
 	return (
 		<main className="mx-auto max-w-[1240px] px-6">
@@ -80,10 +84,35 @@ function SkillsBrowser() {
 				</div>
 			</section>
 
+			{!q && !pack && !!packs?.items.length && (
+				<section className="border-t border-border pt-14 pb-4">
+					<div className="flex flex-wrap items-end justify-between gap-4 pb-5">
+						<div>
+							<div className="label">Skill packs</div>
+							<h2 className="mt-3 text-[clamp(28px,4vw,48px)] leading-[.98] font-extrabold tracking-[-.03em]">学科技能包</h2>
+						</div>
+						<p className="max-w-[44ch] text-[13.5px] text-muted-foreground">严选的技能组合,按用途打包。在 InnoAgent 里可以一键添加整包。</p>
+					</div>
+					<div className="grid grid-cols-3 gap-3.5 max-[1000px]:grid-cols-2 max-[640px]:grid-cols-1">
+						{packs.items.map((p) => (
+							<Link key={p.id} href={`/skills?pack=${encodeURIComponent(p.id)}`} className="gcard flex flex-col gap-3 border border-border bg-card p-5">
+								<div className="flex items-center justify-between">
+									<span className="grid h-11 w-11 place-items-center rounded-xl bg-[#e8f0ea] text-primary"><PresetIcon name={p.icon} className="h-5 w-5" /></span>
+									<span className="text-[10px] font-bold tracking-[.1em] text-muted-foreground uppercase">{p.skillCount} skills{p.installCount > 0 ? ` · ${p.installCount} 人在用` : ""}</span>
+								</div>
+								<div className="iname text-[18px] leading-[1.2] font-extrabold tracking-[-.02em]">{p.name}</div>
+								<div className="flex-1 text-[13px] leading-[1.55] text-[#4b483f]">{p.description}</div>
+								<div className="mt-1 flex items-center justify-between"><b className="text-[13px] font-bold text-primary">看包里的技能</b><span className="arrow grid h-[30px] w-[30px] place-items-center rounded-full bg-primary text-sm text-white">→</span></div>
+							</Link>
+						))}
+					</div>
+				</section>
+			)}
+
 			<div className="flex flex-wrap items-end justify-between gap-5 border-t border-border pt-14 pb-5">
 				<div>
 					<div className="label">The library</div>
-					<h2 className="mt-3 text-[clamp(34px,5.5vw,72px)] leading-[.95] font-extrabold tracking-[-.035em]">全部技能</h2>
+					<h2 className="mt-3 text-[clamp(34px,5.5vw,72px)] leading-[.95] font-extrabold tracking-[-.035em]">{pack && packName ? packName : "全部技能"}</h2>
 				</div>
 				<div className="flex flex-col gap-2">
 					<div className="flex flex-wrap gap-[7px]">

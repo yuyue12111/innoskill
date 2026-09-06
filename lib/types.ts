@@ -3,9 +3,13 @@ export interface SkillSummary {
 	num: string; featured: boolean; id: string; name: string; description: string; category: string; tagline: string;
 	group: string; type: string; verified: boolean; refText: string; refUrl: string;
 	demo: string; hasDemo: boolean; scenario: string; also: string[]; example: string;
+	subject: string; kind: string; installCount: number; viewCount: number;
 }
+export interface PackSummary { id: string; name: string; description: string; icon: string; subject: string; skillCount: number; installCount: number }
+export interface PackDetail extends PackSummary { skills: SkillSummary[] }
 export interface FileEntry { path: string; size: number }
 export interface SkillDetail extends SkillSummary {
+	packs: Array<{ id: string; name: string }>;
 	frontmatter: Record<string, string>; files: FileEntry[]; body: string;
 	contentHash: string; syncedAt: string; bundleUrl: string;
 }

@@ -58,7 +58,7 @@ export function SkillCard({ s }: { s: SkillSummary }) {
 				<div className="iname text-[18px] leading-[1.15] font-extrabold tracking-[-.025em] break-words">{s.name}</div>
 				<div className="min-h-[3em] flex-1 text-[13px] leading-[1.55] text-[#4b483f]">{s.tagline}</div>
 				<div className="mt-1 flex items-center justify-between">
-					<b className="text-[13px] font-bold text-primary">查看详情</b>
+					<b className="text-[13px] font-bold text-primary">查看详情{s.installCount > 0 && <span className="ml-2 font-medium text-muted-foreground">· {s.installCount} 人在用</span>}</b>
 					<span className="arrow grid h-[30px] w-[30px] shrink-0 place-items-center rounded-full bg-primary text-sm text-white">→</span>
 				</div>
 			</div>

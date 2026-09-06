@@ -4,7 +4,7 @@ import { config } from "../config";
 import { getDb, kvSet } from "../db";
 import { ensureSource } from "./git";
 import { bundlePath, packItem, removeBundle } from "./pack";
-import { findDemo, listPresets, listSkills, parseReadme, parseScenarios, type Scenarios } from "./parse";
+import { findDemo, listPresets, listSkills, parsePacks, parseReadme, parseScenarios, type PackDef, type Scenarios } from "./parse";
 
 export interface SyncResult {
 	ok: boolean;
@@ -53,6 +53,7 @@ async function doSync(reason: string): Promise<SyncResult> {
 			? parseScenarios(readFileSync(join(libDir, "scenarios.json"), "utf-8"))
 			: { fallback: "", featured: [], scenarios: [], skills: {} };
 		const validScenario = new Set(scenarios.scenarios.map((s) => s.key));
+		const packs: PackDef[] = existsSync(join(libDir, "packs.json")) ? parsePacks(readFileSync(join(libDir, "packs.json"), "utf-8")) : [];
 
 		const skills = listSkills(libDir);
 		const presets = listPresets(presetsDir);
@@ -134,6 +135,19 @@ async function doSync(reason: string): Promise<SyncResult> {
 			db.exec("DELETE FROM skill_fts");
 			for (const s of skills) insFts.run(s.id, s.name, s.description, readme[s.id]?.tagline ?? "", s.body);
 
+			// 技能包整体替换;引用了不存在技能的条目丢掉并告警
+			const known = new Set(skills.map((s) => s.id));
+			db.exec("DELETE FROM pack_skill; DELETE FROM pack");
+			const insPack = db.prepare("INSERT INTO pack (id, name, description, subject, curated_by, created_at) VALUES (?, ?, ?, ?, ?, ?)");
+			const insPackSkill = db.prepare("INSERT INTO pack_skill (pack_id, skill_id, ord) VALUES (?, ?, ?)");
+			for (const p of packs) {
+				insPack.run(p.id, p.name, p.description, p.subject, p.icon, now);   // curated_by 列暂存 icon(不改表结构)
+				let ord = 0;
+				for (const sid of p.skills) {
+					if (!known.has(sid)) { console.warn(`[sync] packs.json: ${p.id} 引用了不存在的技能 ${sid},已忽略`); continue; }
+					insPackSkill.run(p.id, sid, ord++);
+				}
+			}
 			kvSet("scenarios", JSON.stringify(scenarios));
 			kvSet("last_sync", JSON.stringify({ at: now, sha: src.sha, ref: src.ref, skills: skills.length, presets: presets.length }));
 			db.exec("COMMIT");
@@ -143,8 +157,8 @@ async function doSync(reason: string): Promise<SyncResult> {
 		}
 
 		const res: SyncResult = { ok: true, sha: src.sha, skills: skills.length, presets: presets.length, packed, message: "ok", durationMs: Date.now() - t0 };
-		finish("ok", `skills=${skills.length} presets=${presets.length} packed=${packed}`, res);
-		console.log(`[sync] ${reason}: ${src.ref}@${src.sha} skills=${skills.length} presets=${presets.length} packed=${packed} (${res.durationMs}ms)`);
+		finish("ok", `skills=${skills.length} presets=${presets.length} packs=${packs.length} packed=${packed}`, res);
+		console.log(`[sync] ${reason}: ${src.ref}@${src.sha} skills=${skills.length} presets=${presets.length} packs=${packs.length} packed=${packed} (${res.durationMs}ms)`);
 		return res;
 	} catch (err) {
 		const message = err instanceof Error ? err.message : String(err);

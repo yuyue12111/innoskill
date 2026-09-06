@@ -1,13 +1,14 @@
 "use client";
 import Link from "next/link";
 import { useParams } from "next/navigation";
+import { useEffect } from "react";
 import { CopyButton } from "@/components/copy-button";
 import { Markdown } from "@/components/markdown";
 import { SiteFooter, SiteHeader } from "@/components/site-header";
 import { Badges } from "@/components/skill-card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { rawFileUrl, useMeta, useSkill } from "@/lib/api";
+import { rawFileUrl, recordSkillView, useMeta, useSkill } from "@/lib/api";
 import { colorOf, skillSourceUrl } from "@/lib/types";
 
 const fmt = (n: number) => (n < 1024 ? `${n} B` : n < 1024 * 1024 ? `${(n / 1024).toFixed(1)} KB` : `${(n / 1024 / 1024).toFixed(1)} MB`);
@@ -15,6 +16,7 @@ const fmt = (n: number) => (n < 1024 ? `${n} B` : n < 1024 * 1024 ? `${(n / 1024
 export default function SkillPage() {
 	const { id } = useParams<{ id: string }>();
 	const { data: s, error, isLoading } = useSkill(id);
+	useEffect(() => { if (id) recordSkillView(id); }, [id]);
 	const { data: meta } = useMeta();
 	const sc = meta?.scenarios.find((x) => x.key === s?.scenario);
 	const color = colorOf(s?.category ?? "");
@@ -44,7 +46,14 @@ export default function SkillPage() {
 									{s.group && <span>{s.group} · </span>}
 									{s.refUrl ? <>来源 <a className="text-primary underline" href={s.refUrl} target="_blank" rel="noopener">{s.refText}</a></> : <span>inno-agent-hub {s.type}</span>}
 									{" · "}Inno / Skill {s.num}
+									{s.installCount > 0 && <span> · {s.installCount} 人在用</span>}
 								</div>
+								{s.packs.length > 0 && (
+									<div className="mt-3 flex flex-wrap items-center gap-1.5 text-[12px] text-muted-foreground">
+										属于技能包:
+										{s.packs.map((p) => <Link key={p.id} href={`/skills?pack=${encodeURIComponent(p.id)}`} className="rounded-full border border-border bg-card px-2.5 py-0.5 text-foreground hover:border-primary hover:text-primary">{p.name}</Link>)}
+									</div>
+								)}
 							</div>
 							{s.hasDemo && (
 								<div className="overflow-hidden rounded-xl border border-border bg-card shadow-[0_20px_44px_-20px_rgba(20,20,15,.3)]">

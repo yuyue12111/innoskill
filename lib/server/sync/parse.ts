@@ -42,6 +42,28 @@ export interface Scenarios {
 	skills: Record<string, ScenarioMeta>;
 }
 
+export interface PackDef { id: string; name: string; description: string; icon: string; subject: string; skills: string[] }
+
+/** skill-library/packs.json:{ packs: [{ id, name, description, icon, subject, skills[] }] } */
+export function parsePacks(text: string): PackDef[] {
+	const raw = JSON.parse(text) as { packs?: unknown };
+	if (!Array.isArray(raw.packs)) return [];
+	const out: PackDef[] = [];
+	for (const p of raw.packs as Array<Record<string, unknown>>) {
+		const id = typeof p["id"] === "string" ? p["id"].trim() : "";
+		if (!isSafeItemName(id)) continue;
+		out.push({
+			id,
+			name: typeof p["name"] === "string" ? p["name"] : id,
+			description: typeof p["description"] === "string" ? p["description"] : "",
+			icon: typeof p["icon"] === "string" ? p["icon"] : "boxes",
+			subject: typeof p["subject"] === "string" ? p["subject"] : "",
+			skills: Array.isArray(p["skills"]) ? (p["skills"] as unknown[]).filter((x): x is string => typeof x === "string" && isSafeItemName(x)) : [],
+		});
+	}
+	return out;
+}
+
 export interface ParsedPreset {
 	id: string;
 	name: string;

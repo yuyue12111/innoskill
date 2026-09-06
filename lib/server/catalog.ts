@@ -11,6 +11,7 @@ export interface SkillRow {
 	id: string; name: string; description: string; category: string; tagline: string; grp: string; type: string;
 	verified: number; ref_text: string; ref_url: string; demo_path: string; scenario: string; also_json: string; example: string;
 	frontmatter_json: string; files_json: string; body: string; content_hash: string; synced_at: string;
+	install_count?: number; view_count?: number;
 }
 export interface PresetRow {
 	id: string; name: string; description: string; icon: string; meta_json: string; files_json: string; content_hash: string; synced_at: string;
@@ -22,6 +23,8 @@ export interface SkillSummary {
 	id: string; name: string; description: string; category: string; tagline: string; group: string; type: string;
 	verified: boolean; refText: string; refUrl: string; demo: string; hasDemo: boolean;
 	scenario: string; also: string[]; example: string;
+	subject: string; kind: string;
+	installCount: number; viewCount: number;
 }
 
 const numCache = globalThis as unknown as { __innoskillNum?: { key: string; map: Map<string, string> } };
@@ -56,12 +59,25 @@ export function toSummary(r: SkillRow): SkillSummary {
 		group: r.grp, type: r.type, verified: r.verified === 1, refText: r.ref_text, refUrl: r.ref_url,
 		demo: r.demo_path ? `${config.publicUrl}/${r.demo_path}` : "", hasDemo: !!r.demo_path,
 		scenario: r.scenario, also: JSON.parse(r.also_json) as string[], example: r.example,
+		subject: fmField(r, "subject"), kind: fmField(r, "kind"),
+		installCount: r.install_count ?? 0, viewCount: r.view_count ?? 0,
 	};
 }
 
-const SUMMARY_COLS = ["id", "name", "description", "category", "tagline", "grp", "type", "verified", "ref_text", "ref_url", "demo_path", "scenario", "also_json", "example"];
+/** 店面维度(subject / kind)直接读 frontmatter,不加列 */
+function fmField(r: SkillRow, k: string): string {
+	try { const v = (JSON.parse(r.frontmatter_json) as Record<string, unknown>)[k]; return typeof v === "string" ? v : ""; } catch { return ""; }
+}
 
-export interface SkillQuery { q?: string; category?: string; scenario?: string; featured?: boolean; page?: number; size?: number }
+/** 技能查询的固定 FROM/SELECT:带上安装数与浏览数 */
+const STAT_JOIN = "LEFT JOIN skill_stat st ON st.skill_id = s.id";
+const SKILL_FROM = `skill s ${STAT_JOIN}`;
+const STAT_COLS = "COALESCE(st.install_count, 0) AS install_count, COALESCE(st.view_count, 0) AS view_count";
+
+const SUMMARY_COLS = ["id", "name", "description", "category", "tagline", "grp", "type", "verified", "ref_text", "ref_url", "demo_path", "scenario", "also_json", "example", "frontmatter_json"];
+const SUMMARY_SELECT = `${SUMMARY_COLS.map((c) => `s.${c}`).join(", ")}, ${STAT_COLS}`;
+
+export interface SkillQuery { q?: string; category?: string; scenario?: string; featured?: boolean; subject?: string; kind?: string; pack?: string; page?: number; size?: number }
 
 export function querySkills(opts: SkillQuery) {
 	const db = getDb();
@@ -82,14 +98,18 @@ export function querySkills(opts: SkillQuery) {
 		where.push(`s.id IN (${ids.map((_, i) => `@f${i}`).join(", ")})`);
 		ids.forEach((id, i) => { params[`f${i}`] = id; });
 	}
+	// InnoAgent 店面维度:frontmatter 里的 subject / kind;以及按技能包筛
+	if (opts.subject) { where.push("json_extract(s.frontmatter_json, '$.subject') = @subject"); params["subject"] = opts.subject; }
+	if (opts.kind) { where.push("json_extract(s.frontmatter_json, '$.kind') = @kind"); params["kind"] = opts.kind; }
+	if (opts.pack) { where.push("s.id IN (SELECT skill_id FROM pack_skill WHERE pack_id = @pack)"); params["pack"] = opts.pack; }
 
-	let from = "skill s";
+	let from = SKILL_FROM;
 	let order = "s.id";
 	if (q) {
 		if (q.length >= 3) {
 			// trigram 分词,中英文都能子串匹配;每个词加引号,用户输入不会变成 FTS 语法
 			const match = q.split(/\s+/).filter(Boolean).map((t) => `"${t.replace(/"/g, '""')}"`).join(" ");
-			from = "skill_fts f JOIN skill s ON s.id = f.id";
+			from = `skill_fts f JOIN skill s ON s.id = f.id ${STAT_JOIN}`;
 			where.push("skill_fts MATCH @match");
 			params["match"] = match;
 			order = "bm25(skill_fts, 0, 8, 4, 6, 1)";
@@ -100,17 +120,18 @@ export function querySkills(opts: SkillQuery) {
 	}
 	const whereSql = where.length ? `WHERE ${where.join(" AND ")}` : "";
 	const total = (db.prepare(`SELECT COUNT(*) AS n FROM ${from} ${whereSql}`).get(params) as { n: number }).n;
-	const rows = db.prepare(`SELECT ${SUMMARY_COLS.map((c) => `s.${c}`).join(", ")} FROM ${from} ${whereSql} ORDER BY ${order} LIMIT @limit OFFSET @offset`)
+	const rows = db.prepare(`SELECT ${SUMMARY_SELECT} FROM ${from} ${whereSql} ORDER BY ${order} LIMIT @limit OFFSET @offset`)
 		.all({ ...params, limit: size, offset: (page - 1) * size }) as unknown as SkillRow[];
 	return { items: rows.map(toSummary), total, page, size };
 }
 
 export function getSkill(id: string) {
 	if (!isSafeItemName(id)) return null;
-	const r = getDb().prepare("SELECT * FROM skill WHERE id = ?").get(id) as unknown as SkillRow | undefined;
+	const r = getDb().prepare(`SELECT s.*, ${STAT_COLS} FROM ${SKILL_FROM} WHERE s.id = ?`).get(id) as unknown as SkillRow | undefined;
 	if (!r) return null;
 	return {
 		...toSummary(r),
+		packs: packsOfSkill(id),
 		frontmatter: JSON.parse(r.frontmatter_json) as Record<string, string>,
 		files: JSON.parse(r.files_json) as Array<{ path: string; size: number }>,
 		body: r.body,
@@ -216,7 +237,7 @@ export function getMeta() {
 /** inno-agent bundle 协议的 index.json */
 export function buildIndex() {
 	const db = getDb();
-	const skills = (db.prepare(`SELECT ${SUMMARY_COLS.join(", ")} FROM skill ORDER BY id`).all() as unknown as SkillRow[]).map((r) => {
+	const skills = (db.prepare(`SELECT ${SUMMARY_SELECT} FROM ${SKILL_FROM} ORDER BY s.id`).all() as unknown as SkillRow[]).map((r) => {
 		const s = toSummary(r);
 		return {
 			id: s.id, name: s.name, description: s.description, category: s.category,
@@ -233,3 +254,47 @@ export function buildIndex() {
 		skills, presets,
 	};
 }
+
+/* ───────────── 技能包 ───────────── */
+
+export interface PackRow { id: string; name: string; description: string; subject: string; curated_by: string; created_at: string }
+export interface PackSummary { id: string; name: string; description: string; icon: string; subject: string; skillCount: number; installCount: number }
+
+/** 装了这个包里任一技能(且未卸载)的去重用户数 */
+const PACK_INSTALLS = "(SELECT COUNT(DISTINCT ui.user_id) FROM user_install ui JOIN pack_skill ps ON ps.skill_id = ui.skill_id WHERE ps.pack_id = p.id AND ui.uninstalled_at IS NULL)";
+
+function toPackSummary(r: PackRow & { skill_count: number; install_count: number }): PackSummary {
+	return { id: r.id, name: r.name, description: r.description, icon: r.curated_by || "boxes", subject: r.subject, skillCount: r.skill_count, installCount: r.install_count };
+}
+
+export function listPacks(): PackSummary[] {
+	const rows = getDb().prepare(`SELECT p.*, (SELECT COUNT(*) FROM pack_skill ps WHERE ps.pack_id = p.id) AS skill_count, ${PACK_INSTALLS} AS install_count FROM pack p ORDER BY p.rowid`).all() as unknown as Array<PackRow & { skill_count: number; install_count: number }>;
+	return rows.map(toPackSummary);
+}
+
+export function getPack(id: string) {
+	if (!isSafeItemName(id)) return null;
+	const db = getDb();
+	const r = db.prepare(`SELECT p.*, (SELECT COUNT(*) FROM pack_skill ps WHERE ps.pack_id = p.id) AS skill_count, ${PACK_INSTALLS} AS install_count FROM pack p WHERE p.id = ?`).get(id) as unknown as (PackRow & { skill_count: number; install_count: number }) | undefined;
+	if (!r) return null;
+	const skills = (db.prepare(`SELECT ${SUMMARY_SELECT} FROM pack_skill ps JOIN skill s ON s.id = ps.skill_id ${STAT_JOIN} WHERE ps.pack_id = ? ORDER BY ps.ord`).all(id) as unknown as SkillRow[]).map(toSummary);
+	return { ...toPackSummary(r), skills };
+}
+
+export function packSkillIds(id: string): string[] | null {
+	if (!isSafeItemName(id)) return null;
+	const db = getDb();
+	if (!db.prepare("SELECT 1 FROM pack WHERE id = ?").get(id)) return null;
+	return (db.prepare("SELECT skill_id FROM pack_skill WHERE pack_id = ? ORDER BY ord").all(id) as unknown as Array<{ skill_id: string }>).map((r) => r.skill_id);
+}
+
+export function packsOfSkill(skillId: string): Array<{ id: string; name: string }> {
+	return getDb().prepare("SELECT p.id, p.name FROM pack p JOIN pack_skill ps ON ps.pack_id = p.id WHERE ps.skill_id = ? ORDER BY p.rowid").all(skillId) as unknown as Array<{ id: string; name: string }>;
+}
+
+export function skillExists(id: string): boolean {
+	return isSafeItemName(id) && !!getDb().prepare("SELECT 1 FROM skill WHERE id = ?").get(id);
+}
+
+/** 给 installs.ts 等复用的技能 summary SQL 片段 */
+export const SKILL_SUMMARY_SQL = { select: SUMMARY_SELECT, from: SKILL_FROM, statJoin: STAT_JOIN } as const;

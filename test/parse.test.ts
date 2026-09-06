@@ -42,3 +42,20 @@ describe("isSafeItemName", () => {
 		expect(isSafeItemName("")).toBe(false);
 	});
 });
+
+import { parsePacks } from "../lib/server/sync/parse.js";
+
+describe("parsePacks", () => {
+	it("reads packs and drops unsafe ids", () => {
+		const packs = parsePacks(JSON.stringify({ packs: [
+			{ id: "grading", name: "批改", description: "d", icon: "square-check", subject: "跨学科", skills: ["homework-grader", "../evil", 42, "docx"] },
+			{ id: "../bad", skills: ["x"] },
+			{ name: "no id" },
+		] }));
+		expect(packs).toHaveLength(1);
+		expect(packs[0]).toMatchObject({ id: "grading", icon: "square-check", skills: ["homework-grader", "docx"] });
+	});
+	it("tolerates missing packs array", () => {
+		expect(parsePacks("{}")).toEqual([]);
+	});
+});

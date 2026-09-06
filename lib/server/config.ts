@@ -23,6 +23,8 @@ export const config = {
 	syncIntervalMin: num("SYNC_INTERVAL_MIN", 10),
 	syncSecret: env("SYNC_SECRET"),
 	hubToken: env("HUB_TOKEN"),
+	/** InnoAgent 后端调用户相关接口用的服务密钥(X-Innoskill-Key);不设则那组接口关闭 */
+	serviceKey: env("SERVICE_KEY"),
 } as const;
 
 export type Config = typeof config;
