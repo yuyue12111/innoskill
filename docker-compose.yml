@@ -6,7 +6,11 @@ services:
     build:
       context: .
       dockerfile: docker/Dockerfile
-    image: innoskill:dev
+      args:
+        # 国内服务器可换:INNOSKILL_NODE_IMAGE=docker.m.daocloud.io/library/node:24-alpine  INNOSKILL_NPM_REGISTRY=https://registry.npmmirror.com
+        NODE_IMAGE: ${INNOSKILL_NODE_IMAGE:-node:24-alpine}
+        NPM_REGISTRY: ${INNOSKILL_NPM_REGISTRY:-https://registry.npmjs.org}
+    image: ${INNOSKILL_IMAGE:-innoskill:dev}
     ports:
       - "${INNOSKILL_PORT:-8080}:8080"
     environment:

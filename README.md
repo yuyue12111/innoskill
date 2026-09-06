@@ -31,4 +31,8 @@ Docker:`docker compose up --build`,监听 8080,数据在 `innoskill-data` 卷。
 | `GET /api/v1/meta` · `GET /healthz` | 分类 / 场景 / 同步状态 |
 | `POST /internal/sync`(`X-Sync-Secret`) | webhook 触发同步 |
 
-📄 需求与方案见 [docs/01-需求定义.md](./docs/01-需求定义.md)。
+📄 文档
+- [docs/01-需求定义.md](./docs/01-需求定义.md) —— 定位、决策、接口与数据模型
+- [docs/02-模块划分.md](./docs/02-模块划分.md) —— 代码往哪放
+- [docs/03-InnoAgent接入指南.md](./docs/03-InnoAgent接入指南.md) —— 给 InnoAgent 后端的联调说明
+- [docs/04-部署交接.md](./docs/04-部署交接.md) —— 上线部署、配置、备份、运维、排障
