@@ -1,0 +1,14 @@
+# 本地开发的环境变量绝不能进镜像(next build 会把 .env 带进 standalone 产物)
+.env
+.env.*
+!.env.example
+node_modules
+.next
+out
+runtime
+.git
+.claude
+*.log
+.DS_Store
+docs
+skillhub-reference
