@@ -32,7 +32,7 @@ function Pill({ active, onClick, children }: { active: boolean; onClick: () => v
 
 function SkillsBrowser() {
 	const sp = useSearchParams(); const router = useRouter(); const path = usePathname();
-	const q = sp.get("q") ?? "", category = sp.get("category") ?? "", scenario = sp.get("scenario") ?? "";
+	const q = sp.get("q") ?? "", category = sp.get("category") ?? "", scenario = sp.get("scenario") ?? "", featured = sp.get("featured") === "1";
 	const [draft, setDraft] = useState(q);
 	// URL 里的 q 变了(前进/后退、清除),把输入框同步过去 —— 渲染期调整状态,不走 effect
 	const [seenQ, setSeenQ] = useState(q);
@@ -51,9 +51,9 @@ function SkillsBrowser() {
 	}, [draft]);
 
 	const { data: meta } = useMeta();
-	const { data, isLoading } = useSkills({ q, category, scenario });
+	const { data, isLoading } = useSkills({ q, category, scenario, featured });
 	const list = data?.items ?? [];
-	const filters = [category, scenario, q && `“${q}”`].filter(Boolean);
+	const filters = [featured && "精选", category, scenario, q && `“${q}”`].filter(Boolean);
 
 	return (
 		<main className="mx-auto max-w-[1240px] px-6">
@@ -87,7 +87,8 @@ function SkillsBrowser() {
 				</div>
 				<div className="flex flex-col gap-2">
 					<div className="flex flex-wrap gap-[7px]">
-						<Pill active={!category} onClick={() => setParams({ category: "" })}>全部 {meta?.count.skills ?? ""}</Pill>
+						<Pill active={!category && !featured} onClick={() => setParams({ category: "", featured: "" })}>全部 {meta?.count.skills ?? ""}</Pill>
+						{!!meta?.count.featured && <Pill active={featured} onClick={() => setParams({ featured: featured ? "" : "1" })}>★ 精选 {meta.count.featured}</Pill>}
 						{meta?.categories.map((c) => <Pill key={c.name} active={category === c.name} onClick={() => setParams({ category: category === c.name ? "" : c.name })}>{c.name} {c.count}</Pill>)}
 					</div>
 					<div className="flex flex-wrap gap-[7px]">

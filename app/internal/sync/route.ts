@@ -1,6 +1,6 @@
 import type { NextRequest } from "next/server";
 import { ok } from "@/lib/server/http";
-import { internalDenied } from "@/lib/server/internal-auth";
+import { internalDenied } from "@/lib/server/auth/internal";
 import { isSyncRunning, runSync } from "@/lib/server/sync/run";
 
 /** POST /internal/sync  给 GitHub webhook / 手动触发用 */

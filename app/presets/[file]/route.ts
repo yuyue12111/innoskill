@@ -1,4 +1,4 @@
-import { bundleUnauthorized } from "@/lib/server/bundle-auth";
+import { bundleUnauthorized } from "@/lib/server/auth/bundle";
 import { bundleFile, fileResponse } from "@/lib/server/catalog";
 
 /** inno-agent bundle 协议:GET /presets/<id>.tar.gz(顶层目录名 = id) */

@@ -1,4 +1,4 @@
-import { bundleUnauthorized } from "@/lib/server/bundle-auth";
+import { bundleUnauthorized } from "@/lib/server/auth/bundle";
 import { buildIndex } from "@/lib/server/catalog";
 
 /** inno-agent bundle 协议:GET /index.json → { skills, presets } */

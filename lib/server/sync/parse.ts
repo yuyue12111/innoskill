@@ -36,6 +36,8 @@ export interface ScenarioDef { key: string; title: string; blurb: string; color:
 export interface ScenarioMeta { scenario: string; also: string[]; example: string }
 export interface Scenarios {
 	fallback: string;
+	/** 星图只展示这一组(有序);为空则展示全部 */
+	featured: string[];
 	scenarios: ScenarioDef[];
 	skills: Record<string, ScenarioMeta>;
 }
@@ -116,6 +118,7 @@ export function parseScenarios(text: string): Scenarios {
 	const raw = JSON.parse(text) as Partial<Scenarios>;
 	return {
 		fallback: raw.fallback ?? "",
+		featured: Array.isArray(raw.featured) ? raw.featured.filter((x): x is string => typeof x === "string") : [],
 		scenarios: Array.isArray(raw.scenarios) ? raw.scenarios : [],
 		skills: raw.skills && typeof raw.skills === "object" ? raw.skills : {},
 	};

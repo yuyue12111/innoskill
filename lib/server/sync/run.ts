@@ -51,7 +51,7 @@ async function doSync(reason: string): Promise<SyncResult> {
 		const readme = existsSync(join(libDir, "README.md")) ? parseReadme(readFileSync(join(libDir, "README.md"), "utf-8")) : {};
 		const scenarios: Scenarios = existsSync(join(libDir, "scenarios.json"))
 			? parseScenarios(readFileSync(join(libDir, "scenarios.json"), "utf-8"))
-			: { fallback: "", scenarios: [], skills: {} };
+			: { fallback: "", featured: [], scenarios: [], skills: {} };
 		const validScenario = new Set(scenarios.scenarios.map((s) => s.key));
 
 		const skills = listSkills(libDir);

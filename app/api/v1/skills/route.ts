@@ -9,6 +9,7 @@ export async function GET(req: NextRequest) {
 		q: sp.get("q") ?? undefined,
 		category: sp.get("category")?.trim() || undefined,
 		scenario: sp.get("scenario")?.trim() || undefined,
+		featured: sp.get("featured") === "1",
 		page: Number(sp.get("page") ?? 1),
 		size: Number(sp.get("size") ?? 50),
 	}));

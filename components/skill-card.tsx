@@ -12,6 +12,7 @@ function Rings({ fg }: { fg: string }) {
 
 export function Badges({ s }: { s: SkillSummary }) {
 	const items: Array<{ text: string; cls: string }> = [];
+	if (s.featured) items.push({ text: "★ 精选", cls: "bg-[#fbefd2] text-[#8a5a00] border-[#efd9a0]" });
 	if (s.type === "原创") items.push({ text: "原创", cls: "bg-[#efe6d4] text-[#7a5c1e] border-[#e2d3b4]" });
 	if (s.verified) items.push({ text: "✓ 已验证", cls: "bg-[#e2f0e6] text-primary border-[#c6e2ce]" });
 	if (!items.length) items.push({ text: s.type || "收集", cls: "text-muted-foreground border-border" });

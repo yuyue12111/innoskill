@@ -18,6 +18,7 @@ export interface PresetRow {
 
 export interface SkillSummary {
 	num: string;
+	featured: boolean;
 	id: string; name: string; description: string; category: string; tagline: string; group: string; type: string;
 	verified: boolean; refText: string; refUrl: string; demo: string; hasDemo: boolean;
 	scenario: string; also: string[]; example: string;
@@ -34,9 +35,23 @@ export function numOf(id: string): string {
 	return numCache.__innoskillNum.map.get(id) ?? "";
 }
 
+const featCache = globalThis as unknown as { __innoskillFeat?: { key: string; ids: string[]; set: Set<string> } };
+/** scenarios.json 里的 featured 列表(有序);随同步刷新 */
+export function featuredIds(): string[] {
+	const key = kvGet("last_sync") ?? "";
+	if (!featCache.__innoskillFeat || featCache.__innoskillFeat.key !== key) {
+		const sc = kvGet("scenarios");
+		const ids = sc ? ((JSON.parse(sc) as { featured?: string[] }).featured ?? []) : [];
+		featCache.__innoskillFeat = { key, ids, set: new Set(ids) };
+	}
+	return featCache.__innoskillFeat.ids;
+}
+export function isFeatured(id: string): boolean { featuredIds(); return featCache.__innoskillFeat!.set.has(id); }
+
 export function toSummary(r: SkillRow): SkillSummary {
 	return {
 		num: numOf(r.id),
+		featured: isFeatured(r.id),
 		id: r.id, name: r.name, description: r.description, category: r.category, tagline: r.tagline,
 		group: r.grp, type: r.type, verified: r.verified === 1, refText: r.ref_text, refUrl: r.ref_url,
 		demo: r.demo_path ? `${config.publicUrl}/${r.demo_path}` : "", hasDemo: !!r.demo_path,
@@ -46,7 +61,7 @@ export function toSummary(r: SkillRow): SkillSummary {
 
 const SUMMARY_COLS = ["id", "name", "description", "category", "tagline", "grp", "type", "verified", "ref_text", "ref_url", "demo_path", "scenario", "also_json", "example"];
 
-export interface SkillQuery { q?: string; category?: string; scenario?: string; page?: number; size?: number }
+export interface SkillQuery { q?: string; category?: string; scenario?: string; featured?: boolean; page?: number; size?: number }
 
 export function querySkills(opts: SkillQuery) {
 	const db = getDb();
@@ -60,6 +75,12 @@ export function querySkills(opts: SkillQuery) {
 	if (opts.scenario) {
 		where.push("(s.scenario = @scenario OR s.also_json LIKE @scenarioLike)");
 		params["scenario"] = opts.scenario; params["scenarioLike"] = `%"${opts.scenario}"%`;
+	}
+	if (opts.featured) {
+		const ids = featuredIds();
+		if (!ids.length) return { items: [], total: 0, page, size };
+		where.push(`s.id IN (${ids.map((_, i) => `@f${i}`).join(", ")})`);
+		ids.forEach((id, i) => { params[`f${i}`] = id; });
 	}
 
 	let from = "skill s";
@@ -184,6 +205,7 @@ export function getMeta() {
 		count: {
 			skills: (db.prepare("SELECT COUNT(*) AS n FROM skill").get() as { n: number }).n,
 			presets: (db.prepare("SELECT COUNT(*) AS n FROM preset").get() as { n: number }).n,
+			featured: featuredIds().length,
 		},
 		categories, scenarios,
 		lastSync: lastSync(),

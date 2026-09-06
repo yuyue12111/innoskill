@@ -19,11 +19,12 @@ export const usePresets = () => useSWR<Page<PresetSummary>>("/api/v1/presets", f
 export const usePreset = (id: string | null) => useSWR<PresetDetail>(id ? `/api/v1/presets/${encodeURIComponent(id)}` : null, fetcher, opts);
 export const useSkill = (id: string | null) => useSWR<SkillDetail>(id ? `/api/v1/skills/${encodeURIComponent(id)}` : null, fetcher, opts);
 
-export function useSkills(params: { q?: string; category?: string; scenario?: string }) {
+export function useSkills(params: { q?: string; category?: string; scenario?: string; featured?: boolean }) {
 	const sp = new URLSearchParams();
 	if (params.q) sp.set("q", params.q);
 	if (params.category) sp.set("category", params.category);
 	if (params.scenario) sp.set("scenario", params.scenario);
+	if (params.featured) sp.set("featured", "1");
 	sp.set("size", "200");
 	return useSWR<Page<SkillSummary>>(`/api/v1/skills?${sp}`, fetcher, { ...opts, keepPreviousData: true });
 }

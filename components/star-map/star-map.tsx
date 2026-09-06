@@ -178,7 +178,7 @@ function StarMapView({ data }: { data: MapData }) {
 				<nav className="sm-nav">
 					<Link className="sm-nlink" href="/presets">工作区预设</Link>
 					<a className="sm-nlink" href={data.repo} target="_blank" rel="noopener">GitHub ↗</a>
-					<Link className="sm-nlink solid" href="/skills">浏览全部技能 →</Link>
+					<Link className="sm-nlink solid" href="/skills">浏览全部 {data.total} 个技能 →</Link>
 				</nav>
 			</header>
 
@@ -228,7 +228,7 @@ function StarMapView({ data }: { data: MapData }) {
 			</div>
 
 			<div className={`sm-cue${cue === "in" ? " in" : cue === "out" ? " out" : ""}`}>向下滚动,进入技能星图 <i>↓</i></div>
-			<div className={`sm-hud sm-hint${open ? " in" : ""}`}>点击任意图块,看它能帮你做什么</div>
+			<div className={`sm-hud sm-hint${open ? " in" : ""}`}>{data.featuredOnly ? `精选 ${data.skills.length} 个技能 · ` : ""}点击任意图块,看它能帮你做什么</div>
 			<div className={`sm-hud sm-zoom${open ? " in" : ""}`}>
 				缩放 <button type="button" aria-label="放大" disabled={!zoomable.in} onClick={() => zoomApi.current?.zoom(1.22)}>+</button>
 				<button type="button" aria-label="缩小" disabled={!zoomable.out} onClick={() => zoomApi.current?.zoom(1 / 1.22)}>−</button>

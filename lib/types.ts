@@ -1,6 +1,6 @@
 /** 前端用的 API 类型,与 lib/server/catalog.ts 输出一致 */
 export interface SkillSummary {
-	num: string; id: string; name: string; description: string; category: string; tagline: string;
+	num: string; featured: boolean; id: string; name: string; description: string; category: string; tagline: string;
 	group: string; type: string; verified: boolean; refText: string; refUrl: string;
 	demo: string; hasDemo: boolean; scenario: string; also: string[]; example: string;
 }
@@ -15,7 +15,7 @@ export interface PresetDetail extends PresetSummary {
 }
 export interface ScenarioDef { key: string; title: string; blurb: string; color: { bg: string; fg: string; ink: string }; count: number }
 export interface Meta {
-	name: string; repo: string; count: { skills: number; presets: number };
+	name: string; repo: string; count: { skills: number; presets: number; featured: number };
 	categories: Array<{ name: string; count: number }>; scenarios: ScenarioDef[];
 	lastSync: { at: string; sha: string; ref: string; skills: number; presets: number } | null; syncing: boolean;
 }
@@ -24,7 +24,7 @@ export interface MapSkill extends SkillSummary {
 	fx: number; fy: number; dur: number; delay: number; rot: number;
 }
 export interface MapScenario extends ScenarioDef { x: number; y: number }
-export interface MapData { generated: string | null; repo: string; world: { w: number; h: number }; scenarios: MapScenario[]; skills: MapSkill[] }
+export interface MapData { generated: string | null; total: number; featuredOnly: boolean; repo: string; world: { w: number; h: number }; scenarios: MapScenario[]; skills: MapSkill[] }
 export interface Page<T> { items: T[]; total: number; page: number; size: number }
 export interface TextFile { path: string; size: number; mime: string; content: string }
 
