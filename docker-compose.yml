@@ -1,3 +1,6 @@
+# 本地一键拉起:docker compose up --build  →  http://localhost:8080
+# 下面 ${INNOSKILL_*} 是 compose 层的变量(可放在 shell 或本目录 .env 里覆盖);
+# 故意加 INNOSKILL_ 前缀,避免和 next dev 用的 .env 里 PUBLIC_URL / SYNC_* 等同名变量串味。
 services:
   innoskill:
     build:
@@ -5,14 +8,14 @@ services:
       dockerfile: docker/Dockerfile
     image: innoskill:dev
     ports:
-      - "8080:8080"
+      - "${INNOSKILL_PORT:-8080}:8080"
     environment:
-      PUBLIC_URL: ${PUBLIC_URL:-http://localhost:8080}
-      SOURCE_REPO_URL: ${SOURCE_REPO_URL:-https://github.com/Chloris-Blaxk/inno-agent-hub.git}
-      SOURCE_REF: ${SOURCE_REF:-main}
-      SYNC_INTERVAL_MIN: ${SYNC_INTERVAL_MIN:-10}
-      SYNC_SECRET: ${SYNC_SECRET:-}
-      HUB_TOKEN: ${HUB_TOKEN:-}
+      PUBLIC_URL: ${INNOSKILL_PUBLIC_URL:-http://localhost:8080}
+      SOURCE_REPO_URL: ${INNOSKILL_SOURCE_REPO_URL:-https://github.com/Chloris-Blaxk/inno-agent-hub.git}
+      SOURCE_REF: ${INNOSKILL_SOURCE_REF:-main}
+      SYNC_INTERVAL_MIN: ${INNOSKILL_SYNC_INTERVAL_MIN:-10}
+      SYNC_SECRET: ${INNOSKILL_SYNC_SECRET:-}
+      HUB_TOKEN: ${INNOSKILL_HUB_TOKEN:-}
     volumes:
       - innoskill-data:/data
     restart: unless-stopped
