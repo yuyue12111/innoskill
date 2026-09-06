@@ -32,9 +32,25 @@ function Pill({ active, onClick, children }: { active: boolean; onClick: () => v
 	);
 }
 
+function FacetSelect({ label, value, options, onChange }: { label: string; value: string; options: Array<{ name: string; count: number }>; onChange: (v: string) => void }) {
+	return (
+		<label className={cn("inline-flex cursor-pointer items-center gap-1 rounded-full border px-3 py-1.5 text-[12.5px] font-semibold transition-colors",
+			value ? "border-foreground bg-foreground text-white" : "border-border bg-card text-muted-foreground hover:border-[#b9b3a5] hover:text-foreground")}>
+			<span>{label}</span>
+			<select value={value} onChange={(e) => onChange(e.target.value)} aria-label={label}
+				className="max-w-[9em] cursor-pointer appearance-none bg-transparent pr-3 font-semibold outline-none [color-scheme:light]"
+				style={{ color: value ? "#fff" : "inherit" }}>
+				<option value="" style={{ color: "#14140f" }}>全部</option>
+				{options.map((o) => <option key={o.name} value={o.name} style={{ color: "#14140f" }}>{o.name} ({o.count})</option>)}
+			</select>
+			<span aria-hidden className="-ml-3 text-[10px]">▾</span>
+		</label>
+	);
+}
+
 function SkillsBrowser() {
 	const sp = useSearchParams(); const router = useRouter(); const path = usePathname();
-	const q = sp.get("q") ?? "", category = sp.get("category") ?? "", scenario = sp.get("scenario") ?? "", featured = sp.get("featured") === "1", pack = sp.get("pack") ?? "";
+	const q = sp.get("q") ?? "", category = sp.get("category") ?? "", scenario = sp.get("scenario") ?? "", featured = sp.get("featured") === "1", pack = sp.get("pack") ?? "", subject = sp.get("subject") ?? "", kind = sp.get("kind") ?? "";
 	const [draft, setDraft] = useState(q);
 	// URL 里的 q 变了(前进/后退、清除),把输入框同步过去 —— 渲染期调整状态,不走 effect
 	const [seenQ, setSeenQ] = useState(q);
@@ -54,10 +70,10 @@ function SkillsBrowser() {
 
 	const { data: meta } = useMeta();
 	const { data: packs } = usePacks();
-	const { data, isLoading } = useSkills({ q, category, scenario, featured, pack });
+	const { data, isLoading } = useSkills({ q, category, scenario, featured, pack, subject, kind });
 	const list = data?.items ?? [];
 	const packName = packs?.items.find((p) => p.id === pack)?.name;
-	const filters = [featured && "精选", pack && `技能包:${packName ?? pack}`, category, scenario, q && `“${q}”`].filter(Boolean);
+	const filters = [featured && "精选", pack && `技能包:${packName ?? pack}`, category, scenario, subject && `学科:${subject}`, kind && `用途:${kind}`, q && `“${q}”`].filter(Boolean);
 
 	return (
 		<main className="mx-auto max-w-[1240px] px-6">
@@ -120,7 +136,10 @@ function SkillsBrowser() {
 						{!!meta?.count.featured && <Pill active={featured} onClick={() => setParams({ featured: featured ? "" : "1" })}>★ 精选 {meta.count.featured}</Pill>}
 						{meta?.categories.map((c) => <Pill key={c.name} active={category === c.name} onClick={() => setParams({ category: category === c.name ? "" : c.name })}>{c.name} {c.count}</Pill>)}
 					</div>
-					<div className="flex flex-wrap gap-[7px]">
+					<div className="flex flex-wrap items-center gap-[7px]">
+						<FacetSelect label="学科" value={subject} options={meta?.subjects ?? []} onChange={(v) => setParams({ subject: v })} />
+						<FacetSelect label="用途" value={kind} options={meta?.kinds ?? []} onChange={(v) => setParams({ kind: v })} />
+						<span className="mx-1 h-4 w-px bg-border" aria-hidden />
 						{meta?.scenarios.map((s) => (
 							<button key={s.key} type="button" aria-pressed={scenario === s.key} onClick={() => setParams({ scenario: scenario === s.key ? "" : s.key })}
 								className="rounded-full border px-3 py-1.5 text-[12px] font-bold tracking-[.06em] transition-all hover:-translate-y-0.5"

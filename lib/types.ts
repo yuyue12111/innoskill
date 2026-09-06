@@ -21,6 +21,7 @@ export interface ScenarioDef { key: string; title: string; blurb: string; color:
 export interface Meta {
 	name: string; repo: string; count: { skills: number; presets: number; featured: number };
 	categories: Array<{ name: string; count: number }>; scenarios: ScenarioDef[];
+	subjects: Array<{ name: string; count: number }>; kinds: Array<{ name: string; count: number }>;
 	lastSync: { at: string; sha: string; ref: string; skills: number; presets: number } | null; syncing: boolean;
 }
 export interface MapSkill extends SkillSummary {

@@ -22,13 +22,15 @@ export const usePack = (id: string | null) => useSWR<PackDetail>(id ? `/api/v1/p
 export const recordSkillView = (id: string) => { void fetch(`/api/v1/skills/${encodeURIComponent(id)}/view`, { method: "POST" }).catch(() => {}); };
 export const useSkill = (id: string | null) => useSWR<SkillDetail>(id ? `/api/v1/skills/${encodeURIComponent(id)}` : null, fetcher, opts);
 
-export function useSkills(params: { q?: string; category?: string; scenario?: string; featured?: boolean; pack?: string }) {
+export function useSkills(params: { q?: string; category?: string; scenario?: string; featured?: boolean; pack?: string; subject?: string; kind?: string }) {
 	const sp = new URLSearchParams();
 	if (params.q) sp.set("q", params.q);
 	if (params.category) sp.set("category", params.category);
 	if (params.scenario) sp.set("scenario", params.scenario);
 	if (params.featured) sp.set("featured", "1");
 	if (params.pack) sp.set("pack", params.pack);
+	if (params.subject) sp.set("subject", params.subject);
+	if (params.kind) sp.set("kind", params.kind);
 	sp.set("size", "200");
 	return useSWR<Page<SkillSummary>>(`/api/v1/skills?${sp}`, fetcher, { ...opts, keepPreviousData: true });
 }
