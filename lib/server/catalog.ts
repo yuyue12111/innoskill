@@ -216,7 +216,9 @@ export function getMeta() {
 	const scCount = new Map<string, number>(
 		(db.prepare("SELECT scenario, COUNT(*) AS n FROM skill GROUP BY scenario").all() as unknown as Array<{ scenario: string; n: number }>).map((r) => [r.scenario, r.n]),
 	);
-	const facet = (field: string) => db.prepare(`SELECT json_extract(frontmatter_json, '$.${field}') AS name, COUNT(*) AS count FROM skill WHERE name IS NOT NULL AND name <> '' GROUP BY name ORDER BY count DESC, name`).all() as unknown as Array<{ name: string; count: number }>;
+	// 别名不能叫 name:会被 skill.name 列抢先解析,GROUP BY 就变成按技能名分组
+	const facet = (field: string) => (db.prepare(`SELECT json_extract(frontmatter_json, '$.${field}') AS value, COUNT(*) AS count FROM skill WHERE value IS NOT NULL AND value <> '' GROUP BY value ORDER BY count DESC, value`).all() as unknown as Array<{ value: string; count: number }>)
+		.map((r) => ({ name: r.value, count: r.count }));
 	const sc = kvGet("scenarios");
 	const scenarios = sc
 		? (JSON.parse(sc) as { scenarios: Array<Record<string, unknown> & { key: string }> }).scenarios.map((s) => ({ ...s, count: scCount.get(s.key) ?? 0 }))
