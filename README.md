@@ -8,4 +8,27 @@
 
 内容源是 [inno-agent-hub](https://github.com/Chloris-Blaxk/inno-agent-hub) 仓库,技能通过 GitHub PR 进入,Innoskill 只同步、索引、分发,不做发布后台。
 
+## 跑起来
+
+```bash
+cp .env.example .env            # 本地开发建议设 SOURCE_LOCAL_DIR=../inno-agent-hub,跳过 git clone
+npm install
+npm run dev                     # http://localhost:3000,启动时自动同步一次
+```
+
+Docker:`docker compose up --build`,监听 8080,数据在 `innoskill-data` 卷。
+
+接 inno-agent:把它的 `contentHub` 改成 `{ "type": "bundle", "baseUrl": "http://localhost:3000" }`。
+
+## 接口
+
+| 路径 | 用途 |
+|---|---|
+| `GET /index.json` · `GET /skills/{id}.tar.gz` · `GET /presets/{id}.tar.gz` | inno-agent bundle 协议 |
+| `GET /api/v1/skills?q=&category=&scenario=&page=&size=` | 列表 / 全文搜索 |
+| `GET /api/v1/skills/{id}` · `GET /api/v1/skills/{id}/file?path=` | 详情 / 单文件 |
+| `GET /api/v1/presets` · `GET /api/v1/presets/{id}` | 预设 |
+| `GET /api/v1/meta` · `GET /healthz` | 分类 / 场景 / 同步状态 |
+| `POST /internal/sync`(`X-Sync-Secret`) | webhook 触发同步 |
+
 📄 需求与方案见 [docs/01-需求定义.md](./docs/01-需求定义.md)。

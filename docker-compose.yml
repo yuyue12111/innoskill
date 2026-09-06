@@ -1,0 +1,21 @@
+services:
+  innoskill:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile
+    image: innoskill:dev
+    ports:
+      - "8080:8080"
+    environment:
+      PUBLIC_URL: ${PUBLIC_URL:-http://localhost:8080}
+      SOURCE_REPO_URL: ${SOURCE_REPO_URL:-https://github.com/Chloris-Blaxk/inno-agent-hub.git}
+      SOURCE_REF: ${SOURCE_REF:-main}
+      SYNC_INTERVAL_MIN: ${SYNC_INTERVAL_MIN:-10}
+      SYNC_SECRET: ${SYNC_SECRET:-}
+      HUB_TOKEN: ${HUB_TOKEN:-}
+    volumes:
+      - innoskill-data:/data
+    restart: unless-stopped
+
+volumes:
+  innoskill-data:

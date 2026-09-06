@@ -1,8 +1,20 @@
+# deps
 node_modules/
-dist/
+# next
+/.next/
+/out/
+/build
+*.tsbuildinfo
+next-env.d.ts
+# runtime data(SQLite / 源仓库 clone / tar.gz 缓存)
+runtime/
+# env
 .env
 .env.*
 !.env.example
-runtime/
+# misc
 *.log
+npm-debug.log*
 .DS_Store
+*.pem
+.vercel
