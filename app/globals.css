@@ -1,6 +1,7 @@
 @import "tailwindcss";
 @import "tw-animate-css";
 @import "shadcn/tailwind.css";
+@import "./xiaolai.css";
 
 @custom-variant dark (&:is(.dark *));
 
@@ -129,9 +130,9 @@
 }
 /* ───────── Innoskill 纸色主题(覆盖上面 shadcn 的默认令牌) ───────── */
 :root {
-	/* 拉丁与数字:Schoolbell;汉字:系统中文字体。正文用 PingFang 保证可读,大标题(.serif)用楷体呼应手写感 */
-	--font-sans: var(--font-schoolbell), "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", "Noto Sans CJK SC", sans-serif;
-	--font-serif: var(--font-schoolbell), "Kaiti SC", "STKaiti", "KaiTi", "Noto Serif SC", "Songti SC", serif;
+	/* 拉丁与数字:Schoolbell;汉字:小赖字体(GB2312 两片按需加载,见 app/xiaolai.css);GB2312 之外的字回落系统字体 */
+	--font-sans: var(--font-schoolbell), "Xiaolai", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", "Noto Sans CJK SC", sans-serif;
+	--font-serif: var(--font-schoolbell), "Xiaolai", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", "Noto Sans CJK SC", sans-serif;
 	--font-mono: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
 	--paper: #f7f4ed;
 	--background: #f2f0ec;
