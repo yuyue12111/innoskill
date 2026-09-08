@@ -80,7 +80,7 @@ function SkillsBrowser() {
 			<section className="grid items-end gap-8 pt-16 pb-10 max-lg:grid-cols-1 max-lg:items-start max-lg:gap-5 max-lg:pt-12 lg:grid-cols-[1.5fr_1fr]">
 				<div>
 					<div className="label">Start here</div>
-					<h1 className="mt-3.5 text-[clamp(44px,7.5vw,104px)] leading-[.95] font-extrabold tracking-[-.035em]">为教学而生<br />的技能库</h1>
+					<h1 className="ink-2 mt-3.5 text-[clamp(44px,7.5vw,104px)] leading-[.95] font-normal tracking-[-.01em]">为教学而生<br />的技能库</h1>
 					<form className="mt-8 flex max-w-[540px] items-stretch border-b-[1.5px] border-foreground transition-colors focus-within:border-primary" role="search"
 						onSubmit={(e) => { e.preventDefault(); setParams({ q: draft.trim() }); }}>
 						<Input value={draft} onChange={(e) => setDraft(e.target.value)} type="search" autoComplete="off"
@@ -105,7 +105,7 @@ function SkillsBrowser() {
 					<div className="flex flex-wrap items-end justify-between gap-4 pb-5">
 						<div>
 							<div className="label">Skill packs</div>
-							<h2 className="mt-3 text-[clamp(28px,4vw,48px)] leading-[.98] font-extrabold tracking-[-.03em]">学科技能包</h2>
+							<h2 className="ink mt-3 text-[clamp(28px,4vw,48px)] leading-[.98] font-normal tracking-normal">学科技能包</h2>
 						</div>
 						<p className="max-w-[44ch] text-[13.5px] text-muted-foreground">严选的技能组合,按用途打包。在 InnoAgent 里可以一键添加整包。</p>
 					</div>
@@ -116,7 +116,7 @@ function SkillsBrowser() {
 									<span className="grid h-11 w-11 place-items-center rounded-xl bg-[#e8f0ea] text-primary"><PresetIcon name={p.icon} className="h-5 w-5" /></span>
 									<span className="text-[11.5px] font-normal tracking-[.12em] text-muted-foreground uppercase">{p.skillCount} skills{p.installCount > 0 ? ` · ${p.installCount} 人在用` : ""}</span>
 								</div>
-								<div className="iname text-[18px] leading-[1.2] font-extrabold tracking-[-.02em]">{p.name}</div>
+								<div className="iname ink text-[19px] leading-[1.2] font-normal tracking-normal">{p.name}</div>
 								<div className="flex-1 text-[13px] leading-[1.55] text-[#4b483f]">{p.description}</div>
 								<div className="mt-1 flex items-center justify-between"><b className="text-[13px] font-bold text-primary">看包里的技能</b><span className="arrow grid h-[30px] w-[30px] place-items-center rounded-full bg-primary text-sm text-white">→</span></div>
 							</Link>
@@ -128,7 +128,7 @@ function SkillsBrowser() {
 			<div className="flex flex-wrap items-end justify-between gap-5 border-t border-border pt-14 pb-5">
 				<div>
 					<div className="label">The library</div>
-					<h2 className="mt-3 text-[clamp(34px,5.5vw,72px)] leading-[.95] font-extrabold tracking-[-.035em]">{pack && packName ? packName : "全部技能"}</h2>
+					<h2 className="ink-2 mt-3 text-[clamp(34px,5.5vw,72px)] leading-[.95] font-normal tracking-[-.01em]">{pack && packName ? packName : "全部技能"}</h2>
 				</div>
 				<div className="flex flex-col gap-2">
 					<div className="flex flex-wrap gap-[7px]">
