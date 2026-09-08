@@ -94,7 +94,7 @@ function SkillsBrowser() {
 					<p className="max-w-[38ch] text-[15px] text-muted-foreground">可直接调用的具体能力:备课、批改、讲题、创作、研究。在 InnoAgent 的技能库里一键导入就能用。</p>
 					<div className="mt-5 flex flex-wrap gap-6">
 						{[[meta?.count.skills, "技能"], [meta?.categories.length, "分类"], [meta?.scenarios.length, "场景"], [meta?.count.presets, "工作区预设"]].map(([n, l]) => (
-							<div key={l as string}><b className="block text-[26px] font-extrabold tracking-tight">{n ?? "–"}</b><span className="text-[11px] tracking-[.1em] text-muted-foreground uppercase">{l}</span></div>
+							<div key={l as string}><b className="ink block text-[36px] font-normal tracking-normal">{n ?? "–"}</b><span className="text-[11px] tracking-[.1em] text-muted-foreground uppercase">{l}</span></div>
 						))}
 					</div>
 				</div>
@@ -114,7 +114,7 @@ function SkillsBrowser() {
 							<Link key={p.id} href={`/skills?pack=${encodeURIComponent(p.id)}`} className="gcard flex flex-col gap-3 border border-border bg-card p-5">
 								<div className="flex items-center justify-between">
 									<span className="grid h-11 w-11 place-items-center rounded-xl bg-[#e8f0ea] text-primary"><PresetIcon name={p.icon} className="h-5 w-5" /></span>
-									<span className="text-[10px] font-bold tracking-[.1em] text-muted-foreground uppercase">{p.skillCount} skills{p.installCount > 0 ? ` · ${p.installCount} 人在用` : ""}</span>
+									<span className="text-[11.5px] font-normal tracking-[.12em] text-muted-foreground uppercase">{p.skillCount} skills{p.installCount > 0 ? ` · ${p.installCount} 人在用` : ""}</span>
 								</div>
 								<div className="iname text-[18px] leading-[1.2] font-extrabold tracking-[-.02em]">{p.name}</div>
 								<div className="flex-1 text-[13px] leading-[1.55] text-[#4b483f]">{p.description}</div>

@@ -24,7 +24,7 @@ export default function PresetsPage() {
 							<Link key={p.id} href={`/preset/${encodeURIComponent(p.id)}`} className="gcard flex flex-col gap-3 border border-border bg-card p-5">
 								<div className="flex items-center justify-between">
 									<span className="grid h-11 w-11 place-items-center rounded-xl bg-[#e8f0ea] text-primary"><PresetIcon name={p.icon} className="h-5 w-5" /></span>
-									<span className="text-[10px] font-bold tracking-[.1em] text-muted-foreground uppercase">preset</span>
+									<span className="text-[11.5px] font-normal tracking-[.12em] text-muted-foreground uppercase">preset</span>
 								</div>
 								<div className="iname text-[18px] leading-[1.2] font-extrabold tracking-[-.02em]">{p.name}</div>
 								<div className="flex-1 text-[13px] leading-[1.55] text-[#4b483f]">{p.description}</div>

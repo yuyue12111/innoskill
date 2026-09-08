@@ -16,7 +16,7 @@ export function SiteHeader() {
 	return (
 		<header className="border-b border-border">
 			<div className="mx-auto flex max-w-[1240px] items-center justify-between gap-4 px-6 py-6">
-				<Link href="/" className="text-[17px] font-extrabold tracking-tight">
+				<Link href="/" className="ink text-[24px] font-normal tracking-normal">
 					Inno<span className="text-primary">skill</span>
 				</Link>
 				<nav className="flex items-center gap-2">

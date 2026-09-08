@@ -129,8 +129,10 @@
 }
 /* ───────── Innoskill 纸色主题(覆盖上面 shadcn 的默认令牌) ───────── */
 :root {
-	--font-sans: "Inter", "Helvetica Neue", -apple-system, BlinkMacSystemFont, "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", "Noto Sans CJK SC", sans-serif;
-	--font-serif: Georgia, "Times New Roman", "Songti SC", "Source Han Serif SC", "Noto Serif SC", serif;
+	/* 拉丁与数字:Schoolbell;汉字:系统中文字体。正文用 PingFang 保证可读,大标题(.serif)用楷体呼应手写感 */
+	--font-sans: var(--font-schoolbell), "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", "Noto Sans CJK SC", sans-serif;
+	--font-serif: var(--font-schoolbell), "Kaiti SC", "STKaiti", "KaiTi", "Noto Serif SC", "Songti SC", serif;
+	--font-mono: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
 	--paper: #f7f4ed;
 	--background: #f2f0ec;
 	--foreground: #14140f;
@@ -152,8 +154,14 @@
 	--radius: 0.55rem;
 }
 body { background: var(--background); color: var(--foreground); font-family: var(--font-sans); -webkit-font-smoothing: antialiased; }
+/* Schoolbell 没有粗体:禁止浏览器合成假粗体(PingFang 等自带粗体的字体不受影响) */
+html { font-synthesis-weight: none; }
 .serif { font-family: var(--font-serif); }
-.label { font-size: 11px; letter-spacing: .14em; text-transform: uppercase; color: var(--muted-foreground); font-weight: 600; }
+/* 手写体读起来比无衬线"小",拉丁为主的元素字号整体上调一档;要"重"用描边,不用假粗体 */
+.label { font-family: var(--font-sans); font-size: 13px; letter-spacing: .16em; text-transform: uppercase; color: var(--muted-foreground); font-weight: 400; }
+.ink { -webkit-text-stroke: .35px currentColor; }
+.ink-2 { -webkit-text-stroke: .7px currentColor; }
+code, kbd, pre { font-family: var(--font-mono); }
 
 /* ───────── 卡片(列表页)───────── */
 .gcard { --e: cubic-bezier(.22,.68,.24,1); transition: transform .34s var(--e), box-shadow .34s var(--e), border-color .24s ease; will-change: transform; }

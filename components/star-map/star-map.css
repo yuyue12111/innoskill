@@ -1,7 +1,7 @@
 .sm-root { --hair: rgba(20,20,15,.19); position: fixed; inset: 0; background: var(--paper); color: var(--foreground); overflow: hidden; }
 .sm-header { position: fixed; inset: 0 0 auto 0; z-index: 50; padding: 20px 26px; display: flex; align-items: center; justify-content: space-between; gap: 16px; pointer-events: none; opacity: 0; transition: opacity .7s ease .35s; }
 .sm-header.in { opacity: 1 } .sm-header > * { pointer-events: auto }
-.sm-logo { font-weight: 800; letter-spacing: -.02em; font-size: 16px; text-decoration: none; color: inherit } .sm-logo span { color: var(--primary) }
+.sm-logo { font-weight: 400; letter-spacing: 0; font-size: 22px; -webkit-text-stroke: .35px currentColor; text-decoration: none; color: inherit } .sm-logo span { color: var(--primary) }
 .sm-nav { display: flex; gap: 8px; align-items: center }
 .sm-nlink { font-size: 12.5px; color: var(--muted-foreground); text-decoration: none; border: 1px solid var(--border); padding: 7px 14px; border-radius: 999px; background: rgba(251,250,248,.82); backdrop-filter: blur(6px); white-space: nowrap; transition: .18s }
 .sm-nlink:hover { color: var(--foreground); border-color: #c3bdaf; transform: translateY(-1px) }
@@ -15,7 +15,7 @@
 .sm-wire.alt { stroke-dasharray: 3 4; opacity: .62 }
 .sm-wire.lit { stroke: var(--sc, #3f5c48); stroke-width: 1.7; opacity: 1 }
 
-.sm-corner { position: absolute; font-size: 168px; font-weight: 400; letter-spacing: -.025em; color: var(--foreground); user-select: none; pointer-events: none; white-space: nowrap; line-height: 1; transform-origin: 50% 50%; will-change: transform; transition: transform 1.35s cubic-bezier(.62,.03,.2,1), opacity .55s ease; opacity: 0 }
+.sm-corner { position: absolute; font-size: 176px; font-weight: 400; letter-spacing: 0; -webkit-text-stroke: 1px currentColor; color: var(--foreground); user-select: none; pointer-events: none; white-space: nowrap; line-height: 1; transform-origin: 50% 50%; will-change: transform; transition: transform 1.35s cubic-bezier(.62,.03,.2,1), opacity .55s ease; opacity: 0 }
 .sm-corner.noAnim { transition: none }
 .sm-cornerA { left: 34px; top: 56px } .sm-cornerB { right: 34px; bottom: 64px }
 .sm-nodes, .sm-wires { transition: opacity .95s ease .28s }
@@ -29,9 +29,9 @@
 @keyframes sm-bob { 0%,100% { transform: translateY(0) } 50% { transform: translateY(3px) } }
 
 .sm-cluster { position: absolute; width: 360px; margin-left: -180px; text-align: center; cursor: pointer; user-select: none; transition: opacity .3s }
-.sm-cluster h2 { font-size: 31px; font-weight: 600; line-height: 1.28; letter-spacing: -.01em; transition: color .22s }
+.sm-cluster h2 { font-size: 32px; font-weight: 600; line-height: 1.28; letter-spacing: .01em; transition: color .22s }
 .sm-cluster p { margin-top: 10px; font-size: 15px; line-height: 1.62; color: var(--muted-foreground); transition: opacity .22s }
-.sm-cluster .cnt { display: inline-block; margin-top: 11px; font-size: 13px; font-weight: 700; letter-spacing: .08em; padding: 3px 9px; border-radius: 999px; transition: .22s }
+.sm-cluster .cnt { display: inline-block; margin-top: 11px; font-size: 14px; font-weight: 400; letter-spacing: .08em; padding: 3px 9px; border-radius: 999px; transition: .22s }
 .sm-cluster:hover h2 { color: var(--sc) } .sm-cluster:hover .cnt { transform: translateY(-1px) }
 
 .sm-tile { position: absolute; padding: 0; border: 0; background: none; cursor: pointer; line-height: 0; transition: filter .3s, opacity .3s; will-change: transform; border-radius: 1px; animation: sm-drift var(--dur, 8s) var(--delay, 0s) ease-in-out infinite alternate }
@@ -59,8 +59,8 @@
 .sm-dcard { position: relative; margin-top: -16px; background: #fbfaf8; border: 1px solid var(--border); border-radius: 12px; padding: 20px 20px 18px; text-align: left; box-shadow: 0 20px 44px -20px rgba(20,20,15,.3) }
 
 @media (max-width: 760px) {
-	.sm-corner { font-size: 108px } .sm-cornerA { left: 18px; top: 44px } .sm-cornerB { right: 18px; bottom: 50px }
+	.sm-corner { font-size: 112px } .sm-cornerA { left: 18px; top: 44px } .sm-cornerB { right: 18px; bottom: 50px }
 	.sm-cluster { width: 250px; margin-left: -125px } .sm-cluster h2 { font-size: 26px }
 	.sm-hint { left: 14px; bottom: 16px; font-size: 11.5px; padding: 8px 12px } .sm-zoom { right: 14px; bottom: 16px }
-	.sm-header { padding: 14px 16px } .sm-logo { white-space: nowrap; font-size: 14.5px } .sm-nlink { padding: 6px 11px; font-size: 11.5px }
+	.sm-header { padding: 14px 16px } .sm-logo { white-space: nowrap; font-size: 19px } .sm-nlink { padding: 6px 11px; font-size: 11.5px }
 }

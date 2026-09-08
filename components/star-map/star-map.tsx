@@ -247,7 +247,7 @@ function StarMapView({ data }: { data: MapData }) {
 							<div className="sm-dcard">
 								<button type="button" onClick={() => setSel(null)} aria-label="关闭" className="absolute top-3 right-3 h-[26px] w-[26px] rounded-full bg-[#eeebe4] text-[15px] leading-none text-[#4b483f] hover:bg-[#e2ded6]">×</button>
 								{selSc && <span className="inline-block rounded-full px-[9px] py-[3px] text-[10.5px] font-extrabold tracking-[.1em]" style={{ background: selSc.color.bg, color: selSc.color.ink }}>{sel.scenario}</span>}
-								<DialogTitle className="serif mt-2.5 pr-5 text-[23px] leading-[1.2] font-semibold tracking-[-.02em] break-words">{sel.name}</DialogTitle>
+								<DialogTitle className="serif ink mt-2.5 pr-5 text-[26px] leading-[1.2] font-normal tracking-normal break-words">{sel.name}</DialogTitle>
 								<div className="mt-2 text-[13.5px] leading-[1.6] text-[#4b483f]">{sel.tagline}</div>
 								<div className="mt-2.5 text-[11.5px] text-muted-foreground">属于:{[selSc?.title, ...sel.also.map((k) => SC[k]?.title)].filter(Boolean).join(" · ")}</div>
 								<div className="mt-4 overflow-hidden rounded-[9px] border border-border bg-[#f4f2ec]">

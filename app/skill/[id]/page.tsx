@@ -39,10 +39,10 @@ export default function SkillPage() {
 									<span className="rounded-full px-[9px] py-[3px] text-[10.5px] font-extrabold tracking-[.1em]" style={{ background: color.bg, color: color.fg }}>{s.category}</span>
 									<Badges s={s} />
 								</div>
-								<h1 className="serif mt-4 text-[clamp(32px,5vw,56px)] leading-[1.05] font-semibold tracking-[-.02em] break-words">{s.name}</h1>
+								<h1 className="serif ink-2 mt-4 text-[clamp(36px,5.5vw,64px)] leading-[1.05] font-normal tracking-normal break-words">{s.name}</h1>
 								<p className="mt-4 max-w-[62ch] text-[16px] leading-[1.65] text-[#4b483f]">{s.tagline}</p>
 								{s.description && s.description !== s.tagline && <p className="mt-3 max-w-[70ch] text-[13.5px] leading-[1.7] text-muted-foreground">{s.description}</p>}
-								<div className="mt-4 text-[12px] tracking-[.06em] text-muted-foreground uppercase">
+								<div className="mt-4 text-[13.5px] tracking-[.08em] text-muted-foreground uppercase">
 									{s.group && <span>{s.group} · </span>}
 									{s.refUrl ? <>来源 <a className="text-primary underline" href={s.refUrl} target="_blank" rel="noopener">{s.refText}</a></> : <span>inno-agent-hub {s.type}</span>}
 									{" · "}Inno / Skill {s.num}
@@ -78,7 +78,7 @@ export default function SkillPage() {
 										<ul className="divide-y divide-border text-[13px]">
 											{s.files.map((f) => (
 												<li key={f.path} className="flex items-center justify-between gap-4 px-5 py-2.5">
-													<a className="truncate font-mono text-[12.5px] hover:text-primary hover:underline" href={rawFileUrl("skills", s.id, f.path)} target="_blank" rel="noopener">{f.path}</a>
+													<a className="truncate text-[14px] hover:text-primary hover:underline" href={rawFileUrl("skills", s.id, f.path)} target="_blank" rel="noopener">{f.path}</a>
 													<span className="shrink-0 text-muted-foreground">{fmt(f.size)}</span>
 												</li>
 											))}

@@ -34,9 +34,9 @@ export default function PresetPage() {
 						<header className="mt-5 flex items-start gap-5">
 							<span className="grid h-16 w-16 shrink-0 place-items-center rounded-2xl bg-[#e8f0ea] text-primary"><PresetIcon name={p.icon} className="h-7 w-7" /></span>
 							<div>
-								<h1 className="serif text-[clamp(30px,4.5vw,50px)] leading-[1.08] font-semibold tracking-[-.02em]">{p.name}</h1>
+								<h1 className="serif ink text-[clamp(32px,4.8vw,54px)] leading-[1.08] font-normal tracking-normal">{p.name}</h1>
 								<p className="mt-3 max-w-[62ch] text-[15.5px] leading-[1.65] text-[#4b483f]">{p.description}</p>
-								<div className="mt-3 text-[12px] tracking-[.06em] text-muted-foreground uppercase">preset · {p.id}{skills.length > 0 && ` · 内置 ${skills.length} 个私有技能`}</div>
+								<div className="mt-3 text-[13.5px] tracking-[.08em] text-muted-foreground uppercase">preset · {p.id}{skills.length > 0 && ` · 内置 ${skills.length} 个私有技能`}</div>
 							</div>
 						</header>
 						<div className="mt-10 grid gap-8 lg:grid-cols-[1fr_360px]">
@@ -53,7 +53,7 @@ export default function PresetPage() {
 										<ul className="divide-y divide-border text-[13px]">
 											{p.files.map((f) => (
 												<li key={f.path} className="flex items-center justify-between gap-4 px-5 py-2.5">
-													<a className="truncate font-mono text-[12.5px] hover:text-primary hover:underline" href={rawFileUrl("presets", p.id, f.path)} target="_blank" rel="noopener">{f.path}</a>
+													<a className="truncate text-[14px] hover:text-primary hover:underline" href={rawFileUrl("presets", p.id, f.path)} target="_blank" rel="noopener">{f.path}</a>
 													<span className="shrink-0 text-muted-foreground">{fmt(f.size)}</span>
 												</li>
 											))}
@@ -74,7 +74,7 @@ export default function PresetPage() {
 								{skills.length > 0 && (
 									<div className="rounded-xl border border-border bg-card p-5 text-[13px]">
 										<div className="text-[10.5px] font-extrabold tracking-[.09em] text-muted-foreground">内置私有技能</div>
-										<ul className="mt-3 space-y-1.5 font-mono text-[12.5px]">{skills.map((s) => <li key={s}>{s}</li>)}</ul>
+										<ul className="mt-3 space-y-1.5 text-[14px]">{skills.map((s) => <li key={s}>{s}</li>)}</ul>
 									</div>
 								)}
 								<div className="rounded-xl border border-border bg-card p-5 text-[13px]">
