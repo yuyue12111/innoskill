@@ -1,20 +1,20 @@
-# Innoskill × InnoAgent 后端接入指南
+# innoskill-hub × InnoAgent 后端接入指南
 
-> 面向线上 InnoAgent 后端同学。目标:让「技能仓库」页从 Innoskill 取数据,并实现 **一键添加 / 我的技能 / 安装记录 / 安装人数**。
-> 版本:接口 v1,对应 Innoskill `main@5714733`(2026-09-06)。有出入以 `GET /api/v1/meta` 返回和本仓库代码为准。
+> 面向线上 InnoAgent 后端同学。目标:让「技能仓库」页从 innoskill-hub 取数据,并实现 **一键添加 / 我的技能 / 安装记录 / 安装人数**。
+> 版本:接口 v1,对应 innoskill-hub `main@5714733`(2026-09-06),以 `GET /api/v1/meta` 与代码为准。注册中心版本(坐标改为 `namespace/slug`、下载改临时 OSS 地址)见 `05-HTTP接口设计.md`,上线后本文升版。
 
 ---
 
 ## 0. 三十秒看懂
 
 ```
-浏览器 ──► InnoAgent 后端 ──(服务密钥 + user_id)──► Innoskill REST
+浏览器 ──► InnoAgent 后端 ──(服务密钥 + user_id)──► innoskill-hub REST
                 │                                      │
                 └─► 用户 agent 的技能目录 ◄──── GET /skills/{id}.tar.gz
 ```
 
-- Innoskill 是**只读目录 + 安装台账**。技能内容来自 GitHub 仓库 `inno-agent-hub`,Innoskill 同步、索引、打包,不持有主副本。
-- **浏览器不直连 Innoskill。** InnoAgent 后端替登录用户调用,带上服务密钥和 `user_id`。
+- innoskill-hub 是**只读目录 + 安装台账**。技能内容来自 GitHub 仓库 `inno-agent-hub`,innoskill-hub 同步、索引、打包,不持有主副本。
+- **浏览器不直连 innoskill-hub。** InnoAgent 后端替登录用户调用,带上服务密钥和 `user_id`。
 - 两类接口:
   - **REST**(`/api/v1/*`):店面数据(匿名)+ 用户安装台账(服务密钥)。响应壳统一 `{ code, msg, data }`。
   - **bundle 协议**(`/index.json`、`/skills/{id}.tar.gz`、`/presets/{id}.tar.gz`):拉技能包本体。inno-agent 开源版原生支持。
@@ -41,14 +41,14 @@
 | 接口组 | 鉴权 | 说明 |
 |---|---|---|
 | 店面数据 `/api/v1/skills*` `/packs*` `/presets*` `/meta` `/stats*` `/assets/*` | 匿名 | 直接调 |
-| 用户台账 `/api/v1/users/*` | **`X-Innoskill-Key: <服务密钥>`** | 密钥由 Innoskill 部署方配置(环境变量 `SERVICE_KEY`),线下交给 InnoAgent 后端保管;未配置 → 403,不匹配 → 401 |
-| bundle 协议 `/index.json` `/skills/*.tar.gz` `/presets/*.tar.gz` | 可选 `Authorization: Bearer <HUB_TOKEN>` | 只在 Innoskill 开了 `HUB_TOKEN` 时需要;私有部署建议开 |
+| 用户台账 `/api/v1/users/*` | **`X-Innoskill-Key: <服务密钥>`** | 密钥由 innoskill-hub 部署方配置(环境变量 `SERVICE_KEY`),线下交给 InnoAgent 后端保管;未配置 → 403,不匹配 → 401 |
+| bundle 协议 `/index.json` `/skills/*.tar.gz` `/presets/*.tar.gz` | 可选 `Authorization: Bearer <HUB_TOKEN>` | 只在 innoskill-hub 开了 `HUB_TOKEN` 时需要;私有部署建议开 |
 
 ### 1.2 `user_id`
 
-- 由 InnoAgent 决定,Innoskill **只校验形态,不校验存在**:`^[A-Za-z0-9_.:@-]{1,128}$`。UUID、数字 ID、`tenant:uid` 都行
+- 由 InnoAgent 决定,innoskill-hub **只校验形态,不校验存在**:`^[A-Za-z0-9_.:@-]{1,128}$`。UUID、数字 ID、`tenant:uid` 都行
 - 请保证**稳定且唯一**:它是安装台账的主键之一,换了就是另一个人
-- IAM(登录、鉴权、租户)完全在 InnoAgent 侧,Innoskill 不感知
+- IAM(登录、鉴权、租户)完全在 InnoAgent 侧,innoskill-hub 不感知
 
 ---
 
@@ -62,16 +62,7 @@
 | install 安装记录 | (`user_id`, `skill_id`) 一条,卸载只打时间戳不删 | — |
 | bundle 包 | 某技能 / 预设目录的 tar.gz,**顶层目录名 = id** | — |
 
-技能的四个分类维度,店面按需取用:
-
-| 字段 | 取值 | 用途 |
-|---|---|---|
-| `category` | 教学辅导 / 内容创作 / 文档处理 / 研究检索 / 开发工具 | 粗分类,inno-agent 客户端按它分组 |
-| `scenario` | 备课 / 讲课 / 自学 / 研究 / 创造 | 星图场景 |
-| `subject` | 跨学科 / 语文 / 数学 / … / 信息技术 / 艺术 / 其它 | **店面「学科」tab** |
-| `kind` | 教学设计 / 课件生成 / 评价测评 / 学习辅导 / 课堂分析 / 教研科研 / 文档处理 / 内容创作 / 开发工具 / 通用工具 | **店面「用途」标签** |
-
-取值与计数以 `GET /api/v1/meta` 为准,**tab 不要写死**。完整取值表见 hub 仓库根 README「学科与用途标签」。
+分类维度 `category / scenario / subject / kind` 的取值与计数以 `GET /api/v1/meta` 为准,定义见 hub 根 README「分类标签」「学科与用途标签」。**tab 不要写死。**
 
 ---
 
@@ -236,7 +227,7 @@
 ### 5.1 一键添加(单个技能或整包)
 
 ```
-InnoAgent 后端                                  Innoskill
+InnoAgent 后端                                  innoskill-hub
    │  POST /api/v1/users/{uid}/installs {packId}  │
    │ ───────────────────────────────────────────► │  记台账,重算安装人数
    │  ◄──────────── 201 { installed, bundles }    │
@@ -262,9 +253,7 @@ InnoAgent 后端                                  Innoskill
 
 `DELETE /users/{uid}/installs/{id}` → 删除 `<技能目录>/<id>/` → reload。
 
-### 5.3 「我的技能」页
-
-`GET /users/{uid}/installs` 一次拿全,每项自带 SkillSummary,不用再逐个查详情。
+### 5.3 「我的技能」页:`GET /users/{uid}/installs` 一次拿全,每项自带 SkillSummary。
 
 ### 5.4 「技能商店」页
 
@@ -278,26 +267,14 @@ InnoAgent 后端                                  Innoskill
 
 ## 6. bundle 协议(给 agent 运行时)
 
-如果 InnoAgent 的 agent 运行时就是 inno-agent 开源版,**不用写代码**,配置指过来即可:
-
-```json
-{ "contentHub": { "type": "bundle", "baseUrl": "http://<innoskill>", "token": "<HUB_TOKEN 或空>" } }
-```
-
-协议本身三个接口,自己实现也很简单:
-
-| 接口 | 返回 |
-|---|---|
-| `GET /index.json` | `{ generated, count, skills: [{ id, name, description, category, … }], presets: [{ id, name, description, icon }] }`(无响应壳) |
-| `GET /skills/{id}.tar.gz` | 技能目录 tar.gz,顶层目录名 = id |
-| `GET /presets/{id}.tar.gz` | 预设目录 tar.gz |
+inno-agent 开源版直接改配置:`{ "contentHub": { "type": "bundle", "baseUrl": "http://<innoskill-hub>", "token": "<HUB_TOKEN 或空>" } }`。协议三个接口:`GET /index.json`(无响应壳,`{ generated, count, skills[], presets[] }`)、`GET /skills/{id}.tar.gz`、`GET /presets/{id}.tar.gz`,tar 顶层目录 = id。
 
 ---
 
 ## 7. 本地联调
 
 ```bash
-# 1. 起 Innoskill(首次会从 GitHub 拉内容,约 10 秒)
+# 1. 起 innoskill-hub(首次会从 GitHub 拉内容,约 10 秒)
 git clone git@github.com:yuyue12111/innoskill.git && cd innoskill
 INNOSKILL_SERVICE_KEY=devkey docker compose up --build      # http://localhost:8080
 
@@ -329,21 +306,15 @@ curl -s localhost:8080/skills/k12-lesson-planning.tar.gz | tar -tzf - | head
 | 201 | 安装接口至少新记录了一个 |
 | 400 | uid 不合法、body 不是 JSON、缺参数、路径越界 |
 | 401 | 服务密钥不对;或 bundle 协议缺 Bearer |
-| 403 | Innoskill 未配置 `SERVICE_KEY`(用户接口整组关闭)或 `SYNC_SECRET` |
+| 403 | innoskill-hub 未配置 `SERVICE_KEY`(用户接口整组关闭)或 `SYNC_SECRET` |
 | 404 | 技能 / 包 / 预设 / 文件不存在;卸载未安装的技能 |
 | 413 | 单文件 > 5 MB |
-| 502 | 目前不会;同步失败不影响读接口,继续用上一版索引 |
 
 ---
 
-## 9. 明确不做 / 待定
+## 9. 边界
 
-- **不做**:付费与计费、用户注册登录、技能上传发布、CLI、评分评论
-- **待定,需 InnoAgent 侧拍板**:
-  1. 服务密钥的分发与轮换方式(Innoskill 侧只是改环境变量重启)
-  2. `user_id` 用什么(UUID / 数字 / `tenant:uid`),定了别再变
-  3. 沙箱拉 tar.gz 走后端中转还是直连(见 5.1)
-  4. 线上 Innoskill 的部署地址与域名
+不做:付费、注册登录、技能上传发布、CLI、评分评论。待 InnoAgent 侧定:服务密钥分发与轮换、`user_id` 形态、沙箱拉包走后端中转(建议)还是直连、线上地址。
 
 ---
 
@@ -365,7 +336,3 @@ curl -s localhost:8080/skills/k12-lesson-planning.tar.gz | tar -tzf - | head
 | GET | `/index.json` · `/skills/{id}.tar.gz` · `/presets/{id}.tar.gz` | 可选 Bearer | bundle 协议 |
 | GET | `/assets/{id}/…` | 匿名 | 演示素材 |
 | GET | `/healthz` | 匿名 | 存活 + 最近同步 |
-
-## 附录 B. 联系
-
-接口实现在 `app/api/v1/**/route.ts`,查询在 `lib/server/catalog.ts`,台账在 `lib/server/installs.ts`。改接口请先改 `docs/01-需求定义.md` 第 8 节再动代码。
