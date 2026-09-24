@@ -29,7 +29,7 @@
 @keyframes sm-bob { 0%,100% { transform: translateY(0) } 50% { transform: translateY(3px) } }
 
 .sm-cluster { position: absolute; width: 360px; margin-left: -180px; text-align: center; cursor: pointer; user-select: none; transition: opacity .3s }
-.sm-cluster h2 { font-size: 32px; font-weight: 600; line-height: 1.28; letter-spacing: .01em; transition: color .22s }
+.sm-cluster h2 { font-size: 34px; font-weight: 400; line-height: 1.28; letter-spacing: .01em; -webkit-text-stroke: .5px currentColor; transition: color .22s }
 .sm-cluster p { margin-top: 10px; font-size: 15px; line-height: 1.62; color: var(--muted-foreground); transition: opacity .22s }
 .sm-cluster .cnt { display: inline-block; margin-top: 11px; font-size: 14px; font-weight: 400; letter-spacing: .08em; padding: 3px 9px; border-radius: 999px; transition: .22s }
 .sm-cluster:hover h2 { color: var(--sc) } .sm-cluster:hover .cnt { transform: translateY(-1px) }
