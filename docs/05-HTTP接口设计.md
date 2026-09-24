@@ -1,5 +1,7 @@
 # innoskill-hub HTTP 接口设计 v1.1(上传 / 下载 / 查询 / 搜索)
 
+> **2026-09-17 状态：旧接口方案，待重写。** 下文的命名空间、版本和鉴权设计不再作为新实现依据。先评审 [数据模型](./08-数据模型.md)，再按 [调整任务清单](./09-调整任务清单.md) 精简接口；当前运行代码尚未切换。
+
 > 2026-09-15 定稿待评审。innoskill-hub 是技能注册中心:自己存技能(PostgreSQL + 阿里云 OSS,走 S3 兼容 API)、给制作平台发布、给 InnoAgent 消费。
 > 参考 iflytek/skillhub 的坐标、版本与 resolve 设计,不照搬其 RBAC / 命名空间治理。
 > 租户由登录体系给出,本服务只把 `namespace` 当隔离键存和查,**不做租户管理**。标 ⚠️ 的项见第 8 节,等领导拍板。
@@ -56,11 +58,11 @@ InnoAgent ──服务密钥──────► GET  /skills/{ns}/{slug}/downl
 
 `multipart/form-data`:
 
-| 字段 | 必填 | 说明 |
-|---|---|---|
-| `file` | 是 | `.tar.gz` 或 `.zip`,包内**必须**有根目录 `SKILL.md`(大小写宽容,入库归一为 `SKILL.md`) |
-| `version` | 否 | 不传则读 `SKILL.md` frontmatter 的 `version`;两处都没有 → 400 |
-| `changelog` | 否 | 本版说明,Markdown |
+| 字段          | 必填  | 说明                                                                 |
+| ----------- | --- | ------------------------------------------------------------------ |
+| `file`      | 是   | `.tar.gz` 或 `.zip`,包内**必须**有根目录 `SKILL.md`(大小写宽容,入库归一为 `SKILL.md`) |
+| `version`   | 否   | 不传则读 `SKILL.md` frontmatter 的 `version`;两处都没有 → 400                |
+| `changelog` | 否   | 本版说明,Markdown                                                      |
 
 服务端校验(任一失败 → 400,`data.errors[]` 列全部问题):
 
@@ -93,12 +95,12 @@ InnoAgent ──服务密钥──────► GET  /skills/{ns}/{slug}/downl
 
 ### 3.2 管理已发布内容
 
-| 方法 | 路径 | 说明 |
-|---|---|---|
-| PATCH | `/skills/{ns}/{slug}` | `{ visibility?, deprecated?, displayName? }` |
-| POST | `/skills/{ns}/{slug}/versions/{v}/yank` | 下架该版本(文件保留,不再解析为 latest,直链下载 410) |
-| POST | `/skills/{ns}/{slug}/versions/{v}/review` | 二期(审核开关打开后):管理员 `{ "decision": "approve" \| "reject", "note"? }` |
-| DELETE | `/skills/{ns}/{slug}/versions/{v}` | 二期:仅 `pending` / `rejected` 可删;已发布只能 yank |
+| 方法     | 路径                                        | 说明                                                               |
+| ------ | ----------------------------------------- | ---------------------------------------------------------------- |
+| PATCH  | `/skills/{ns}/{slug}`                     | `{ visibility?, deprecated?, displayName? }`                     |
+| POST   | `/skills/{ns}/{slug}/versions/{v}/yank`   | 下架该版本(文件保留,不再解析为 latest,直链下载 410)                                |
+| POST   | `/skills/{ns}/{slug}/versions/{v}/review` | 二期(审核开关打开后):管理员 `{ "decision": "approve" \| "reject", "note"? }` |
+| DELETE | `/skills/{ns}/{slug}/versions/{v}`        | 二期:仅 `pending` / `rejected` 可删;已发布只能 yank                        |
 
 不提供"覆盖发布"和"删除已发布版本":registry 的可信度靠不可变。
 
