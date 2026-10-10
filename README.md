@@ -8,7 +8,7 @@
 |---|---|
 | `docs/` | 设计文档 |
 | `server/` | 后端：Hono + Prisma + PostgreSQL + S3 |
-| `web/` | 前端：Vite + React（未开始） |
+| `web/` | 前端：Vite + React，见 [web/README.md](web/README.md) |
 
 ## 后端本地开发
 
