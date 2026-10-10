@@ -12,7 +12,13 @@ export function createApp(deps: Deps, counter: Counter): Hono<AppEnv> {
     const start = performance.now();
     await next();
     deps.logger.info(
-      { method: c.req.method, path: c.req.path, status: c.res.status, ms: Math.round(performance.now() - start) },
+      {
+        method: c.req.method,
+        path: c.req.path,
+        status: c.res.status,
+        ms: Math.round(performance.now() - start),
+        userId: c.get("requester")?.userId ?? null,
+      },
       "request",
     );
   });
