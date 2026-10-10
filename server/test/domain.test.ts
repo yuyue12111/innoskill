@@ -87,7 +87,7 @@ describe("slugFromName", () => {
     expect(slugFromName("  Weather  Forecast!! v2 ")).toBe("weather-forecast-v2");
   });
 
-  it.each([["天气预报"], ["api"], ["A"], ["x".repeat(65)]])("%s → 400", (name) => {
+  it.each([["天气预报"], ["AI 写作助手"], ["api"], ["A"], ["x".repeat(65)]])("%s → 400", (name) => {
     expect(codeOf(() => slugFromName(name))).toBe("BAD_REQUEST");
   });
 });

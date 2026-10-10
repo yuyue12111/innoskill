@@ -38,6 +38,8 @@ const RESERVED_SLUGS = new Set(["admin", "api", "me", "global", "system"]);
 
 /** slug = slugify(name):转小写 → 非字母数字转 `-` → 折叠 → 去首尾 `-`(03 §3.2) */
 export function slugFromName(name: string): string {
+  // SKILL.md 要求纯英文;中文展示信息另存数据库
+  if (/[^\x20-\x7E]/.test(name)) throw badRequest(`name must be English: ${name}`);
   const slug = name
     .trim()
     .toLowerCase()
