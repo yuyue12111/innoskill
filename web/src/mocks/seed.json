@@ -1,0 +1,577 @@
+[
+ {
+  "name": "ai-hallucination-fact-check-protocol",
+  "description": "Design a fact-checking protocol for AI-generated text, extending SIFT with AI-specific adaptations for hallucination detection. Use when students need to verify AI claims and citations.",
+  "version": "1.0"
+ },
+ {
+  "name": "argument-structure-scaffold-generator",
+  "description": "Generate argument structure scaffolds using Toulmin, PEEL, or CER frameworks for a specific claim or question. Use when teaching argumentative or analytical writing across any subject.",
+  "version": "1.0"
+ },
+ {
+  "name": "checking-for-understanding-protocol-designer",
+  "description": "Design a checking-for-understanding protocol with specific techniques for each lesson stage. Use when planning systematic comprehension checks during explicit or direct instruction.",
+  "version": "1.0"
+ },
+ {
+  "name": "claude-edu-adaptive-learning-design",
+  "description": "協助教師與課程設計者建構自適應學習系統，根據學生的學習表現、風格與需求，動態調整學習內容與路徑。適用於教學設計相關的教學設計與實施場景。",
+  "version": null
+ },
+ {
+  "name": "cognitive-load-analyser",
+  "description": "Analyse a learning task for cognitive load problems and recommend specific design improvements. Use when tasks overwhelm students, instructions feel complex, or materials need simplifying.",
+  "version": "1.0"
+ },
+ {
+  "name": "dialogic-teaching-move-generator",
+  "description": "Generate follow-up teaching moves that extend student thinking after a specific classroom response. Use when a student says something worth exploring and the teacher wants to deepen the dialogue.",
+  "version": "1.0"
+ },
+ {
+  "name": "discussion-protocol-selector",
+  "description": "Select and configure a structured discussion protocol matched to the purpose, topic, and group readiness. Use when planning classroom discussions, Socratic seminars, or structured debate.",
+  "version": "1.0"
+ },
+ {
+  "name": "document-based-lesson-designer",
+  "description": "Design a complete document-based history lesson using the Reading Like a Historian four-part structure. Use when planning a primary source inquiry lesson or converting a textbook lesson into document-based investigation.",
+  "version": "1.0"
+ },
+ {
+  "name": "erroneous-example-designer",
+  "description": "Design deliberately flawed examples that develop error-detection skills and deepen understanding. Use when students make characteristic errors and need practice spotting mistakes.",
+  "version": "1.0"
+ },
+ {
+  "name": "junior-chinese-modern-reading",
+  "description": "初中现代文阅读帮助学生把阅读训练从“做题对答案”升级为读懂文本、找到依据、组织表达和迁移方法，输出可修改、可复盘、可继续练的阅读/写作任务，而不是替用户一次性完成任务。 Workflow: junior_chinese_modern_reading.run.",
+  "version": "0.10.0"
+ },
+ {
+  "name": "junior-math-rj-textbook-sync",
+  "description": "把人教版初中数学的年级、册别、单元和学习场景，转成预习、同步练习、错题追练、单元复习和考前巩固等可直接执行的学习任务。把教材单元变成今天能做、明天能复盘、错了能追练的学习闭环。 Workflow: junior_math_rj_textbook_sync.run.",
+  "version": "0.10.0"
+ },
+ {
+  "name": "learning-progression-builder",
+  "description": "Build a learning progression showing prerequisite-to-mastery steps for a target skill or understanding. Use when sequencing content, designing diagnostics, or mapping prerequisite gaps.",
+  "version": "1.0"
+ },
+ {
+  "name": "lesson-opening-designer",
+  "description": "Design a lesson opening that activates prior knowledge and connects previous learning to today's content. Use when planning lesson starters, retrieval openers, or advance organisers.",
+  "version": "1.0"
+ },
+ {
+  "name": "practice-problem-sequence-designer",
+  "description": "Generate a scaffolded sequence of practice problems with graduated difficulty and strategic variability. Use when creating worksheets, homework sets, or independent practice materials.",
+  "version": "1.0"
+ },
+ {
+  "name": "preschool-literacy-daily",
+  "description": "把学前识字做成“看见、读出、理解、会用”的轻量游戏，不让孩子在机械认字里失去兴趣。 Workflow: preschool_literacy_daily.run.",
+  "version": "0.12.0"
+ },
+ {
+  "name": "primary-chinese-tongbian-textbook-sync",
+  "description": "把统编版小学语文的年级、册别、单元和学习场景，转成预习、同步练习、错题追练、单元复习和考前巩固等可直接执行的学习任务。让家长和学生知道今天这篇课文到底要学会什么、怎么练才不空泛。 Workflow: primary_chinese_tongbian_textbook_sync.run.",
+  "version": "0.10.0"
+ },
+ {
+  "name": "primary-math-mental-arithmetic",
+  "description": "为小学生生成短、准、可批改的口算训练，让每天 5-10 分钟练出速度、准确率和数感。 Workflow: primary_math_mental_arithmetic.run.",
+  "version": "0.10.0"
+ },
+ {
+  "name": "primary-reading-daily",
+  "description": "把小学阅读练成“读懂、找依据、会表达”的短训练，而不是泛泛问读后感。 Workflow: primary_reading_daily.run.",
+  "version": "0.10.0"
+ },
+ {
+  "name": "project-brief-designer",
+  "description": "Design a project-based learning brief with a driving question, milestones, and assessment criteria. Use when planning PBL units, inquiry projects, or extended investigations.",
+  "version": "1.0"
+ },
+ {
+  "name": "prompt-literacy-sequence-designer",
+  "description": "Design a learning sequence teaching prompt quality — comparing vague vs. refined prompts to show why specificity and context transform AI output. Use when students use AI without understanding why output quality varies.",
+  "version": "1.0"
+ },
+ {
+  "name": "senior-chinese-essay",
+  "description": "高中作文提升帮助学生把作文辅导从“代写一篇”变成审题、立意、选材、结构、语言和修改的全过程指导，输出可修改、可复盘、可继续练的阅读/写作任务，而不是替用户一次性完成任务。 Workflow: senior_chinese_essay.run.",
+  "version": "0.10.0"
+ },
+ {
+  "name": "senior-physics-rj-textbook-sync",
+  "description": "把人教版高中物理的年级、册别、单元和学习场景，转成预习、同步练习、错题追练、单元复习和考前巩固等可直接执行的学习任务。把物理教材同步变成现象-模型-证据-应用的清晰学习路径。 Workflow: senior_physics_rj_textbook_sync.run.",
+  "version": "0.14.0"
+ },
+ {
+  "name": "teacher-homework-generation",
+  "description": "帮助老师生成分层、可批改、不过量的作业，而不是堆题。 Workflow: teacher_homework_generation.run.",
+  "version": "0.10.0"
+ },
+ {
+  "name": "text-complexity-analyser",
+  "description": "Analyse text complexity across quantitative, qualitative, and reader-task dimensions with scaffolding recommendations. Use when selecting texts, assessing readability, or planning reading support.",
+  "version": "1.0"
+ },
+ {
+  "name": "think-aloud-script-generator",
+  "description": "Script a teacher think-aloud demonstrating expert reasoning processes for a specific task. Use when modelling problem-solving, writing, reading comprehension, or analytical processes.",
+  "version": "1.0"
+ },
+ {
+  "name": "tw-edu-worksheet-creator",
+  "description": "編排學生可完成的練習與思考任務。適用於學習單、練習單。",
+  "version": "4.0.0"
+ },
+ {
+  "name": "udl-lesson-auditor",
+  "description": "Audits an existing lesson against UDL's three principles — engagement, representation, and action/expression. Identifies specific access barriers and suggests concrete modifications ranked by impact.",
+  "version": "1.0"
+ },
+ {
+  "name": "variation-theory-task-designer",
+  "description": "Design a variation theory task using contrast, separation, and fusion to teach critical features of a concept. Use when students confuse similar concepts or fail to discern key distinctions.",
+  "version": "1.0"
+ },
+ {
+  "name": "vocabulary-tiering-tool",
+  "description": "Tier vocabulary from a text or topic into everyday, academic, and technical categories with teaching priorities. Use when pre-teaching vocabulary or identifying language barriers in a text.",
+  "version": "1.0"
+ },
+ {
+  "name": "worked-example-fading-designer",
+  "description": "Design a worked example fading sequence from fully worked examples through to independent practice. Use when teaching procedures, algorithms, or multi-step processes to novice learners.",
+  "version": "1.0"
+ },
+ {
+  "name": "adult-language-learning",
+  "description": "把成人语言学习从收藏资料变成真实场景输入、主动输出、纠错和复现。核心不是再推荐一堆资料，而是让用户今天能完成一个可检查的小成果。 Workflow: adult_language_learning.run.",
+  "version": "0.10.0"
+ },
+ {
+  "name": "agent-focus-training",
+  "description": "把“孩子不专心”拆成可观察的学习环境、任务长度和反馈节奏，生成能立刻执行的专注训练方案。 Workflow: agent_focus_training.run.",
+  "version": "0.10.0"
+ },
+ {
+  "name": "agent-learning-habit",
+  "description": "把抽象的“养成学习习惯”落到固定触发、最小动作、即时反馈和家庭协作上。 Workflow: agent_learning_habit.run.",
+  "version": "0.10.0"
+ },
+ {
+  "name": "agent-memory-method",
+  "description": "把需要背的内容变成可提取、可复述、可间隔复习的记忆任务，而不是反复机械朗读。 Workflow: agent_memory_method.run.",
+  "version": "0.10.0"
+ },
+ {
+  "name": "agent-parent-companion",
+  "description": "家长陪学把家长的“我该怎么陪”变成少催促、可执行、能复盘的陪学脚本。重点不是替家长管孩子，而是把家庭学习场景拆成可沟通、可执行、可复盘的小步骤。 Workflow: agent_parent_companion.run.",
+  "version": "0.10.0"
+ },
+ {
+  "name": "agent-photo-question",
+  "description": "把拍照题目转成先识题、再讲思路、最后追问确认的学习过程，而不是只给答案。 Workflow: agent_photo_question.run.",
+  "version": "0.10.0"
+ },
+ {
+  "name": "agent-review-assistant",
+  "description": "把复习从重新看笔记变成检索、纠错、归纳和再练习的闭环。 Workflow: agent_review_assistant.run.",
+  "version": "0.10.0"
+ },
+ {
+  "name": "agent-study-plan",
+  "description": "把模糊目标拆成今天、这一周和下一轮可执行的学习安排。 Workflow: agent_study_plan.run.",
+  "version": "0.10.0"
+ },
+ {
+  "name": "agent-weakness-boost",
+  "description": "把“薄弱项”从模糊标签变成一个可诊断、可练习、可复测的小专题提升闭环。 Workflow: agent_weakness_boost.run.",
+  "version": "0.10.0"
+ },
+ {
+  "name": "agent-weekly-review",
+  "description": "把一周学习从流水账整理成进步、问题、下周行动三件事，让学生和家长都知道下一步做什么。 Workflow: agent_weekly_review.run.",
+  "version": "0.10.0"
+ },
+ {
+  "name": "college-cs-python",
+  "description": "把 Python 学习从“看完教程就忘”变成语法理解、小项目、调试反馈和作品沉淀。核心不是再推荐一堆资料，而是让用户今天能完成一个可检查的小成果。 Workflow: college_cs_python.run.",
+  "version": "0.10.0"
+ },
+ {
+  "name": "college-data-analysis",
+  "description": "把数据分析学习从工具教程变成业务问题、数据清洗、可视化、结论和报告表达。核心不是再推荐一堆资料，而是让用户今天能完成一个可检查的小成果。 Workflow: college_data_analysis.run.",
+  "version": "0.10.0"
+ },
+ {
+  "name": "explain-first-interrogator",
+  "description": "Require the learner to explain a concept in their own words before the AI evaluates or extends it. Ensures the AI works from the learner's understanding rather than providing an explanation from scratch.",
+  "version": "1.0"
+ },
+ {
+  "name": "family-emotion-support",
+  "description": "学习情绪支持在学习受挫、厌学、亲子冲突时，给家长可说出口的安抚话术和下一步学习动作。重点不是替家长管孩子，而是把家庭学习场景拆成可沟通、可执行、可复盘的小步骤。 Workflow: family_emotion_support.run.",
+  "version": "0.10.0"
+ },
+ {
+  "name": "family-homework-routine",
+  "description": "家庭作业习惯帮家庭建立固定、轻量、可坚持的作业流程，让孩子知道先做什么、做到什么算完成。重点不是替家长管孩子，而是把家庭学习场景拆成可沟通、可执行、可复盘的小步骤。 Workflow: family_homework_routine.run.",
+  "version": "0.10.0"
+ },
+ {
+  "name": "family-reading-companion",
+  "description": "亲子阅读陪伴让亲子阅读从“读完了吗”变成有互动、有表达、有下一本书方向的陪读过程。重点不是替家长管孩子，而是把家庭学习场景拆成可沟通、可执行、可复盘的小步骤。 Workflow: family_reading_companion.run.",
+  "version": "0.10.0"
+ },
+ {
+  "name": "flow-state-condition-designer",
+  "description": "Optimise a learning activity for flow by balancing challenge level, skill, clear goals, and immediate feedback. Use when students are bored, anxious, or disengaged during a task.",
+  "version": "1.0"
+ },
+ {
+  "name": "goal-setting-protocol-designer",
+  "description": "Design a structured goal-setting protocol using SMART or implementation-intention frameworks for students. Use when launching units, projects, or developing student self-direction habits.",
+  "version": "1.0"
+ },
+ {
+  "name": "ielts-prep",
+  "description": "把雅思备考从背资料变成听说读写诊断、分项训练、输出反馈和复测节奏。核心不是再推荐一堆资料，而是让用户今天能完成一个可检查的小成果。 Workflow: ielts_prep.run.",
+  "version": "0.10.0"
+ },
+ {
+  "name": "metacognitive-prompt-library",
+  "description": "Build a library of metacognitive prompts targeting planning, monitoring, or evaluation for a specific task. Use when developing students' thinking-about-thinking during independent work.",
+  "version": "1.0"
+ },
+ {
+  "name": "motivation-diagnostic-task-redesign",
+  "description": "Diagnose motivation problems in a task using self-determination theory and redesign for autonomy, competence, and relatedness. Use when students are disengaged, resistant, or going through the motions.",
+  "version": "1.0"
+ },
+ {
+  "name": "productive-failure-protocol",
+  "description": "Stage exploration before instruction on complex problems. The learner produces two attempted approaches before consolidation — which builds on those attempts, not from scratch. Use for genuinely hard problems where struggle produces deeper learning.",
+  "version": "1.0"
+ },
+ {
+  "name": "progressive-hint-ladder",
+  "description": "Provide graduated assistance from abstract conceptual nudge to concrete procedural step, with reflection required before each escalation. Teaches help-seeking as a skill and prevents direct-answer shortcuts.",
+  "version": "1.0"
+ },
+ {
+  "name": "retrieve-first-gate",
+  "description": "Before any explanation or answer, require the learner to produce a free-recall attempt and confidence rating. Use when a student wants help understanding or reviewing a topic — this skill ensures the AI works from what the learner already knows.",
+  "version": "1.0"
+ },
+ {
+  "name": "ruler-emotional-literacy-sequence",
+  "description": "Design a RULER emotional literacy sequence for recognising, understanding, labelling, expressing, and regulating emotions. Use when students struggle with emotional regulation, conflict, or anxiety.",
+  "version": "1.0"
+ },
+ {
+  "name": "self-efficacy-builder-sequence",
+  "description": "Design a mastery experience sequence that systematically builds student confidence in a skill they avoid. Use when students say 'I can't do this', avoid tasks, or show learned helplessness.",
+  "version": "1.0"
+ },
+ {
+  "name": "self-regulation-scaffold-generator",
+  "description": "Generate scaffolds supporting student self-regulation across planning, monitoring, and evaluation phases. Use when students struggle to manage their own learning during extended or independent tasks.",
+  "version": "1.0"
+ },
+ {
+  "name": "study-strategy-selector",
+  "description": "Select evidence-based study strategies matched to material type, learning goal, and student habits. Use when advising students on revision techniques, homework, or independent study approaches.",
+  "version": "1.0"
+ },
+ {
+  "name": "teach-back-evaluator",
+  "description": "The learner teaches the concept to the AI, which plays a curious novice peer and identifies gaps through authentic questions. Use when the learner wants to test their understanding — teaching forces a different kind of organisation than studying.",
+  "version": "1.0"
+ },
+ {
+  "name": "transfer-bridge",
+  "description": "After the learner demonstrates understanding of a concept, present near-transfer and far-transfer challenges. Use to test whether learning is portable or task-specific — this is what separates understanding from familiarity.",
+  "version": "1.0"
+ },
+ {
+  "name": "claude-edu-rural-education-platform",
+  "description": "針對偏鄉地區的基礎設施限制、師資人力不足、學生背景多元等特殊需求，設計適切的數位學習平台與解決方案。適用於偏鄉教育相關的教學設計與實施場景。",
+  "version": null
+ },
+ {
+  "name": "dilemma-navigation-for-education-design",
+  "description": "Identify and navigate genuine dilemmas in curriculum, school, or community contexts — tensions between competing goods that cannot be solved, only navigated. Produces a structured dilemma map with both poles named and both/and possibilities.",
+  "version": "1.0"
+ },
+ {
+  "name": "family-school-communication",
+  "description": "家校沟通准备帮家长把问题说清楚、语气放稳、目标对齐，提升和老师沟通的效率。重点不是替家长管孩子，而是把家庭学习场景拆成可沟通、可执行、可复盘的小步骤。 Workflow: family_school_communication.run.",
+  "version": "0.10.0"
+ },
+ {
+  "name": "restorative-practice-protocol-designer",
+  "description": "Design a restorative practice protocol for addressing harm, rebuilding trust, and restoring relationships. Use when managing conflict, behavioural incidents, or relationship breakdown between students.",
+  "version": "1.0"
+ },
+ {
+  "name": "teacher-parent-report-lite",
+  "description": "帮助老师把学习表现转成家长听得懂、愿意配合、不过度焦虑的反馈报告。 Workflow: teacher_parent_report_lite.run.",
+  "version": "0.10.0"
+ },
+ {
+  "name": "three-horizons-learning-transition-mapper",
+  "description": "Map a scoped topic across three coexisting horizons — current system under strain (H1), preferred future (H3), and transition innovations sorted as H2+ or H2- — to understand change dynamics and identify responsible next actions.",
+  "version": "1.0"
+ },
+ {
+  "name": "tw-edu-classroom-culture",
+  "description": "設計共同規範、班級活動與支持策略。適用於班級經營、班規、班級文化。",
+  "version": "4.0.0"
+ },
+ {
+  "name": "tw-edu-meeting-facilitator",
+  "description": "建立議程、紀錄與可追蹤行動事項。適用於會議、議程、會議紀錄。",
+  "version": "4.0.0"
+ },
+ {
+  "name": "tw-edu-parent-communication",
+  "description": "撰寫清楚、有同理心的親師草稿。適用於親師溝通、家長信、聯絡簿。",
+  "version": "4.0.0"
+ },
+ {
+  "name": "tw-edu-school-document",
+  "description": "整理計畫、會議與行政文稿。適用於公文、行政文書、活動計畫。",
+  "version": "4.0.0"
+ },
+ {
+  "name": "agent-learning-report",
+  "description": "把零散练习记录整理成家长、老师和学生都能看懂的学情判断。 Workflow: agent_learning_report.run.",
+  "version": "0.10.0"
+ },
+ {
+  "name": "ai-feedback-design-principles",
+  "description": "Audit and redesign AI-generated feedback for pedagogical quality, timing, and learning impact. Use when building or reviewing automated feedback in digital learning tools.",
+  "version": "1.0"
+ },
+ {
+  "name": "assessment-design-orchestrator",
+  "description": "Routes between five assessment pathways — formative, rubric/criteria, authentic/performance, peer/self, and diagnostic — with validity and equity checks. Use when a teacher needs help choosing how to assess.",
+  "version": "1.0"
+ },
+ {
+  "name": "assessment-validity-checker",
+  "description": "Audit a proposed assessment for construct validity, reliability, and alignment to learning objectives. Use when reviewing or quality-assuring assessments before deployment.",
+  "version": "1.0"
+ },
+ {
+  "name": "check-understanding",
+  "description": "Use when verifying whether the learner truly understands a concept through reasoning and application, not recall trivia.",
+  "version": "1.1.0"
+ },
+ {
+  "name": "claude-edu-competency-based-assessment",
+  "description": "設計符合108課綱精神的素養導向評量，強調真實情境、跨領域整合、高層次思考，評估學生在真實情境中運用知識與技能解決問題的能力。適用於學習分析相關的教學設計與實施場景。",
+  "version": null
+ },
+ {
+  "name": "claude-edu-learning-analytics",
+  "description": "運用數據分析技術收集、分析與詮釋學生學習歷程數據，以優化教學決策、預測學習成效、提供個人化學習支援。適用於學習分析相關的教學設計與實施場景。",
+  "version": null
+ },
+ {
+  "name": "claude-edu-peer-assessment",
+  "description": "設計有效的同儕評量與回饋機制，培養學生批判思考、自我評量與建設性回饋能力。透過結構化的評分規準（Rubric）、評量者訓練與品質保證機制，提升互評的信效度與學習價值，同時減輕教師評量負擔。適用於學習分析相關的教學設計與實施場景。",
+  "version": null
+ },
+ {
+  "name": "claude-edu-student-profiling",
+  "description": "建立全面的學生學習輪廓，整合認知能力、學習風格、動機態度、社會背景等多維度資訊，支援個人化教學與輔導。適用於學習分析相關的教學設計與實施場景。",
+  "version": null
+ },
+ {
+  "name": "coherent-rubric-logic-builder",
+  "description": "Build a five-level rubric with coherent logic for a learning target within a developmental band. Use for Manning methodology programmes where Competent = success. For general curriculum rubrics, use criterion-referenced-rubric-generator instead.",
+  "version": "1.0"
+ },
+ {
+  "name": "criterion-referenced-rubric-generator",
+  "description": "Generate a criterion-referenced rubric with descriptive performance levels for a task or objective. Use for marking guides and general curriculum contexts. For Manning programmes where Competent = success, use coherent-rubric-logic-builder instead.",
+  "version": "1.0"
+ },
+ {
+  "name": "dispositional-knowledge-assessment-designer",
+  "description": "Design multi-informant assessment approaches for dispositional competencies like curiosity or resilience. Use when assessing character strengths or competencies that written tests cannot capture.",
+  "version": "1.0"
+ },
+ {
+  "name": "error-analysis-protocol",
+  "description": "Design an error analysis protocol to diagnose the root cause of student mistakes and misconceptions. Use when error patterns appear in student work and targeted feedback is needed.",
+  "version": "1.0"
+ },
+ {
+  "name": "feedback-quality-analyser",
+  "description": "Analyse existing written feedback for quality, specificity, actionability, and impact on student learning. Use when reviewing teacher or peer feedback to improve feedback practices.",
+  "version": "1.0"
+ },
+ {
+  "name": "find-your-level",
+  "description": "Use when a learner's technical level is unknown or uncertain, requiring diagnostic calibration before teaching begins.",
+  "version": "1.1.0"
+ },
+ {
+  "name": "formative-assessment-loop-designer",
+  "description": "Design an adaptive assessment loop where each student response triggers the next instructional move. Use when building technology-enhanced formative assessment cycles.",
+  "version": "1.0"
+ },
+ {
+  "name": "gap-analysis-from-student-work",
+  "description": "Analyse student work against criteria to identify specific gaps between current performance and learning objectives. Use when reviewing submissions, planning feedback, or diagnosing learning needs.",
+  "version": "1.0"
+ },
+ {
+  "name": "historical-thinking-assessment-designer",
+  "description": "Design formative assessments that make students' historical thinking visible — revealing whether they source, close-read, contextualise, and corroborate. Use when assessing historical thinking skills or planning a diagnostic.",
+  "version": "1.0"
+ },
+ {
+  "name": "learning-analytics-interpretation-guide",
+  "description": "Interpret learning analytics data and translate dashboard findings into actionable teaching decisions. Use when reviewing LMS data, quiz patterns, or engagement metrics.",
+  "version": "1.0"
+ },
+ {
+  "name": "misconception-detector",
+  "description": "Use when diagnosing a repeated conceptual mistake and designing a targeted correction loop to replace the faulty mental model.",
+  "version": "1.1.0"
+ },
+ {
+  "name": "single-point-rubric-designer",
+  "description": "Design a single-point rubric with one criterion and open columns for evidence. Use for student self-assessment, peer feedback, teacher formative feedback, or pre-task planning. Works with any learning target, with or without a band system.",
+  "version": "1.0"
+ },
+ {
+  "name": "teacher-class-analysis-lite",
+  "description": "把班级练习、错题和课堂观察整理成老师能立刻调整教学的学情判断，而不是只给平均分。 Workflow: teacher_class_analysis_lite.run.",
+  "version": "0.10.0"
+ },
+ {
+  "name": "tw-edu-anti-ai-assessment",
+  "description": "檢視評量證據與改善任務設計。適用於抗AI評量、評量真實性。",
+  "version": "4.0.0"
+ },
+ {
+  "name": "tw-edu-exam-generator",
+  "description": "製作有答案、解析與配分的評量。適用於出題、試卷、素養題。",
+  "version": "4.0.0"
+ },
+ {
+  "name": "tw-edu-feedback-writer",
+  "description": "根據作品證據撰寫具體可行的回饋。適用於評語、作業回饋。",
+  "version": "4.0.0"
+ },
+ {
+  "name": "tw-edu-formative-assessment",
+  "description": "收集課中證據並決定教學調整。適用於形成性評量、出口票、提問。",
+  "version": "4.0.0"
+ },
+ {
+  "name": "tw-edu-learning-portfolio",
+  "description": "協助整理學習證據、反思與成果。適用於學習歷程、成果反思。",
+  "version": "4.0.0"
+ },
+ {
+  "name": "tw-edu-rubric-designer",
+  "description": "建立任務專屬的表現描述與評分方式。適用於rubric、評量規準。",
+  "version": "4.0.0"
+ },
+ {
+  "name": "weak-area-tracker",
+  "description": "Use when logging, scoring, and triaging a learner's persistent weak areas to drive intervention selection.",
+  "version": "1.1.0"
+ },
+ {
+  "name": "claude-edu-education-research-design",
+  "description": "協助教育研究者設計嚴謹的研究計畫，包括研究問題形成、研究方法選擇、資料收集與分析策略規劃。適用於研究方法相關的教學設計與實施場景。",
+  "version": null
+ },
+ {
+  "name": "claude-edu-empirical-research-automation",
+  "description": "運用AI自動化實證研究的完整工作流程，從資料收集、程式碼轉換、統計分析到論文撰寫，大幅提升研究效率並確保研究可重現性。適用於教育科技、社會科學、心理學等需要量化分析的實證研究領域。適用於研究方法相關的教學設計與實施場景。",
+  "version": null
+ },
+ {
+  "name": "claude-edu-mixed-methods",
+  "description": "整合量化與質性研究方法，發揮兩種方法的優勢，對複雜的教育現象進行更全面深入的探究。適用於研究方法相關的教學設計與實施場景。",
+  "version": null
+ },
+ {
+  "name": "claude-edu-quasi-experimental-design",
+  "description": "協助研究者設計嚴謹的準實驗研究，從研究架構規劃、測量工具選擇、統計方法決策到研究效度提升。特別適合教育現場無法完全隨機分派的實驗情境，確保研究設計的科學性與內外在效度。適用於研究方法相關的教學設計與實施場景。",
+  "version": null
+ },
+ {
+  "name": "competency-framework-translator",
+  "description": "Translate an external competency framework like DigComp, GreenComp, or ISTE into classroom-ready activities. Use when implementing framework standards in specific teaching contexts.",
+  "version": "1.0"
+ },
+ {
+  "name": "instructional-coaching-conversation-guide",
+  "description": "Generate a coaching conversation guide with questions, protocols, and follow-up actions for a teaching focus. Use when preparing for coaching sessions, mentoring, or peer feedback conversations.",
+  "version": "1.0"
+ },
+ {
+  "name": "lesson-observation-protocol-designer",
+  "description": "Design a focused lesson observation protocol with specific look-fors and evidence collection methods. Use when planning peer observations, coaching visits, or developmental classroom visits.",
+  "version": "1.0"
+ },
+ {
+  "name": "lesson-study-cycle-designer",
+  "description": "Design a complete lesson study cycle from research question through collaborative planning to research lesson. Use when planning jugyou kenkyuu or collaborative teacher inquiry into practice.",
+  "version": "1.0"
+ },
+ {
+  "name": "panel-review",
+  "description": "Seven-role depersonalised panel review of framework artefacts (KUD, criterion bank, LT definition, crosswalk, scope-and-sequence) in sequential-isolation mode. Gate rule mean>=88 AND no role<70.",
+  "version": "1.0.0"
+ },
+ {
+  "name": "pedagogical-content-knowledge-developer",
+  "description": "Develop pedagogical content knowledge for a topic by surfacing common misconceptions and effective representations. Use when preparing to teach unfamiliar content or improving teaching of hard topics.",
+  "version": "1.0"
+ },
+ {
+  "name": "professional-development-session-designer",
+  "description": "Design a professional development session using adult learning principles with active teacher engagement. Use when planning INSET days, CPD workshops, or staff training sessions.",
+  "version": "1.0"
+ },
+ {
+  "name": "reflective-practice-prompt-generator",
+  "description": "Generate structured reflection prompts for a specific teaching experience or professional learning challenge. Use when debriefing lessons, journaling, or preparing for coaching conversations.",
+  "version": "1.0"
+ },
+ {
+  "name": "teacher-inquiry-cycle-designer",
+  "description": "Design a practitioner inquiry cycle from research question through data collection to evidence-informed action. Use when starting action research, teacher-led investigation, or professional inquiry.",
+  "version": "1.0"
+ },
+ {
+  "name": "technological-pedagogical-content-knowledge-developer",
+  "description": "Develop TPACK for integrating a specific technology or AI tool into subject teaching with pedagogical alignment. Use when adopting new ed-tech, reviewing AI tools, or planning technology integration.",
+  "version": "1.0"
+ },
+ {
+  "name": "tw-edu-citation-checker",
+  "description": "核實文獻存在性與引用資訊。適用於文獻查核、引用查核、APA。",
+  "version": "2.0.0"
+ },
+ {
+  "name": "tw-edu-research-viz",
+  "description": "以真實數據製作研究圖表。適用於研究圖表、PRISMA、教學研究視覺化。",
+  "version": "4.0.0"
+ }
+]
