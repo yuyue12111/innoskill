@@ -3,6 +3,7 @@ import { bodyLimit } from "hono/body-limit";
 import { z } from "zod";
 import { badRequest, unauthorized } from "../domain/errors.js";
 import { VISIBILITIES, type Skill, type SkillVersion } from "../domain/model.js";
+import { parseTags } from "../domain/tags.js";
 import type { AppEnv } from "../middleware/identity.js";
 import type { RateLimiter } from "../middleware/rateLimit.js";
 import type { Deps } from "../usecases/deps.js";
@@ -17,6 +18,7 @@ const MAX_BODY_BYTES = 10 * 1024 * 1024;
 
 const uploadForm = z.object({
   visibility: z.enum(VISIBILITIES).default("PUBLIC"),
+  tags: z.string().optional(),
   confirmWarnings: z
     .enum(["true", "false"])
     .default("false")
@@ -26,6 +28,7 @@ const uploadForm = z.object({
 const searchParams = z.object({
   q: z.string().trim().optional(),
   user_id: z.string().trim().min(1).optional(),
+  tags: z.string().optional(),
   sort: z.enum(["newest", "downloads", "relevance"]).default("newest"),
   page: z.coerce.number().int().min(0).default(0),
   size: z.coerce.number().int().min(1).max(100).default(20),
@@ -54,6 +57,7 @@ export function createSkillRoutes(deps: Deps, rateLimit: RateLimiter): Hono<AppE
         requester,
         zip: new Uint8Array(await body.file.arrayBuffer()),
         visibility: form.visibility,
+        tags: parseTags(form.tags),
         confirmWarnings: form.confirmWarnings,
       });
       return c.json(presentPublish(result), 201);
@@ -66,6 +70,7 @@ export function createSkillRoutes(deps: Deps, rateLimit: RateLimiter): Hono<AppE
       requester: c.get("requester"),
       q: query.q || null,
       userId: query.user_id,
+      tags: parseTags(query.tags),
       sort: query.sort,
       page: query.page,
       size: query.size,
@@ -135,6 +140,7 @@ function presentPublish({ skill, version, warnings }: PublishResult) {
     skill_name: skill.skillName,
     summary: skill.summary,
     visibility: skill.visibility,
+    tags: skill.tags,
     version: version.version,
     status: version.status,
     fileCount: version.fileCount,
@@ -152,6 +158,7 @@ function presentSearchItem({ skill, headline }: SearchHit) {
     summary: skill.summary,
     user_name: skill.userId, // 平台无用户表,目前等于 user_id(03 §4.3)
     visibility: skill.visibility,
+    tags: skill.tags,
     downloadCount: skill.downloadCount,
     headlineVersion: headline?.version ?? null,
     publishedAt: iso(headline?.publishedAt),
@@ -166,6 +173,7 @@ function presentDetail(skill: Skill, versions: SkillVersion[]) {
     skill_name: skill.skillName,
     summary: skill.summary,
     visibility: skill.visibility,
+    tags: skill.tags,
     hidden: skill.hidden,
     user_name: skill.userId,
     downloadCount: skill.downloadCount,

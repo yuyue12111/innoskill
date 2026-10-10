@@ -7,6 +7,7 @@ export interface SearchInput {
   requester: Requester;
   q: string | null;
   userId: string | undefined;
+  tags: string[];
   sort: SearchSort;
   page: number;
   size: number;
@@ -26,6 +27,7 @@ export async function searchSkills(
   const { ids, total } = await deps.searchIndex.search({
     q: input.q,
     ...scope,
+    tags: input.tags,
     sort: input.sort,
     page: input.page,
     size: input.size,

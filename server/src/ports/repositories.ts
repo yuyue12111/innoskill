@@ -3,10 +3,10 @@ import type { Skill, SkillFile, SkillVersion } from "../domain/model.js";
 export interface SkillRepository {
   findByUserAndSlug(userId: string, slug: string): Promise<Skill | null>;
   findByIds(ids: number[]): Promise<Skill[]>;
-  create(input: Pick<Skill, "userId" | "slug" | "skillName" | "summary" | "visibility">): Promise<Skill>;
+  create(input: Pick<Skill, "userId" | "slug" | "skillName" | "summary" | "visibility" | "tags">): Promise<Skill>;
   update(
     id: number,
-    patch: Partial<Pick<Skill, "skillName" | "summary" | "visibility" | "latestVersionId" | "hidden">>,
+    patch: Partial<Pick<Skill, "skillName" | "summary" | "visibility" | "tags" | "latestVersionId" | "hidden">>,
   ): Promise<Skill>;
   incrementDownloadCount(id: number): Promise<void>;
 }

@@ -27,6 +27,8 @@ export interface Skill {
   latestVersionId: number | null;
   downloadCount: number;
   hidden: boolean;
+  /** 标签 key,取值见 domain/tags.ts */
+  tags: string[];
 }
 
 export interface ManifestEntry {

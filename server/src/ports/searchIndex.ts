@@ -4,6 +4,8 @@ export interface SearchQuery {
   q: string | null;
   authorId: string | null;
   viewerId: string | null;
+  /** 须同时满足 */
+  tags: string[];
   sort: SearchSort;
   page: number;
   size: number;

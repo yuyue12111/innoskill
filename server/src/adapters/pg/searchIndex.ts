@@ -54,6 +54,7 @@ function conditions(query: SearchQuery, tsquery: string): Prisma.Sql[] {
       : Prisma.sql`(s.visibility = 'PUBLIC' OR s.user_id = ${query.viewerId})`,
   ];
   if (query.authorId !== null) list.push(Prisma.sql`s.user_id = ${query.authorId}`);
+  if (query.tags.length > 0) list.push(Prisma.sql`s.tags @> ${query.tags}::text[]`);
   if (tsquery) list.push(Prisma.sql`d.search_vector @@ plainto_tsquery('simple', ${tsquery})`);
   return list;
 }

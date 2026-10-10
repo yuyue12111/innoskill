@@ -5,6 +5,7 @@ import type { AppError } from "../src/domain/errors.js";
 import type { Requester, Skill, SkillVersion } from "../src/domain/model.js";
 import { buildBundle, parsePackage } from "../src/domain/packageParser.js";
 import { parseSkillMd, resolveVersion, slugFromName } from "../src/domain/skillMdParser.js";
+import { parseTags } from "../src/domain/tags.js";
 import { makeZip, skillMd } from "./fakes.js";
 
 const SKILL_MD = skillMd({ name: "Weather", description: "查天气" });
@@ -92,6 +93,18 @@ describe("slugFromName", () => {
   });
 });
 
+describe("parseTags(03 §1.7)", () => {
+  it("逗号分隔、去空格、去重;空值为 []", () => {
+    expect(parseTags(" teaching, primary ,teaching")).toEqual(["teaching", "primary"]);
+    expect(parseTags(undefined)).toEqual([]);
+    expect(parseTags("")).toEqual([]);
+  });
+
+  it("词表外的值 → 400", () => {
+    expect(codeOf(() => parseTags("teaching,writing"))).toBe("BAD_REQUEST");
+  });
+});
+
 describe("resolveVersion", () => {
   it("省略时生成 yyyyMMdd.HHmmss(UTC)", () => {
     expect(resolveVersion(null, new Date("2026-10-10T09:30:05Z"))).toBe("20261010.093005");
@@ -116,6 +129,7 @@ const skill = (over: Partial<Skill> = {}): Skill => ({
   latestVersionId: 1,
   downloadCount: 0,
   hidden: false,
+  tags: [],
   ...over,
 });
 

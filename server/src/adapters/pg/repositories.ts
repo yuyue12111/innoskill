@@ -124,6 +124,7 @@ function toSkill(r: SkillModel): Skill {
     latestVersionId: toNumberOrNull(r.latestVersionId),
     downloadCount: Number(r.downloadCount),
     hidden: r.hidden,
+    tags: r.tags,
   };
 }
 

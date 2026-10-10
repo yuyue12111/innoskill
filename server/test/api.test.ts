@@ -198,6 +198,35 @@ describe("技能下架(03 §8.4)", () => {
   });
 });
 
+describe("标签(03 §1.7)", () => {
+  it("上传写入、每次上传覆盖;详情返回 tags", async () => {
+    const t = setup();
+    const res = await t.upload(weatherPackage("1.0.0"), { user: "alice", tags: "teaching,primary" });
+    expect((await json(res)).tags).toEqual(["teaching", "primary"]);
+    await t.upload(weatherPackage("1.1.0"), { user: "alice", tags: "learning" });
+    expect((await json(await t.get(DETAIL))).tags).toEqual(["learning"]);
+  });
+
+  it("搜索传多个标签须同时满足", async () => {
+    const t = setup();
+    await t.upload(weatherPackage(), { user: "alice", tags: "teaching,primary" });
+    await t.upload(makeZip({ "SKILL.md": skillMd({ name: "Calendar", description: "日历" }) }), {
+      user: "alice",
+      tags: "teaching,junior",
+    });
+    const slugs = async (tags: string) =>
+      (await json(await t.get(`/api/skills?tags=${tags}`))).items.map((i: { slug: string }) => i.slug).sort();
+    expect(await slugs("teaching")).toEqual(["calendar", "weather"]);
+    expect(await slugs("teaching,primary")).toEqual(["weather"]);
+  });
+
+  it("词表外的值:上传 400,搜索 400", async () => {
+    const t = setup();
+    expect((await t.upload(weatherPackage(), { user: "alice", tags: "writing" })).status).toBe(400);
+    expect((await t.get("/api/skills?tags=writing")).status).toBe(400);
+  });
+});
+
 describe("搜索", () => {
   it("可见性:PUBLIC + 自己的 PRIVATE;user_id=me 列出自己的全部", async () => {
     const t = setup();

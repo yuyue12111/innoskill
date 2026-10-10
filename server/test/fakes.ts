@@ -149,6 +149,7 @@ export function createMemorySearchIndex(db: MemoryDb): SearchIndex {
             !s.hidden &&
             (s.visibility === "PUBLIC" || s.userId === q.viewerId) &&
             (q.authorId === null || s.userId === q.authorId) &&
+            q.tags.every((t) => s.tags.includes(t)) &&
             (!q.q || `${s.skillName} ${s.summary}`.includes(q.q)),
         )
         .sort((a, b) => (q.sort === "downloads" ? b.downloadCount - a.downloadCount : 0) || b.id - a.id);
@@ -216,11 +217,12 @@ export function setup() {
     clock,
     upload: (
       zip: Uint8Array,
-      opts: { user?: string; visibility?: string; confirmWarnings?: string } = { user: "alice" },
+      opts: { user?: string; visibility?: string; tags?: string; confirmWarnings?: string } = { user: "alice" },
     ) => {
       const form = new FormData();
       form.set("file", new File([new Uint8Array(zip)], "skill.zip", { type: "application/zip" }));
       if (opts.visibility) form.set("visibility", opts.visibility);
+      if (opts.tags !== undefined) form.set("tags", opts.tags);
       if (opts.confirmWarnings) form.set("confirmWarnings", opts.confirmWarnings);
       return app.request("/api/skills", { method: "POST", body: form, headers: headers(opts.user) });
     },

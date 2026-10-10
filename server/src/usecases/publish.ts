@@ -9,6 +9,7 @@ export interface PublishInput {
   requester: Requester;
   zip: Uint8Array;
   visibility: Visibility;
+  tags: string[];
   confirmWarnings: boolean;
 }
 
@@ -64,6 +65,7 @@ export async function publishSkill(
         skillName: meta.name,
         summary: meta.description,
         visibility: input.visibility,
+        tags: input.tags,
       }));
 
     const existing = await repos.versions.findBySkillAndVersion(skill.id, versionName);
@@ -93,6 +95,7 @@ export async function publishSkill(
       skillName: meta.name,
       summary: meta.description,
       visibility: input.visibility,
+      tags: input.tags,
       latestVersionId: version.id,
     });
 

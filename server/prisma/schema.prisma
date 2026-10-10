@@ -21,8 +21,10 @@ model Skill {
   latestVersionId BigInt? @map("latest_version_id")
   downloadCount   BigInt  @default(0) @map("download_count")
   hidden          Boolean @default(false)
+  tags            String[] @default([])
 
   @@unique([userId, slug])
+  @@index([tags], type: Gin)
   @@map("skill")
 }
 
