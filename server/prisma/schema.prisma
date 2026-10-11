@@ -2,8 +2,10 @@
 // 约束口径:主键 + 唯一索引 + 普通索引 + NOT NULL / DEFAULT;不建外键,所以模型之间不声明 relation。
 
 generator client {
-  provider = "prisma-client"
-  output   = "../src/generated/prisma"
+  provider            = "prisma-client"
+  output              = "../src/generated/prisma"
+  // 显式写死:不写时按 tsconfig 推断,镜像里装依赖时还没有 tsconfig,会生成 .ts 后缀的 import,运行时报错
+  importFileExtension = "js"
 }
 
 datasource db {

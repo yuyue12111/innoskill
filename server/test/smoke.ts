@@ -2,6 +2,7 @@
 // 用法:docker compose up -d → npm run db:migrate → npm run dev → npm run smoke
 // 每次用新的作者名和 IP,不依赖、也不影响库里已有数据。
 import { strict as assert } from "node:assert";
+import { request } from "node:http";
 import { S3Client } from "@aws-sdk/client-s3";
 import { strToU8, unzipSync, zipSync } from "fflate";
 import { createPrismaClient } from "../src/adapters/pg/prisma.js";
@@ -109,9 +110,17 @@ try {
   await step("下载:HTTPS → 302 预签名,链接能下到 zip", async () => {
     const r = await req("GET", downloadPath("weather", "1.0.0"), { headers: { "X-Forwarded-Proto": "https" } });
     assert.equal(r.status, 302);
-    const file = await fetch(r.headers.get("location")!);
-    assert.equal(file.status, 200);
-    assert.ok(unzipSync(new Uint8Array(await file.arrayBuffer()))["SKILL.md"]);
+    const location = r.headers.get("location")!;
+    assert.match(location, /bundle\.zip.*X-Amz-Signature=/);
+    try {
+      const file = await fetch(location);
+      assert.equal(file.status, 200);
+      assert.ok(unzipSync(new Uint8Array(await file.arrayBuffer()))["SKILL.md"]);
+    } catch (err) {
+      // 后端跑在容器里时,预签名链接是容器网络地址(minio:9000),宿主机解析不了
+      if ((err as { cause?: { code?: string } }).cause?.code !== "ENOTFOUND") throw err;
+      console.log(`    跳过链接下载校验:${new URL(location).host} 在本机不可达(容器内地址)`);
+    }
     assert.equal((await req("GET", skillPath("weather"))).json.downloadCount, 2);
   });
 
@@ -140,6 +149,58 @@ try {
 
   await step("name 含中文 → 400", async () => {
     assert.equal((await upload(pkg("天气", "查天气", "1.0.0"), alice)).status, 400);
+  });
+
+  await step("未登录上传 → 401", async () => {
+    const form = new FormData();
+    form.set("file", new Blob([new Uint8Array(pkg("Anon", "匿名", "1.0.0"))]), "skill.zip");
+    assert.equal((await req("POST", "/api/skills", { body: form })).status, 401);
+  });
+
+  await step("PRIVATE:只有作者能搜到、看到", async () => {
+    assert.equal((await upload(pkg("Secret", "私有技能", "1.0.0"), alice, { visibility: "PRIVATE" })).status, 201);
+    await new Promise((r) => setTimeout(r, 300));
+    assert.deepEqual(slugs(await req("GET", `/api/skills?user_id=${alice}&q=私有`)), []);
+    assert.deepEqual(slugs(await req("GET", `/api/skills?user_id=${alice}&q=私有`, { user: alice })), ["secret"]);
+    assert.equal((await req("GET", skillPath("secret"), { user: "bob" })).status, 403);
+    assert.equal((await req("GET", skillPath("secret"), { user: alice })).status, 200);
+  });
+
+  await step("告警:未确认 → 400 带 warnings;确认后 201", async () => {
+    const zip = zipSync({
+      "SKILL.md": strToU8("---\nname: Tool\ndescription: 带可执行文件\nversion: 1.0.0\n---\n"),
+      "tool.exe": strToU8("MZ"),
+    });
+    const rejected = await upload(zip, alice);
+    assert.equal(rejected.status, 400);
+    assert.equal(rejected.json.error.details.warnings[0].code, "EXTENSION_NOT_ALLOWED");
+    const accepted = await upload(zip, alice, { confirmWarnings: "true" });
+    assert.equal(accepted.status, 201);
+    assert.equal(accepted.json.warnings.length, 1);
+  });
+
+  await step("请求体 > 10 MB → 400", async () => {
+    // 只发请求头:服务端按 Content-Length 直接拒绝。fetch 在服务端提前响应时会报 EPIPE 而拿不到响应,所以用 node:http
+    const r = await new Promise<{ status: number; body: string }>((resolve, reject) => {
+      const headers = {
+        "Content-Type": "multipart/form-data; boundary=x",
+        "Content-Length": String(10 * 1024 * 1024 + 1),
+        "X-User-Id": alice,
+        "X-Forwarded-For": ip,
+      };
+      const call = request(`${base}/api/skills`, { method: "POST", headers }, (res) => {
+        let body = "";
+        res.on("data", (chunk) => (body += chunk));
+        res.on("end", () => {
+          resolve({ status: res.statusCode ?? 0, body });
+          call.destroy();
+        });
+      });
+      call.on("error", reject);
+      call.flushHeaders();
+    });
+    assert.equal(r.status, 400);
+    assert.equal(JSON.parse(r.body).error.code, "BAD_REQUEST");
   });
 
   await step("限流:匿名搜索每分钟 20 次,超出 → 429", async () => {
