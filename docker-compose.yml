@@ -1,0 +1,35 @@
+# 本地开发依赖:PostgreSQL、Redis、MinIO。账号与 server/.env.example 一致,仅限本地使用。
+services:
+  postgres:
+    image: postgres:17
+    environment:
+      POSTGRES_USER: innoskill
+      POSTGRES_PASSWORD: innoskill
+      POSTGRES_DB: innoskill
+    ports: ["5432:5432"]
+    volumes: [pg-data:/var/lib/postgresql/data]
+
+  redis:
+    image: redis:7
+    ports: ["6379:6379"]
+
+  minio:
+    image: minio/minio
+    command: server /data --console-address :9001
+    environment:
+      MINIO_ROOT_USER: minioadmin
+      MINIO_ROOT_PASSWORD: minioadmin
+    ports: ["9000:9000", "9001:9001"]
+    volumes: [minio-data:/data]
+
+  # 建 bucket,跑完即退出
+  minio-init:
+    image: minio/mc
+    depends_on: [minio]
+    entrypoint: >
+      sh -c "until mc alias set local http://minio:9000 minioadmin minioadmin; do sleep 1; done;
+             mc mb -p local/innoskill"
+
+volumes:
+  pg-data:
+  minio-data:
