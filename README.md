@@ -22,6 +22,7 @@ npm run dev                                  # http://localhost:3000/api/skills
 | 命令 | 作用 |
 |---|---|
 | `npm test` | 单测 + 接口测试（内存实现，不依赖数据库） |
+| `npm run smoke` | 冒烟测试：对正在运行的后端 + 真实 PG / MinIO / Redis 跑一遍全流程（先 `npm run dev`） |
 | `npm run typecheck` / `npm run lint` | 类型检查 / 代码检查（lint 会拦 `class`，见 CLAUDE.md） |
 | `npm run build && npm start` | 生产构建与启动；`OTEL_*` 环境变量控制链路追踪 |
 
