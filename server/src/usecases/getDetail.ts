@@ -9,7 +9,7 @@ export async function getSkillDetail(
   input: { requester: Requester; userId: string; slug: string },
 ): Promise<{ skill: Skill; versions: SkillVersion[] }> {
   const skill = await deps.db.skills.findByUserAndSlug(input.userId, input.slug);
-  if (!skill) throw notFound(`skill not found: ${input.userId}/${input.slug}`);
+  if (!skill) throw notFound(`技能不存在：${input.userId}/${input.slug}`);
   if (!canView(skill, input.requester)) throw forbidden();
   return { skill, versions: await deps.db.versions.listBySkill(skill.id) };
 }

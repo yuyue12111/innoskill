@@ -10,9 +10,9 @@ export async function yankVersion(
 ): Promise<SkillVersion> {
   assertPathOwner(input.requester, input.userId);
   const skill = await deps.db.skills.findByUserAndSlug(input.userId, input.slug);
-  if (!skill) throw notFound(`skill not found: ${input.userId}/${input.slug}`);
+  if (!skill) throw notFound(`技能不存在：${input.userId}/${input.slug}`);
   const version = await deps.db.versions.findBySkillAndVersion(skill.id, input.version);
-  if (!version) throw notFound(`version not found: ${input.userId}/${input.slug}@${input.version}`);
+  if (!version) throw notFound(`版本不存在：${input.userId}/${input.slug}@${input.version}`);
   if (version.status === "YANKED") return version;
 
   return deps.db.transaction(async (repos) => {

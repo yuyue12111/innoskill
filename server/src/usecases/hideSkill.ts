@@ -10,7 +10,7 @@ export async function hideSkill(
 ): Promise<{ skill: Skill; hiddenAt: Date }> {
   assertPathOwner(input.requester, input.userId);
   const skill = await deps.db.skills.findByUserAndSlug(input.userId, input.slug);
-  if (!skill) throw notFound(`skill not found: ${input.userId}/${input.slug}`);
+  if (!skill) throw notFound(`技能不存在：${input.userId}/${input.slug}`);
   const updated = skill.hidden ? skill : await deps.db.skills.update(skill.id, { hidden: true });
   return { skill: updated, hiddenAt: deps.clock.now() };
 }

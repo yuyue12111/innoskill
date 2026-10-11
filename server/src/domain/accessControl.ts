@@ -14,7 +14,7 @@ export function assertPathOwner(
   pathUserId: string,
 ): asserts requester is NonNullable<Requester> {
   if (!requester) throw unauthorized();
-  if (requester.userId !== pathUserId) throw forbidden("user_id in path does not match identity");
+  if (requester.userId !== pathUserId) throw forbidden("只能操作自己的技能");
 }
 
 /** 详情可见性(03 §5.2):作者总能看;其他人只能看 PUBLIC 且未下架的 */
@@ -46,7 +46,7 @@ export interface SearchScope {
 /** 搜索可见性(03 §4.2):PUBLIC,加上自己的 PRIVATE;user_id=me 需要身份 */
 export function searchScope(requester: Requester, userIdParam: string | undefined): SearchScope {
   if (userIdParam === "me") {
-    if (!requester) throw unauthorized("user_id=me requires authentication");
+    if (!requester) throw unauthorized("user_id=me 需要登录");
     return { authorId: requester.userId, viewerId: requester.userId };
   }
   return { authorId: userIdParam ?? null, viewerId: requester?.userId ?? null };

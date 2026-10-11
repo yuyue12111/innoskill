@@ -36,7 +36,7 @@ describe("上传", () => {
   it("未登录 → 401", async () => {
     const res = await setup().upload(weatherPackage(), {});
     expect(res.status).toBe(401);
-    expect(await json(res)).toEqual({ error: { code: "UNAUTHORIZED", message: "authentication required" } });
+    expect(await json(res)).toEqual({ error: { code: "UNAUTHORIZED", message: "需要登录" } });
   });
 
   it("有 warning 且 confirmWarnings=false → 400,details 带 warnings;确认后放行", async () => {
@@ -45,7 +45,7 @@ describe("上传", () => {
     const rejected = await t.upload(zip);
     expect(rejected.status).toBe(400);
     expect((await json(rejected)).error.details.warnings).toEqual([
-      { code: "EXTENSION_NOT_ALLOWED", message: "extension .exe is not allowed", filePath: "tool.exe" },
+      { code: "EXTENSION_NOT_ALLOWED", message: "不允许的文件类型：.exe", filePath: "tool.exe" },
     ]);
 
     const accepted = await t.upload(zip, { user: "alice", confirmWarnings: "true" });

@@ -24,7 +24,7 @@ export function createApp(deps: Deps, counter: Counter): Hono<AppEnv> {
   });
   app.use(identity);
   app.onError(createErrorHandler(deps.logger));
-  app.notFound((c) => c.json({ error: { code: "NOT_FOUND", message: "route not found" } }, 404));
+  app.notFound((c) => c.json({ error: { code: "NOT_FOUND", message: "接口不存在" } }, 404));
 
   app.route("/api/skills", createSkillRoutes(deps, createRateLimiter(counter)));
   return app;

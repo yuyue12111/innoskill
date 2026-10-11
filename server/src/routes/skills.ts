@@ -16,6 +16,9 @@ import { yankVersion } from "../usecases/yankVersion.js";
 
 const MAX_BODY_BYTES = 10 * 1024 * 1024;
 
+// 参数校验的报错也用中文
+z.config(z.locales.zhCN());
+
 const uploadForm = z.object({
   visibility: z.enum(VISIBILITIES).default("PUBLIC"),
   tags: z.string().optional(),
@@ -44,7 +47,7 @@ export function createSkillRoutes(deps: Deps, rateLimit: RateLimiter): Hono<AppE
     bodyLimit({
       maxSize: MAX_BODY_BYTES,
       onError: () => {
-        throw badRequest("request body exceeds 10 MB");
+        throw badRequest("上传内容超过 10 MB");
       },
     }),
     async (c) => {
@@ -52,7 +55,7 @@ export function createSkillRoutes(deps: Deps, rateLimit: RateLimiter): Hono<AppE
       if (!requester) throw unauthorized();
       const body = await c.req.parseBody();
       const form = parse(uploadForm, body);
-      if (!(body.file instanceof File)) throw badRequest("file is required");
+      if (!(body.file instanceof File)) throw badRequest("缺少上传文件（file 字段）");
       const result = await publishSkill(deps, {
         requester,
         zip: new Uint8Array(await body.file.arrayBuffer()),
@@ -124,7 +127,7 @@ export function createSkillRoutes(deps: Deps, rateLimit: RateLimiter): Hono<AppE
 function parse<T extends z.ZodType>(schema: T, data: unknown): z.output<T> {
   const result = schema.safeParse(data);
   if (!result.success) {
-    throw badRequest(result.error.issues.map((i) => `${i.path.join(".")}: ${i.message}`).join("; "));
+    throw badRequest(result.error.issues.map((i) => `${i.path.join(".")}：${i.message}`).join("；"));
   }
   return result.data;
 }

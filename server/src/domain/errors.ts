@@ -1,4 +1,5 @@
 // 单一错误类型 + code,不建继承树。code → HTTP 的映射见 03 §1.3。
+// message 用中文,前端直接展示给老师;程序判断一律看 code。
 
 export type ErrorCode =
   | "BAD_REQUEST"
@@ -25,6 +26,6 @@ export function isAppError(err: unknown): err is AppError {
 export const badRequest = (message: string, details?: Record<string, unknown>) =>
   appError("BAD_REQUEST", message, details);
 export const notFound = (message: string) => appError("NOT_FOUND", message);
-export const unauthorized = (message = "authentication required") => appError("UNAUTHORIZED", message);
-export const forbidden = (message = "forbidden") => appError("FORBIDDEN", message);
-export const rateLimited = () => appError("RATE_LIMITED", "rate limit exceeded");
+export const unauthorized = (message = "需要登录") => appError("UNAUTHORIZED", message);
+export const forbidden = (message = "没有权限") => appError("FORBIDDEN", message);
+export const rateLimited = () => appError("RATE_LIMITED", "请求太频繁，请稍后再试");
