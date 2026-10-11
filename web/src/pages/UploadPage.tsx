@@ -10,6 +10,7 @@ import type { UploadWarning } from '@/api/types'
 import { useIdentity } from '@/auth/identity'
 import { PageHeader } from '@/components/PageHeader'
 import { StatusMessage } from '@/components/StatusMessage'
+import { TagPicker } from '@/components/TagPicker'
 import {
   AlertDialog,
   AlertDialogAction,
@@ -26,12 +27,14 @@ import { Label } from '@/components/ui/label'
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group'
 import { errorText } from '@/lib/format'
 import { skillUrl } from '@/lib/paths'
+import { SCENES, STAGES, type TagKey } from '@/lib/tags'
 
 const schema = z.object({
   file: z
     .custom<File>((v) => v instanceof File, '请选择 zip 文件')
     .refine((f) => f.name.toLowerCase().endsWith('.zip'), '只能上传 .zip 文件'),
   visibility: z.enum(['PUBLIC', 'PRIVATE']),
+  tags: z.array(z.enum([...SCENES, ...STAGES].map((t) => t.key) as [TagKey, ...TagKey[]])),
 })
 type Values = z.infer<typeof schema>
 
@@ -41,7 +44,7 @@ export function UploadPage() {
   const upload = useUploadSkill()
   const [warnings, setWarnings] = useState<UploadWarning[] | null>(null)
   const [serverError, setServerError] = useState<string | null>(null)
-  const form = useForm<Values>({ resolver: zodResolver(schema), defaultValues: { visibility: 'PUBLIC' } })
+  const form = useForm<Values>({ resolver: zodResolver(schema), defaultValues: { visibility: 'PUBLIC', tags: [] } })
 
   // 03 §3：先不带确认提交；有告警时返回 400 + details.warnings，用户确认后带 confirmWarnings=true 重交
   async function submit(values: Values, confirmWarnings: boolean) {
@@ -63,17 +66,17 @@ export function UploadPage() {
   if (!me) {
     return (
       <div className="space-y-6">
-        <PageHeader title="上传技能" />
+        <PageHeader eyebrow="UPLOAD 上传" title="上传技能" />
         <StatusMessage>登录后才能上传技能</StatusMessage>
       </div>
     )
   }
 
   return (
-    <div className="max-w-xl space-y-6">
-      <PageHeader title="上传技能" description="上传即发布，没有审核环节。" />
+    <div className="space-y-8">
+      <PageHeader eyebrow="UPLOAD 上传" title="上传技能" description="上传即发布，没有审核环节。" />
 
-      <form className="space-y-6" onSubmit={form.handleSubmit((values) => submit(values, false))}>
+      <form className="grid max-w-[560px] gap-8" onSubmit={form.handleSubmit((values) => submit(values, false))}>
         <Controller
           control={form.control}
           name="file"
@@ -89,12 +92,13 @@ export function UploadPage() {
                 onBlur={field.onBlur}
                 onChange={(e) => field.onChange(e.target.files?.[0])}
                 aria-invalid={fieldState.invalid}
+                className="h-auto border-dashed p-3"
               />
-              <p className="text-xs text-muted-foreground">
-                zip 根目录要有 SKILL.md，frontmatter 里写 name 和 description，version 可省略。包内最多 100
+              <p className="type-body-sm text-ink-muted">
+                zip 根目录要有 SKILL.md，frontmatter 里写 name 和 description（name 必须是英文），version 可省略。包内最多 100
                 个文件，单个文件不超过 10 MB。
               </p>
-              {fieldState.error && <p className="text-sm text-destructive">{fieldState.error.message}</p>}
+              {fieldState.error && <p className="type-body-sm text-danger">{fieldState.error.message}</p>}
             </div>
           )}
         />
@@ -105,23 +109,42 @@ export function UploadPage() {
           render={({ field }) => (
             <div className="space-y-2">
               <Label>可见性</Label>
-              <RadioGroup value={field.value} onValueChange={field.onChange} className="flex gap-6">
-                <Label className="font-normal">
+              <RadioGroup value={field.value} onValueChange={field.onChange} className="flex flex-wrap gap-x-6 gap-y-3">
+                <Label className="type-body font-normal">
                   <RadioGroupItem value="PUBLIC" /> 公开：所有人可搜索、下载
                 </Label>
-                <Label className="font-normal">
+                <Label className="type-body font-normal">
                   <RadioGroupItem value="PRIVATE" /> 私有：仅自己可见
                 </Label>
               </RadioGroup>
               {/* 04 §4.1：可见性没有单独的修改入口，靠重传新版本更新 */}
-              <p className="text-xs text-muted-foreground">给已有技能传新版本时，可见性会按这里的选择更新。</p>
+              <p className="type-body-sm text-ink-muted">给已有技能传新版本时，可见性会按这里的选择更新。</p>
             </div>
           )}
         />
 
-        {serverError && <p className="text-sm text-destructive">{serverError}</p>}
+        <Controller
+          control={form.control}
+          name="tags"
+          render={({ field }) => (
+            <div className="space-y-2">
+              <Label>标签</Label>
+              <TagPicker value={field.value} onChange={field.onChange} />
+              {/* 03 §3.2：每次上传整体覆盖 */}
+              <p className="type-body-sm text-ink-muted">
+                可多选，也可以不选。给已有技能传新版本时，标签按这次的选择整体更新，不选就清空。
+              </p>
+            </div>
+          )}
+        />
 
-        <Button type="submit" disabled={upload.isPending}>
+        {serverError && (
+          <p role="alert" className="type-body-sm border border-danger bg-danger-wash px-4 py-3">
+            {serverError}
+          </p>
+        )}
+
+        <Button type="submit" className="justify-self-start" disabled={upload.isPending}>
           {upload.isPending ? '上传中…' : '上传'}
         </Button>
       </form>
@@ -132,10 +155,10 @@ export function UploadPage() {
             <AlertDialogTitle>技能包有 {warnings?.length} 条告警</AlertDialogTitle>
             <AlertDialogDescription>确认没问题再继续上传。上传后会立即公开发布（私有则仅自己可见）。</AlertDialogDescription>
           </AlertDialogHeader>
-          <ul className="space-y-1 text-sm">
+          <ul className="type-body-sm grid gap-1 border-y border-line py-3">
             {warnings?.map((w, i) => (
               <li key={i}>
-                <span className="font-mono">{w.filePath ?? '整个包'}</span>：{w.message}
+                <code className="font-mono">{w.filePath ?? '整个包'}</code>：{w.message}
               </li>
             ))}
           </ul>

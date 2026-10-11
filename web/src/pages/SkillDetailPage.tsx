@@ -5,12 +5,16 @@ import { useDownloadVersion, useHideSkill, useSkillDetail, useYankVersion } from
 import type { SkillDetail, SkillVersion } from '@/api/types'
 import { useIdentity } from '@/auth/identity'
 import { ConfirmAction } from '@/components/ConfirmAction'
+import { PageHeader } from '@/components/PageHeader'
 import { StatusMessage } from '@/components/StatusMessage'
-import { Badge } from '@/components/ui/badge'
+import { TagList } from '@/components/TagList'
 import { Button } from '@/components/ui/button'
 import { Skeleton } from '@/components/ui/skeleton'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
+import { Tag } from '@/components/ui/tag'
 import { errorText, formatBytes, formatDate } from '@/lib/format'
+import { isScene, isStage } from '@/lib/tags'
+import { cn } from '@/lib/utils'
 
 /** 与 03 §6.3 下载门禁里版本那三条一致 */
 const downloadable = (v: SkillVersion) => v.status === 'PUBLISHED' && v.downloadReady && !v.yankedAt
@@ -49,22 +53,21 @@ function VersionTable({ skill, isOwner }: { skill: SkillDetail; isOwner: boolean
           <TableHead>状态</TableHead>
           <TableHead className="hidden sm:table-cell">文件</TableHead>
           <TableHead className="hidden sm:table-cell">发布时间</TableHead>
-          <TableHead className="text-right">操作</TableHead>
+          <TableHead>
+            <span className="sr-only">操作</span>
+          </TableHead>
         </TableRow>
       </TableHeader>
       <TableBody>
         {versions.map((v) => (
-          <TableRow key={v.version}>
-            <TableCell className="font-mono">
-              {v.version} {v.isHeadline && <Badge variant="outline">最新</Badge>}
-            </TableCell>
+          <TableRow key={v.version} className={cn(v.yankedAt && 'text-ink-muted')}>
             <TableCell>
-              {v.yankedAt ? (
-                <span className="text-muted-foreground">已下架 · {formatDate(v.yankedAt)}</span>
-              ) : (
-                '已发布'
-              )}
+              <span className="inline-flex items-center gap-2">
+                {v.version}
+                {v.isHeadline && <Tag>最新</Tag>}
+              </span>
             </TableCell>
+            <TableCell>{v.yankedAt ? `已下架 · ${formatDate(v.yankedAt)}` : '已发布'}</TableCell>
             <TableCell className="hidden sm:table-cell">
               {v.fileCount} 个 · {formatBytes(v.totalSize)}
             </TableCell>
@@ -96,6 +99,27 @@ function VersionTable({ skill, isOwner }: { skill: SkillDetail; isOwner: boolean
   )
 }
 
+/** 标签按 03 §1.7 的两组分行显示；某组没打标签就不显示那一行 */
+function SkillTags({ tags }: { tags: readonly string[] }) {
+  const groups = [
+    { label: '场景', tags: tags.filter(isScene) },
+    { label: '学段', tags: tags.filter(isStage) },
+  ].filter((g) => g.tags.length > 0)
+  if (groups.length === 0) return null
+  return (
+    <dl className="grid gap-2">
+      {groups.map((g) => (
+        <div key={g.label} className="flex flex-wrap items-center gap-2">
+          <dt className="type-group">{g.label}：</dt>
+          <dd>
+            <TagList tags={g.tags} />
+          </dd>
+        </div>
+      ))}
+    </dl>
+  )
+}
+
 export function SkillDetailPage() {
   const { userId = '', slug = '' } = useParams()
   const me = useIdentity((s) => s.userId)
@@ -118,52 +142,61 @@ export function SkillDetailPage() {
   const headline = skill.versions.find((v) => v.isHeadline)
 
   return (
-    <div className="space-y-10">
-      <section className="space-y-4">
-        <div className="space-y-1">
-          <div className="flex flex-wrap items-center gap-2">
-            <h1 className="text-2xl font-semibold break-all">{skill.skill_name}</h1>
-            {skill.visibility === 'PRIVATE' && <Badge variant="secondary">私有</Badge>}
-            {skill.hidden && <Badge variant="destructive">已下架</Badge>}
-          </div>
-          <p className="font-mono text-sm text-muted-foreground">
-            {skill.user_id}/{skill.slug}
-          </p>
-        </div>
-        <p className="whitespace-pre-line">{skill.summary}</p>
-        <div className="flex flex-wrap gap-x-6 gap-y-1 text-sm text-muted-foreground">
-          <span>作者 {skill.user_name}</span>
-          <span>{skill.downloadCount} 次下载</span>
-          <span>发布于 {formatDate(skill.publishedAt)}</span>
-        </div>
+    <div className="space-y-12 sm:space-y-[72px]">
+      <PageHeader
+        variant="title"
+        eyebrow="SKILL 技能"
+        title={skill.skill_name}
+        description={
+          <span className="flex flex-wrap items-center gap-2">
+            <code className="font-mono">
+              {skill.user_id}/{skill.slug}
+            </code>
+            {skill.visibility === 'PRIVATE' && <Tag variant="muted">私有</Tag>}
+            {skill.hidden && <Tag variant="danger">已下架</Tag>}
+          </span>
+        }
+        count={skill.downloadCount}
+        countLabel="DOWNLOADS 下载"
+      />
+
+      <section className="grid gap-6">
+        <p className="type-body max-w-[65ch] whitespace-pre-line">{skill.summary}</p>
+        <p className="type-body-sm text-ink-muted tabular-nums">
+          作者 {skill.user_name} · 发布于 {formatDate(skill.publishedAt)}
+        </p>
+        <SkillTags tags={skill.tags} />
         {headline && downloadable(headline) && (
-          <DownloadButton skill={skill} version={headline.version} label={`下载 ${headline.version}`} />
+          <div>
+            <DownloadButton skill={skill} version={headline.version} label={`下载 ${headline.version}`} />
+          </div>
         )}
         {skill.hidden && (
-          <p className="text-sm text-muted-foreground">这个技能已下架：其他人搜不到、看不到、下载不了，只有你还能访问。</p>
+          <p className="type-body-sm border border-danger bg-danger-wash px-4 py-3">
+            这个技能已下架：其他人搜不到、看不到、下载不了，只有你还能访问。
+          </p>
         )}
       </section>
 
-      <section className="space-y-3">
-        <h2 className="text-lg font-medium">版本</h2>
+      <section className="grid gap-4">
+        <p className="eyebrow">VERSIONS 版本</p>
         <VersionTable skill={skill} isOwner={isOwner} />
       </section>
 
       {isOwner && !skill.hidden && (
-        <section className="space-y-3 rounded-lg border border-destructive/30 p-4">
-          <h2 className="font-medium">下架技能</h2>
-          <p className="text-sm text-muted-foreground">
+        <section className="grid justify-items-start gap-3 border border-line bg-paper p-6">
+          <h2 className="type-heading">下架技能</h2>
+          <p className="type-body-sm text-ink-muted">
             下架后其他人搜不到、看不到、下载不了这个技能；你自己仍可通过本页地址访问和下载。
           </p>
+          {/* 设计系统：危险按钮只出现在确认弹窗里，页面上的入口用普通按钮 */}
           <ConfirmAction
-            trigger={<Button variant="destructive">下架技能</Button>}
+            trigger={<Button variant="outline">下架技能</Button>}
             title={`下架 ${skill.skill_name}？`}
             description="操作不可撤销，平台没有恢复入口。下架后连你的「我的技能」列表里也不再显示。"
             confirmLabel="下架技能"
             onConfirm={() =>
-              hide
-                .mutateAsync({ userId: skill.user_id, slug: skill.slug })
-                .then(() => toast.success('技能已下架'))
+              hide.mutateAsync({ userId: skill.user_id, slug: skill.slug }).then(() => toast.success('技能已下架'))
             }
           />
         </section>
