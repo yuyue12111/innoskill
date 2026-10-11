@@ -34,23 +34,23 @@ export function parsePackage(zip: Uint8Array): ParsedPackage {
     entries = unzipSync(zip, {
       filter: (f) => {
         if (f.name.endsWith("/") || isJunk(f.name)) return false;
-        if (f.originalSize > MAX_FILE_BYTES) throw badRequest(`file exceeds 10 MB: ${f.name}`);
+        if (f.originalSize > MAX_FILE_BYTES) throw badRequest(`文件超过 10 MB：${f.name}`);
         return true;
       },
     });
   } catch (err) {
     if (isAppError(err)) throw err;
-    throw badRequest("file is not a valid zip");
+    throw badRequest("不是有效的 zip 文件");
   }
 
   let files = Object.entries(entries).map(([name, bytes]) => {
-    if (bytes.length > MAX_FILE_BYTES) throw badRequest(`file exceeds 10 MB: ${name}`);
+    if (bytes.length > MAX_FILE_BYTES) throw badRequest(`文件超过 10 MB：${name}`);
     return { path: normalizePath(name), bytes };
   });
   files = stripSingleRootDir(files);
 
-  if (!files.some((f) => f.path === "SKILL.md")) throw badRequest("SKILL.md not found at package root");
-  if (files.length > MAX_FILES) throw badRequest(`package has more than ${MAX_FILES} files`);
+  if (!files.some((f) => f.path === "SKILL.md")) throw badRequest("包的根目录缺少 SKILL.md");
+  if (files.length > MAX_FILES) throw badRequest(`包内文件超过 ${MAX_FILES} 个`);
 
   const parsed = files.map((f) => ({
     path: f.path,
@@ -80,7 +80,7 @@ function normalizePath(name: string): string {
   const path = name.replace(/\\/g, "/");
   const segments = path.split("/");
   if (path.startsWith("/") || /^[A-Za-z]:/.test(path) || segments.includes("..")) {
-    throw badRequest(`path escapes package root: ${name}`);
+    throw badRequest(`文件路径越出了包的根目录：${name}`);
   }
   return segments.filter((s) => s !== "" && s !== ".").join("/");
 }
@@ -122,19 +122,19 @@ function checkFile(file: PackageFile): Warning[] {
   const isText = TEXT_EXTENSIONS.has(ext);
 
   if (!isText && !magic) {
-    return [{ code: "EXTENSION_NOT_ALLOWED", message: `extension .${ext} is not allowed`, filePath: file.path }];
+    return [{ code: "EXTENSION_NOT_ALLOWED", message: `不允许的文件类型：.${ext}`, filePath: file.path }];
   }
   if (magic && !magic.every((b, i) => file.bytes[i] === b)) {
-    return [{ code: "CONTENT_MISMATCH", message: `content does not match .${ext}`, filePath: file.path }];
+    return [{ code: "CONTENT_MISMATCH", message: `文件内容与扩展名 .${ext} 不符`, filePath: file.path }];
   }
   if (isText) {
     const head = file.bytes.subarray(0, 8192);
     if (head.includes(0)) {
-      return [{ code: "CONTENT_MISMATCH", message: "binary content in a text file", filePath: file.path }];
+      return [{ code: "CONTENT_MISMATCH", message: "文本文件中含有二进制内容", filePath: file.path }];
     }
     const text = new TextDecoder().decode(file.bytes);
     if (SECRET_PATTERNS.some((re) => re.test(text))) {
-      return [{ code: "POSSIBLE_SECRET", message: "looks like it contains a secret", filePath: file.path }];
+      return [{ code: "POSSIBLE_SECRET", message: "疑似包含密钥", filePath: file.path }];
     }
   }
   return [];

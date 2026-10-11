@@ -24,9 +24,9 @@ export function createErrorHandler(logger: Logger): ErrorHandler<AppEnv> {
     }
     // Hono 自身抛的 4xx(如请求体格式错误)统一按参数非法处理
     if (err instanceof HTTPException && err.status < 500) {
-      return c.json({ error: { code: "BAD_REQUEST", message: err.message } }, 400);
+      return c.json({ error: { code: "BAD_REQUEST", message: "请求格式不正确" } }, 400);
     }
     logger.error({ err }, "unhandled error");
-    return c.json({ error: { code: "INTERNAL", message: "internal server error" } }, 500);
+    return c.json({ error: { code: "INTERNAL", message: "服务器内部错误" } }, 500);
   };
 }

@@ -25,13 +25,13 @@ export async function downloadVersion(
   input: DownloadInput,
 ): Promise<DownloadResult> {
   const skill = await deps.db.skills.findByUserAndSlug(input.userId, input.slug);
-  if (!skill) throw notFound(`skill not found: ${input.userId}/${input.slug}`);
+  if (!skill) throw notFound(`技能不存在：${input.userId}/${input.slug}`);
   // 先判技能可见性,看不见的技能不暴露它有哪些版本
   if (!canView(skill, input.requester)) throw forbidden();
   const version = await deps.db.versions.findBySkillAndVersion(skill.id, input.version);
-  if (!version) throw notFound(`version not found: ${input.userId}/${input.slug}@${input.version}`);
+  if (!version) throw notFound(`版本不存在：${input.userId}/${input.slug}@${input.version}`);
   if (checkDownload(skill, version, input.requester) !== "ALLOW") {
-    throw badRequest(`version is not downloadable: ${input.version}`);
+    throw badRequest(`该版本不可下载：${input.version}`);
   }
 
   const key = bundleKey(skill.id, version.id);
@@ -58,6 +58,6 @@ export async function downloadVersion(
     files.map(async (f) => ({ path: f.filePath, bytes: await deps.storage.getBytes(f.storageKey) })),
   );
   const present = fetched.flatMap((f) => (f.bytes ? [{ path: f.path, bytes: f.bytes }] : []));
-  if (present.length === 0) throw appError("INTERNAL", "package files are missing from storage");
+  if (present.length === 0) throw appError("INTERNAL", "存储中缺少该版本的文件");
   return { kind: "bytes", body: buildBundle(present), filename };
 }

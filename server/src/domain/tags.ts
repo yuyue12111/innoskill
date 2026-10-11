@@ -27,6 +27,6 @@ export function parseTags(input: string | undefined): string[] {
     ),
   ];
   const unknown = tags.filter((t) => !ALLOWED.has(t));
-  if (unknown.length > 0) throw badRequest(`unknown tags: ${unknown.join(", ")}`);
+  if (unknown.length > 0) throw badRequest(`未知标签：${unknown.join("、")}`);
   return tags;
 }

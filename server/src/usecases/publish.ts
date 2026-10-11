@@ -29,13 +29,13 @@ export async function publishSkill(
 
   const pkg = parsePackage(input.zip);
   if (pkg.warnings.length > 0 && !input.confirmWarnings) {
-    throw badRequest("package has warnings; resubmit with confirmWarnings=true to publish anyway", {
+    throw badRequest("技能包有告警，确认无误后请带 confirmWarnings=true 重新上传", {
       warnings: pkg.warnings,
     });
   }
 
   const skillMd = pkg.files.find((f) => f.path === "SKILL.md");
-  if (!skillMd) throw badRequest("SKILL.md not found at package root");
+  if (!skillMd) throw badRequest("包的根目录缺少 SKILL.md");
   const meta = parseSkillMd(new TextDecoder().decode(skillMd.bytes));
   const slug = slugFromName(meta.name);
   const now = deps.clock.now();
@@ -71,7 +71,7 @@ export async function publishSkill(
     const existing = await repos.versions.findBySkillAndVersion(skill.id, versionName);
     let version: SkillVersion;
     if (existing) {
-      if (existing.status !== "YANKED") throw badRequest(`version already exists: ${versionName}`);
+      if (existing.status !== "YANKED") throw badRequest(`版本 ${versionName} 已存在`);
       // 已下架的版本号可复用:删旧登记与对象后重建(04 §4.2)
       const oldFiles = await repos.files.listByVersion(existing.id);
       await repos.files.deleteByVersion(existing.id);
