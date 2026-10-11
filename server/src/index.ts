@@ -38,3 +38,6 @@ const app = createApp(
 );
 
 serve({ fetch: app.fetch, port: config.PORT }, (info) => logger.info(`listening on :${info.port}`));
+
+// OTel 预加载注册了 SIGTERM 处理器但不退出进程,这里恢复默认行为,否则 docker stop 要等到强杀
+process.on("SIGTERM", () => process.exit(0));
