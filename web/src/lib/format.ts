@@ -6,6 +6,10 @@ export function formatDate(iso: string | null): string {
   return iso ? format(parseISO(iso), 'yyyy-MM-dd HH:mm') : '—'
 }
 
+export function formatDay(iso: string | null): string {
+  return iso ? format(parseISO(iso), 'yyyy-MM-dd') : ''
+}
+
 export function formatBytes(bytes: number): string {
   if (bytes < 1024) return `${bytes} B`
   if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`

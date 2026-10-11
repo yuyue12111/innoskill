@@ -1,6 +1,7 @@
 // 上传包的解析与校验，规则照 03 §3.2、§3.4。出错时抛出 PackageError，由上传 handler 转成 400。
 import { strFromU8, unzipSync } from 'fflate'
 import type { UploadWarning } from '@/api/types'
+import { SCENES, STAGES, type TagKey } from '@/lib/tags'
 
 export interface PackageError {
   kind: 'package'
@@ -57,6 +58,8 @@ export function readFrontmatter(skillMd: Uint8Array) {
   const name = get('name')
   const description = get('description')
   if (!name || !description) fail('SKILL.md 缺少 name 或 description')
+  // 03 §3.2：name 必须纯英文；文案与后端一致
+  if (/[^\x20-\x7E]/.test(name)) fail(`name must be English: ${name}`)
   return { name, description, version: get('version') }
 }
 
@@ -91,4 +94,14 @@ export function scanWarnings(files: Record<string, Uint8Array>): UploadWarning[]
     }
   }
   return warnings
+}
+
+const TAG_KEYS = new Set<string>([...SCENES, ...STAGES].map((t) => t.key))
+
+/** 解析逗号分隔的标签：去空白、去重，词表外的值报错（03 §1.7，与后端 parseTags 一致） */
+export function parseTags(raw: string | null): TagKey[] {
+  const tags = [...new Set((raw ?? '').split(',').map((t) => t.trim()).filter(Boolean))]
+  const unknown = tags.filter((t) => !TAG_KEYS.has(t))
+  if (unknown.length > 0) fail(`unknown tags: ${unknown.join(', ')}`)
+  return tags as TagKey[]
 }

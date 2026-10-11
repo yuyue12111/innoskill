@@ -10,16 +10,16 @@ export function Pagination({ page, size, total, onChange }: {
   const pages = Math.ceil(total / size)
   if (pages <= 1) return null
   return (
-    <div className="flex items-center justify-center gap-3 text-sm">
+    <nav aria-label="分页" className="flex items-center justify-center gap-4">
       <Button variant="outline" size="sm" disabled={page <= 0} onClick={() => onChange(page - 1)}>
         上一页
       </Button>
-      <span className="text-muted-foreground">
-        第 {page + 1} / {pages} 页
+      <span className="type-body-sm text-ink-muted tabular-nums">
+        {page + 1} / {pages}
       </span>
       <Button variant="outline" size="sm" disabled={page + 1 >= pages} onClick={() => onChange(page + 1)}>
         下一页
       </Button>
-    </div>
+    </nav>
   )
 }

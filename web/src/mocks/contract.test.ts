@@ -29,6 +29,7 @@ function addSkill(slug: string, patch: Partial<MockSkill> = {}): MockSkill {
     skill_name: slug,
     summary: 'fixture',
     visibility: 'PUBLIC',
+    tags: [],
     hidden: false,
     downloadCount: 0,
     headlineVersion: '1.0.0',
@@ -138,24 +139,24 @@ describe('03 §4 搜索', () => {
 describe('03 §3 上传', () => {
   it('匿名 → 401', async () => {
     const file = zipFile({ 'SKILL.md': skillMd('demo') })
-    expect(await statusOf(uploadSkill({ file, visibility: 'PUBLIC', confirmWarnings: false }))).toBe(401)
+    expect(await statusOf(uploadSkill({ file, visibility: 'PUBLIC', tags: [], confirmWarnings: false }))).toBe(401)
   })
 
   it('有告警：先 400 带 warnings，确认后 201 并回传 warnings', async () => {
     as('alice')
     const file = zipFile({ 'SKILL.md': skillMd('demo'), 'tool.exe': 'x' })
-    await expect(uploadSkill({ file, visibility: 'PUBLIC', confirmWarnings: false })).rejects.toMatchObject({
+    await expect(uploadSkill({ file, visibility: 'PUBLIC', tags: [], confirmWarnings: false })).rejects.toMatchObject({
       status: 400,
       details: { warnings: [{ code: 'EXTENSION_NOT_ALLOWED', filePath: 'tool.exe' }] },
     })
-    const res = await uploadSkill({ file, visibility: 'PUBLIC', confirmWarnings: true })
+    const res = await uploadSkill({ file, visibility: 'PUBLIC', tags: [], confirmWarnings: true })
     expect(res).toMatchObject({ slug: 'demo', status: 'PUBLISHED', warnings: [{ filePath: 'tool.exe' }] })
   })
 
   it('硬错误不带 warnings：缺 SKILL.md', async () => {
     as('alice')
     const file = zipFile({ 'README.md': 'hi', 'tool.exe': 'x' })
-    await expect(uploadSkill({ file, visibility: 'PUBLIC', confirmWarnings: false })).rejects.toMatchObject({
+    await expect(uploadSkill({ file, visibility: 'PUBLIC', tags: [], confirmWarnings: false })).rejects.toMatchObject({
       status: 400,
       details: {},
     })
@@ -164,14 +165,14 @@ describe('03 §3 上传', () => {
   it('多套一层文件夹会被剥掉；省略 version 时生成 yyyyMMdd.HHmmss', async () => {
     as('alice')
     const file = zipFile({ 'demo/SKILL.md': skillMd('Demo Skill'), 'demo/__MACOSX/x': '' })
-    const res = await uploadSkill({ file, visibility: 'PUBLIC', confirmWarnings: false })
+    const res = await uploadSkill({ file, visibility: 'PUBLIC', tags: [], confirmWarnings: false })
     expect(res).toMatchObject({ slug: 'demo-skill', fileCount: 1 })
     expect(res.version).toMatch(/^\d{8}\.\d{6}$/)
   })
 
   it('详情立刻可见，搜索要等索引重建', async () => {
     as('alice')
-    await uploadSkill({ file: zipFile({ 'SKILL.md': skillMd('fresh') }), visibility: 'PUBLIC', confirmWarnings: false })
+    await uploadSkill({ file: zipFile({ 'SKILL.md': skillMd('fresh') }), visibility: 'PUBLIC', tags: [], confirmWarnings: false })
     expect((await getSkill('alice', 'fresh')).slug).toBe('fresh')
     expect((await searchSkills({ q: 'fresh' })).items).toHaveLength(0)
   })
@@ -179,7 +180,7 @@ describe('03 §3 上传', () => {
   it('同版本已发布 → 400；下架后可用同版本号覆盖', async () => {
     as('alice')
     const upload = () =>
-      uploadSkill({ file: zipFile({ 'SKILL.md': skillMd('dup', '1.0.0') }), visibility: 'PUBLIC', confirmWarnings: false })
+      uploadSkill({ file: zipFile({ 'SKILL.md': skillMd('dup', '1.0.0') }), visibility: 'PUBLIC', tags: [], confirmWarnings: false })
     await upload()
     expect(await statusOf(upload())).toBe(400)
     await yankVersion('alice', 'dup', '1.0.0')
@@ -193,7 +194,7 @@ describe('03 §3 上传', () => {
     ['请求体 > 10 MB', new File([new Uint8Array(10 * 1024 * 1024 + 1)], 'big.zip')],
   ])('%s → 400', async (_, file) => {
     as('alice')
-    expect(await statusOf(uploadSkill({ file, visibility: 'PUBLIC', confirmWarnings: false }))).toBe(400)
+    expect(await statusOf(uploadSkill({ file, visibility: 'PUBLIC', tags: [], confirmWarnings: false }))).toBe(400)
   })
 })
 
@@ -231,5 +232,46 @@ describe('03 §7 / §8 下架', () => {
     expect(await statusOf(downloadVersion('alice', 'a', '1.0.0'))).toBe(400)
     expect(await statusOf(downloadVersion('alice', 'b', '1.0.0'))).toBe(200)
     expect((await getSkill('alice', 'b')).hidden).toBe(true)
+  })
+})
+
+describe('03 §1.7 标签', () => {
+  const upload = (tags: string, name = 'tagged', version?: string) =>
+    uploadSkill({
+      file: zipFile({ 'SKILL.md': skillMd(name, version) }),
+      visibility: 'PUBLIC',
+      tags: tags ? (tags.split(',') as never) : [],
+      confirmWarnings: false,
+    })
+
+  it('搜索传多个标签时须同时满足', async () => {
+    addSkill('both', { tags: ['teaching', 'primary'] })
+    addSkill('scene-only', { tags: ['teaching'] })
+    const slugs = async (tags: string[]) =>
+      (await searchSkills({ user_id: 'alice', tags: tags as never, size: 100 })).items.map((i) => i.slug)
+
+    expect(await slugs(['teaching'])).toEqual(expect.arrayContaining(['both', 'scene-only']))
+    const both = await slugs(['teaching', 'primary'])
+    expect(both).toContain('both')
+    expect(both).not.toContain('scene-only')
+  })
+
+  it('词表外的标签 → 400（搜索与上传都是）', async () => {
+    expect(await statusOf(searchSkills({ tags: ['math' as never] }))).toBe(400)
+    as('alice')
+    await expect(upload('teaching,math')).rejects.toMatchObject({ status: 400, message: 'unknown tags: math' })
+  })
+
+  it('上传带回 tags；每次上传整体覆盖，不传即清空', async () => {
+    as('alice')
+    expect((await upload('teaching,primary', 'tagged', '1.0.0')).tags).toEqual(['teaching', 'primary'])
+    expect((await getSkill('alice', 'tagged')).tags).toEqual(['teaching', 'primary'])
+    await upload('', 'tagged', '1.0.1')
+    expect((await getSkill('alice', 'tagged')).tags).toEqual([])
+  })
+
+  it('SKILL.md 的 name 含中文 → 400，message 原样给出', async () => {
+    as('alice')
+    await expect(upload('', '天气助手')).rejects.toMatchObject({ status: 400, message: 'name must be English: 天气助手' })
   })
 })

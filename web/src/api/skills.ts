@@ -1,5 +1,6 @@
 // 03 的六个接口，一个接口一个函数。
 import { apiFetch, apiJson } from './client'
+import type { TagKey } from '@/lib/tags'
 import type {
   HideResult,
   SearchParams,
@@ -19,11 +20,14 @@ const versionPath = (userId: string, slug: string, version: string) =>
 export function uploadSkill(input: {
   file: File
   visibility: Visibility
+  /** 每次上传整体覆盖，空数组即清空（03 §3.2） */
+  tags: TagKey[]
   confirmWarnings: boolean
 }): Promise<UploadResult> {
   const form = new FormData()
   form.set('file', input.file)
   form.set('visibility', input.visibility)
+  form.set('tags', input.tags.join(','))
   form.set('confirmWarnings', String(input.confirmWarnings))
   return apiJson('/skills', { method: 'POST', body: form })
 }
@@ -32,7 +36,8 @@ export function uploadSkill(input: {
 export function searchSkills(params: SearchParams): Promise<SearchResult> {
   const qs = new URLSearchParams()
   for (const [key, value] of Object.entries(params)) {
-    if (value !== undefined && value !== '') qs.set(key, String(value))
+    const v = Array.isArray(value) ? value.join(',') : value
+    if (v !== undefined && v !== '') qs.set(key, String(v))
   }
   const query = qs.toString()
   return apiJson(`/skills${query ? `?${query}` : ''}`)

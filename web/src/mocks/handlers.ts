@@ -14,7 +14,7 @@ import type {
   YankResult,
 } from '@/api/types'
 import { db, INDEX_DELAY_MS, timestampVersion, type MockSkill } from './db'
-import { isPackageError, readFrontmatter, readPackage, scanWarnings, toSlug } from './package'
+import { isPackageError, parseTags, readFrontmatter, readPackage, scanWarnings, toSlug } from './package'
 
 const fail = (status: number, code: ErrorCode, message: string, warnings?: UploadWarning[]) =>
   HttpResponse.json<ErrorBody>(
@@ -39,6 +39,7 @@ function toSummary(s: MockSkill): SkillSummary {
     summary: s.summary,
     user_name: s.user_id,
     visibility: s.visibility,
+    tags: s.tags,
     downloadCount: s.downloadCount,
     headlineVersion: s.headlineVersion,
     publishedAt: headline(s)?.publishedAt ?? null,
@@ -90,9 +91,11 @@ export const handlers = [
     if (visibility !== 'PUBLIC' && visibility !== 'PRIVATE') {
       return fail(400, 'BAD_REQUEST', `visibility 取值非法：${visibility}`)
     }
+    const rawTags = form.get('tags')
 
-    let files, meta, slug
+    let files, meta, slug, tags
     try {
+      tags = parseTags(typeof rawTags === 'string' ? rawTags : null)
       files = readPackage(new Uint8Array(await file.arrayBuffer()))
       meta = readFrontmatter(files['SKILL.md'])
       slug = toSlug(meta.name)
@@ -129,6 +132,7 @@ export const handlers = [
       skill_name: meta.name,
       summary: meta.description,
       visibility,
+      tags,
       hidden: false,
       downloadCount: 0,
       headlineVersion: version,
@@ -141,6 +145,8 @@ export const handlers = [
       skill_name: meta.name,
       summary: meta.description,
       visibility,
+      // 每次上传整体覆盖，不传即清空（03 §3.2）
+      tags,
       headlineVersion: version,
       searchableAt: Date.now() + INDEX_DELAY_MS,
     })
@@ -153,6 +159,7 @@ export const handlers = [
         skill_name: meta.name,
         summary: meta.description,
         visibility,
+        tags,
         version,
         status: 'PUBLISHED',
         fileCount: Object.keys(files).length,
@@ -174,6 +181,14 @@ export const handlers = [
     if (!SORTS.includes(sort)) return fail(400, 'BAD_REQUEST', `sort 取值非法：${sort}`)
     if (page === null || page < 0) return fail(400, 'BAD_REQUEST', 'page 必须是 ≥ 0 的整数')
     if (size === null || size < 1 || size > 100) return fail(400, 'BAD_REQUEST', 'size 必须在 1–100 之间')
+
+    let tags
+    try {
+      tags = parseTags(params.get('tags'))
+    } catch (e) {
+      if (isPackageError(e)) return fail(400, 'BAD_REQUEST', e.message)
+      throw e
+    }
 
     let owner = params.get('user_id') || null
     if (owner === 'me') {
@@ -197,6 +212,8 @@ export const handlers = [
       .filter((s) => !s.hidden && s.searchableAt <= Date.now())
       .filter((s) => s.visibility === 'PUBLIC' || s.user_id === me)
       .filter((s) => !owner || s.user_id === owner)
+      // 多个标签须同时满足（03 §4.2）
+      .filter((s) => tags.every((t) => s.tags.includes(t)))
       .filter((s) => score(s) > 0)
       .sort(order[sort])
 

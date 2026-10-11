@@ -1,6 +1,7 @@
 // mock 后端的内存数据。只模拟 03 对外可见的行为，不模拟库表。
 import { strToU8 } from 'fflate'
 import type { Visibility, VersionStatus } from '@/api/types'
+import type { TagKey } from '@/lib/tags'
 import seed from './seed.json'
 
 export interface MockVersion {
@@ -17,6 +18,7 @@ export interface MockSkill {
   skill_name: string
   summary: string
   visibility: Visibility
+  tags: TagKey[]
   hidden: boolean
   downloadCount: number
   /** 下架 headline 版本时回退，可能为 null（03 §7.4） */
@@ -51,6 +53,7 @@ function buildSeed(): MockSkill[] {
       skill_name: s.name,
       summary: s.description,
       visibility: 'PUBLIC',
+      tags: s.tags as TagKey[],
       hidden: false,
       downloadCount: (i * 37) % 500,
       headlineVersion: version,
