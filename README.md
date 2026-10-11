@@ -7,8 +7,23 @@
 | 路径 | 内容 |
 |---|---|
 | `docs/` | 设计文档 |
-| `server/` | 后端：Hono + Prisma + PostgreSQL + S3（未开始） |
-| `web/` | 前端：Vite + React（未开始） |
+| `server/` | 后端：Hono + Prisma + PostgreSQL + S3 |
+| `web/` | 前端：Vite + React，见 [web/README.md](web/README.md) |
+
+## 后端本地开发
+
+```bash
+docker compose up -d                         # PostgreSQL / Redis / MinIO(自动建 bucket)
+cd server && cp .env.example .env && npm install
+npm run db:migrate                           # 建表
+npm run dev                                  # http://localhost:3000/api/skills
+```
+
+| 命令 | 作用 |
+|---|---|
+| `npm test` | 单测 + 接口测试（内存实现，不依赖数据库） |
+| `npm run typecheck` / `npm run lint` | 类型检查 / 代码检查（lint 会拦 `class`，见 CLAUDE.md） |
+| `npm run build && npm start` | 生产构建与启动；`OTEL_*` 环境变量控制链路追踪 |
 
 ## 文档
 

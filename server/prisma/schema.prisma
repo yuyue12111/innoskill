@@ -1,0 +1,86 @@
+// 表结构见 docs/04-库表设计.md。
+// 约束口径:主键 + 唯一索引 + 普通索引 + NOT NULL / DEFAULT;不建外键,所以模型之间不声明 relation。
+
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model Skill {
+  id              BigInt  @id @default(autoincrement())
+  userId          String  @map("user_id") @db.VarChar(128)
+  slug            String  @db.VarChar(128)
+  skillName       String? @map("skill_name") @db.VarChar(256)
+  summary         String? @db.VarChar(512)
+  visibility      String  @default("PUBLIC") @db.VarChar(32)
+  status          String  @default("ACTIVE") @db.VarChar(32)
+  latestVersionId BigInt? @map("latest_version_id")
+  downloadCount   BigInt  @default(0) @map("download_count")
+  hidden          Boolean @default(false)
+  tags            String[] @default([])
+
+  @@unique([userId, slug])
+  @@index([tags], type: Gin)
+  @@map("skill")
+}
+
+model SkillVersion {
+  id                  BigInt    @id @default(autoincrement())
+  skillId             BigInt    @map("skill_id")
+  version             String    @db.VarChar(64)
+  status              String    @default("DRAFT") @db.VarChar(32)
+  requestedVisibility String?   @map("requested_visibility") @db.VarChar(20)
+  parsedMetadataJson  Json?     @map("parsed_metadata_json")
+  manifestJson        Json?     @map("manifest_json")
+  fileCount           Int       @default(0) @map("file_count")
+  totalSize           BigInt    @default(0) @map("total_size")
+  bundleReady         Boolean   @default(false) @map("bundle_ready")
+  downloadReady       Boolean   @default(false) @map("download_ready")
+  publishedAt         DateTime? @map("published_at") @db.Timestamptz
+  yankedAt            DateTime? @map("yanked_at") @db.Timestamptz
+
+  @@unique([skillId, version])
+  @@map("skill_version")
+}
+
+model SkillFile {
+  id          BigInt  @id @default(autoincrement())
+  versionId   BigInt  @map("version_id")
+  filePath    String  @map("file_path") @db.VarChar(512)
+  fileSize    BigInt  @map("file_size")
+  contentType String? @map("content_type") @db.VarChar(128)
+  sha256      String  @db.VarChar(64)
+  storageKey  String  @map("storage_key") @db.VarChar(512)
+
+  @@unique([versionId, filePath])
+  @@map("skill_file")
+}
+
+model SkillSearchDocument {
+  skillId      BigInt                   @id @map("skill_id")
+  userId       String                   @map("user_id") @db.VarChar(128)
+  title        String?                  @db.VarChar(512)
+  summary      String?
+  keywords     String?
+  searchText   String?                  @map("search_text")
+  visibility   String                   @db.VarChar(32)
+  status       String                   @db.VarChar(32)
+  searchVector Unsupported("tsvector")? @map("search_vector")
+
+  @@index([userId])
+  @@index([searchVector], type: Gin)
+  @@map("skill_search_document")
+}
+
+model SkillVersionStats {
+  skillVersionId BigInt   @id @map("skill_version_id")
+  skillId        BigInt   @map("skill_id")
+  downloadCount  BigInt   @default(0) @map("download_count")
+  updatedAt      DateTime @default(now()) @map("updated_at") @db.Timestamptz
+
+  @@map("skill_version_stats")
+}
