@@ -1,0 +1,441 @@
+{
+  "info": {
+    "name": "innoskill 后端接口",
+    "description": "对应 docs/03-接口文档.md 的 6 个接口。先 `docker compose up -d --build`,后端在 http://localhost:3000。\n按顺序跑:「1 上传」会把返回的版本号写进 {{version}},后面的下载 / 下架用它。\n上传的文件选 server/postman/weather-demo.zip(Postman 里 file 字段要手动选一次)。\n本地没有网关,身份直接用 X-User-Id 头。",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:3000"
+    },
+    {
+      "key": "userId",
+      "value": "alice"
+    },
+    {
+      "key": "slug",
+      "value": "weather-demo"
+    },
+    {
+      "key": "version",
+      "value": ""
+    }
+  ],
+  "item": [
+    {
+      "name": "1 上传",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "X-User-Id",
+            "value": "{{userId}}"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/api/skills",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "skills"
+          ],
+          "query": []
+        },
+        "body": {
+          "mode": "formdata",
+          "formdata": [
+            {
+              "key": "file",
+              "type": "file",
+              "src": "weather-demo.zip"
+            },
+            {
+              "key": "visibility",
+              "value": "PUBLIC",
+              "type": "text"
+            },
+            {
+              "key": "tags",
+              "value": "teaching,primary",
+              "type": "text"
+            },
+            {
+              "key": "confirmWarnings",
+              "value": "false",
+              "type": "text"
+            }
+          ]
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"HTTP 201\", () => pm.response.to.have.status(201));",
+              "pm.collectionVariables.set(\"version\", pm.response.json().version);"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "2 搜索",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/api/skills?q=天气&tags=teaching&sort=newest&page=0&size=20",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "skills"
+          ],
+          "query": [
+            {
+              "key": "q",
+              "value": "天气"
+            },
+            {
+              "key": "tags",
+              "value": "teaching"
+            },
+            {
+              "key": "sort",
+              "value": "newest"
+            },
+            {
+              "key": "page",
+              "value": "0"
+            },
+            {
+              "key": "size",
+              "value": "20"
+            }
+          ]
+        },
+        "description": "索引在上传提交后异步重建,刚上传可能要稍等才搜得到。"
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"HTTP 200\", () => pm.response.to.have.status(200));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "3 我的技能",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "X-User-Id",
+            "value": "{{userId}}"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/api/skills?user_id=me",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "skills"
+          ],
+          "query": [
+            {
+              "key": "user_id",
+              "value": "me"
+            }
+          ]
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"HTTP 200\", () => pm.response.to.have.status(200));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "4 详情",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "X-User-Id",
+            "value": "{{userId}}"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/api/skills/{{userId}}/{{slug}}",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "skills",
+            "{{userId}}",
+            "{{slug}}"
+          ],
+          "query": []
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"HTTP 200\", () => pm.response.to.have.status(200));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "5 下载",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "X-User-Id",
+            "value": "{{userId}}"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/api/skills/{{userId}}/{{slug}}/versions/{{version}}/download",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "skills",
+            "{{userId}}",
+            "{{slug}}",
+            "versions",
+            "{{version}}",
+            "download"
+          ],
+          "query": []
+        },
+        "description": "本地是 HTTP,走流式返回 zip。加请求头 X-Forwarded-Proto: https 会 302 到 MinIO 预签名链接(容器内地址 minio:9000,宿主机打不开,属正常)。"
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"HTTP 200\", () => pm.response.to.have.status(200));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "6 版本下架",
+      "request": {
+        "method": "DELETE",
+        "header": [
+          {
+            "key": "X-User-Id",
+            "value": "{{userId}}"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/api/skills/{{userId}}/{{slug}}/versions/{{version}}",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "skills",
+            "{{userId}}",
+            "{{slug}}",
+            "versions",
+            "{{version}}"
+          ],
+          "query": []
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"HTTP 200\", () => pm.response.to.have.status(200));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "7 技能下架",
+      "request": {
+        "method": "DELETE",
+        "header": [
+          {
+            "key": "X-User-Id",
+            "value": "{{userId}}"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/api/skills/{{userId}}/{{slug}}",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "skills",
+            "{{userId}}",
+            "{{slug}}"
+          ],
+          "query": []
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"HTTP 200\", () => pm.response.to.have.status(200));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "错误示例",
+      "item": [
+        {
+          "name": "未登录上传 → 401",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/skills",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "skills"
+              ],
+              "query": []
+            },
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "file",
+                  "type": "file",
+                  "src": "weather-demo.zip"
+                }
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 401\", () => pm.response.to.have.status(401));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "分页越界 → 400",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/skills?size=0",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "skills"
+              ],
+              "query": [
+                {
+                  "key": "size",
+                  "value": "0"
+                }
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 400\", () => pm.response.to.have.status(400));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "非作者下架 → 403",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "X-User-Id",
+                "value": "bob"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/skills/{{userId}}/{{slug}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "skills",
+                "{{userId}}",
+                "{{slug}}"
+              ],
+              "query": []
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 403\", () => pm.response.to.have.status(403));"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

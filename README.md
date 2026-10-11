@@ -10,18 +10,27 @@
 | `server/` | 后端：Hono + Prisma + PostgreSQL + S3 |
 | `web/` | 前端：Vite + React，见 [web/README.md](web/README.md) |
 
+## 后端本地测试（不需要前端）
+
+```bash
+docker compose up -d --build                 # 后端 + PostgreSQL + Redis + MinIO,启动时自动建表、建 bucket
+```
+
+后端在 `http://localhost:3000`。用 Postman 导入 `server/postman/innoskill.postman_collection.json`，上传请求的 file 选 `server/postman/weather-demo.zip`，按顺序发即可。本地没有网关，身份直接用请求头 `X-User-Id`。
+
 ## 后端本地开发
 
 ```bash
-docker compose up -d                         # PostgreSQL / Redis / MinIO(自动建 bucket)
+docker compose up -d postgres redis minio minio-init   # 只起依赖
 cd server && cp .env.example .env && npm install
-npm run db:migrate                           # 建表
-npm run dev                                  # http://localhost:3000/api/skills
+npm run db:migrate                                      # 建表
+npm run dev                                             # http://localhost:3000/api/skills
 ```
 
 | 命令 | 作用 |
 |---|---|
 | `npm test` | 单测 + 接口测试（内存实现，不依赖数据库） |
+| `npm run smoke` | 冒烟测试：对正在运行的后端（`npm run dev` 或 compose 起的都行）+ 真实 PG / MinIO / Redis 跑一遍全流程 |
 | `npm run typecheck` / `npm run lint` | 类型检查 / 代码检查（lint 会拦 `class`，见 CLAUDE.md） |
 | `npm run build && npm start` | 生产构建与启动；`OTEL_*` 环境变量控制链路追踪 |
 

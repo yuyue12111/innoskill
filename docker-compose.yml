@@ -1,5 +1,26 @@
-# 本地开发依赖:PostgreSQL、Redis、MinIO。账号与 server/.env.example 一致,仅限本地使用。
+# 本地一键起全套:后端 + PostgreSQL + Redis + MinIO。账号与 server/.env.example 一致,仅限本地使用。
+#   docker compose up -d --build        后端在 http://localhost:3000,可直接用 Postman 测(server/postman/)
+# 本地改后端代码时,只起依赖,后端用 npm run dev:
+#   docker compose up -d postgres redis minio minio-init
 services:
+  server:
+    build: ./server
+    ports: ["3000:3000"]
+    environment:
+      DATABASE_URL: postgresql://innoskill:innoskill@postgres:5432/innoskill
+      REDIS_URL: redis://redis:6379
+      S3_BUCKET: innoskill
+      S3_REGION: us-east-1
+      S3_ENDPOINT: http://minio:9000
+      S3_FORCE_PATH_STYLE: "true"
+      S3_ACCESS_KEY_ID: minioadmin
+      S3_SECRET_ACCESS_KEY: minioadmin
+      OTEL_SDK_DISABLED: "true"
+    depends_on:
+      postgres: { condition: service_healthy }
+      redis: { condition: service_started }
+      minio-init: { condition: service_completed_successfully }
+
   postgres:
     image: postgres:17
     environment:
@@ -8,6 +29,10 @@ services:
       POSTGRES_DB: innoskill
     ports: ["5432:5432"]
     volumes: [pg-data:/var/lib/postgresql/data]
+    healthcheck:
+      test: ["CMD", "pg_isready", "-U", "innoskill"]
+      interval: 2s
+      retries: 30
 
   redis:
     image: redis:7
