@@ -29,10 +29,17 @@ import { errorText } from '@/lib/format'
 import { skillUrl } from '@/lib/paths'
 import { SCENES, STAGES, type TagKey } from '@/lib/tags'
 
+/**
+ * 后端整个请求体上限 10 MB（03 §3.4）。超限时后端会立刻断开连接，浏览器只能看到网络错误、拿不到 400，
+ * 所以在前端先拦。请求体里除了 zip 还有分隔符和其它字段，给它们留 4 KB。
+ */
+const MAX_ZIP_BYTES = 10 * 1024 * 1024 - 4 * 1024
+
 const schema = z.object({
   file: z
     .custom<File>((v) => v instanceof File, '请选择 zip 文件')
-    .refine((f) => f.name.toLowerCase().endsWith('.zip'), '只能上传 .zip 文件'),
+    .refine((f) => f.name.toLowerCase().endsWith('.zip'), '只能上传 .zip 文件')
+    .refine((f) => f.size <= MAX_ZIP_BYTES, 'zip 文件不能超过 10 MB，请精简后再上传'),
   visibility: z.enum(['PUBLIC', 'PRIVATE']),
   tags: z.array(z.enum([...SCENES, ...STAGES].map((t) => t.key) as [TagKey, ...TagKey[]])),
 })
@@ -95,8 +102,8 @@ export function UploadPage() {
                 className="h-auto border-dashed p-3"
               />
               <p className="type-body-sm text-ink-muted">
-                zip 根目录要有 SKILL.md，frontmatter 里写 name 和 description（name 必须是英文），version 可省略。包内最多 100
-                个文件，单个文件不超过 10 MB。
+                zip 根目录要有 SKILL.md，frontmatter 里写 name 和 description（name 必须是英文），version 可省略。整个 zip
+                不超过 10 MB，包内最多 100 个文件。
               </p>
               {fieldState.error && <p className="type-body-sm text-danger">{fieldState.error.message}</p>}
             </div>

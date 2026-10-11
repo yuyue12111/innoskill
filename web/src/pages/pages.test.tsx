@@ -3,6 +3,7 @@ import { strToU8, zipSync } from 'fflate'
 import { describe, expect, it, vi } from 'vitest'
 import { useIdentity } from '@/auth/identity'
 import { saveBlob } from '@/lib/download'
+import { server } from '@/mocks/node'
 import { renderApp } from '@/test/renderApp'
 
 vi.mock('@/lib/download', () => ({ saveBlob: vi.fn() }))
@@ -126,6 +127,20 @@ describe('上传页', () => {
     expect(screen.getByText('场景：')).toBeInTheDocument()
     expect(screen.getByText('教学')).toBeInTheDocument()
     expect(screen.getByText('小学')).toBeInTheDocument()
+  })
+
+  it('zip 超过 10 MB 就地提示，不发请求', async () => {
+    as('alice')
+    const requests: string[] = []
+    server.events.on('request:start', ({ request }) => requests.push(`${request.method} ${new URL(request.url).pathname}`))
+    const { user } = renderApp('/upload')
+    const big = new File([new Uint8Array(10 * 1024 * 1024)], 'big.zip', { type: 'application/zip' })
+    await user.upload(screen.getByLabelText('技能包'), big)
+    await user.click(screen.getByRole('button', { name: '上传' }))
+
+    expect(await screen.findByText('zip 文件不能超过 10 MB，请精简后再上传')).toBeInTheDocument()
+    expect(requests).not.toContain('POST /api/skills')
+    server.events.removeAllListeners()
   })
 
   it('没选文件时就地提示', async () => {

@@ -1,4 +1,4 @@
-// 按 03 模拟六个接口。判定顺序、状态码与 03 的判定表一致；03 改了这里跟着改。
+// 按 03 模拟六个接口。判定顺序、状态码与 03 的判定表一致，报错文案与后端 server/src 一致；03 改了这里跟着改。
 import { zipSync } from 'fflate'
 import { http, HttpResponse } from 'msw'
 import type {
@@ -80,14 +80,14 @@ export const handlers = [
   // 03 §3 上传
   http.post<never, never, Res<UploadResult>>('/api/skills', async ({ request }) => {
     const me = caller(request)
-    if (!me) return fail(401, 'UNAUTHORIZED', '上传需要登录')
+    if (!me) return fail(401, 'UNAUTHORIZED', '需要登录')
 
     const form = await request.formData()
     const file = form.get('file')
     const visibility = form.get('visibility') ?? 'PUBLIC'
     const confirmWarnings = form.get('confirmWarnings') === 'true'
-    if (!file || typeof file === 'string') return fail(400, 'BAD_REQUEST', '缺少 file')
-    if (file.size > MAX_BODY_BYTES) return fail(400, 'BAD_REQUEST', '请求体超过 10 MB')
+    if (!file || typeof file === 'string') return fail(400, 'BAD_REQUEST', '缺少上传文件（file 字段）')
+    if (file.size > MAX_BODY_BYTES) return fail(400, 'BAD_REQUEST', '上传内容超过 10 MB')
     if (visibility !== 'PUBLIC' && visibility !== 'PRIVATE') {
       return fail(400, 'BAD_REQUEST', `visibility 取值非法：${visibility}`)
     }
@@ -107,7 +107,7 @@ export const handlers = [
     const publishedAt = new Date()
     const version = meta.version || timestampVersion(publishedAt)
     if (!VERSION_FORMAT.test(version)) {
-      return fail(400, 'BAD_REQUEST', `版本号格式不合法：${version}（1–64 位，只含字母、数字和 . _ -）`)
+      return fail(400, 'BAD_REQUEST', `版本号格式不正确：${version}（1–64 位，只能含字母、数字和 . _ -）`)
     }
     const existing = db.find(me, slug)
     const sameVersion = existing?.versions.find((v) => v.version === version)
@@ -116,7 +116,7 @@ export const handlers = [
     // 硬性校验都过了才看告警，免得用户确认完告警又撞上硬错误
     const warnings = scanWarnings(files)
     if (warnings.length > 0 && !confirmWarnings) {
-      return fail(400, 'BAD_REQUEST', `校验产生 ${warnings.length} 条告警，确认后重新提交`, warnings)
+      return fail(400, 'BAD_REQUEST', '技能包有告警，确认无误后请带 confirmWarnings=true 重新上传', warnings)
     }
 
     const row = {
@@ -231,7 +231,7 @@ export const handlers = [
     const skill = db.find(userId, slug)
     if (!skill) return fail(400, 'NOT_FOUND', `技能不存在：${userId}/${slug}`)
     if (caller(request) !== skill.user_id && (skill.visibility === 'PRIVATE' || skill.hidden)) {
-      return fail(403, 'FORBIDDEN', '技能是私有的或已下架')
+      return fail(403, 'FORBIDDEN', '没有权限')
     }
     return HttpResponse.json(toDetail(skill))
   }),
@@ -242,11 +242,11 @@ export const handlers = [
     const skill = db.find(userId, slug)
     if (!skill) return fail(400, 'NOT_FOUND', `技能不存在：${userId}/${slug}`)
     const isOwner = caller(request) === skill.user_id
-    if (skill.hidden && !isOwner) return fail(403, 'FORBIDDEN', '技能已下架')
-    if (skill.visibility === 'PRIVATE' && !isOwner) return fail(403, 'FORBIDDEN', '技能是私有的')
+    if (skill.hidden && !isOwner) return fail(403, 'FORBIDDEN', '没有权限')
+    if (skill.visibility === 'PRIVATE' && !isOwner) return fail(403, 'FORBIDDEN', '没有权限')
     const v = skill.versions.find((x) => x.version === version)
-    if (!v) return fail(400, 'NOT_FOUND', `版本不存在：${version}`)
-    if (v.status !== 'PUBLISHED' || v.yankedAt) return fail(400, 'BAD_REQUEST', `版本 ${version} 已下架，不可下载`)
+    if (!v) return fail(400, 'NOT_FOUND', `版本不存在：${userId}/${slug}@${version}`)
+    if (v.status !== 'PUBLISHED' || v.yankedAt) return fail(400, 'BAD_REQUEST', `该版本不可下载：${version}`)
 
     skill.downloadCount += 1
     return new HttpResponse(zipSync(v.files), {
@@ -261,11 +261,12 @@ export const handlers = [
   http.delete<VersionParams, never, Res<YankResult>>('/api/skills/:userId/:slug/versions/:version', ({ request, params }) => {
     const { userId, slug, version } = params
     const me = caller(request)
-    if (!me) return fail(401, 'UNAUTHORIZED', '下架需要登录')
-    if (me !== userId) return fail(403, 'FORBIDDEN', '只有作者能下架')
+    if (!me) return fail(401, 'UNAUTHORIZED', '需要登录')
+    if (me !== userId) return fail(403, 'FORBIDDEN', '只能操作自己的技能')
     const skill = db.find(userId, slug)
-    const v = skill?.versions.find((x) => x.version === version)
-    if (!skill || !v) return fail(400, 'NOT_FOUND', `技能或版本不存在：${userId}/${slug}@${version}`)
+    if (!skill) return fail(400, 'NOT_FOUND', `技能不存在：${userId}/${slug}`)
+    const v = skill.versions.find((x) => x.version === version)
+    if (!v) return fail(400, 'NOT_FOUND', `版本不存在：${userId}/${slug}@${version}`)
     v.status = 'YANKED'
     v.yankedAt ??= now()
     // 下架的是 headline：回退到最近发布且未下架的版本，没有则为 null（03 §7.4）
@@ -282,8 +283,8 @@ export const handlers = [
   http.delete<SkillParams, never, Res<HideResult>>('/api/skills/:userId/:slug', ({ request, params }) => {
     const { userId, slug } = params
     const me = caller(request)
-    if (!me) return fail(401, 'UNAUTHORIZED', '下架需要登录')
-    if (me !== userId) return fail(403, 'FORBIDDEN', '只有作者能下架')
+    if (!me) return fail(401, 'UNAUTHORIZED', '需要登录')
+    if (me !== userId) return fail(403, 'FORBIDDEN', '只能操作自己的技能')
     const skill = db.find(userId, slug)
     if (!skill) return fail(400, 'NOT_FOUND', `技能不存在：${userId}/${slug}`)
     skill.hidden = true
