@@ -1,4 +1,4 @@
-// 上传包的解析与校验，规则照 03 §3.2、§3.4。出错时抛出 PackageError，由上传 handler 转成 400。
+// 上传包的解析与校验，规则照 03 §3.2、§3.4；报错文案与后端 server/src 一字不差。出错时抛出 PackageError，由上传 handler 转成 400。
 import { strFromU8, unzipSync } from 'fflate'
 import type { UploadWarning } from '@/api/types'
 import { SCENES, STAGES, type TagKey } from '@/lib/tags'
@@ -26,10 +26,11 @@ export function readPackage(zip: Uint8Array): Record<string, Uint8Array> {
   try {
     entries = unzipSync(zip)
   } catch {
-    return fail('文件不是有效的 zip')
+    return fail('不是有效的 zip 文件')
   }
   const paths = Object.keys(entries).filter((p) => !p.endsWith('/') && !p.split('/').some(SKIPPED))
-  if (paths.some((p) => p.startsWith('/') || p.split('/').includes('..'))) fail('包内路径越出了包根目录')
+  const escaped = paths.find((p) => p.startsWith('/') || p.split('/').includes('..'))
+  if (escaped) fail(`文件路径越出了包的根目录：${escaped}`)
 
   const tops = new Set(paths.map((p) => p.split('/')[0]))
   const prefix = tops.size === 1 && paths.every((p) => p.includes('/')) ? `${[...tops][0]}/` : ''
@@ -38,7 +39,7 @@ export function readPackage(zip: Uint8Array): Record<string, Uint8Array> {
   if (paths.length > MAX_FILES) fail(`包内文件超过 ${MAX_FILES} 个`)
   const big = Object.entries(files).find(([, bytes]) => bytes.length > MAX_FILE_BYTES)
   if (big) fail(`文件超过 10 MB：${big[0]}`)
-  if (!files['SKILL.md']) fail('包根目录缺少 SKILL.md')
+  if (!files['SKILL.md']) fail('包的根目录缺少 SKILL.md')
   return files
 }
 
@@ -57,9 +58,10 @@ export function readFrontmatter(skillMd: Uint8Array) {
   }
   const name = get('name')
   const description = get('description')
-  if (!name || !description) fail('SKILL.md 缺少 name 或 description')
-  // 03 §3.2：name 必须纯英文；文案与后端一致
-  if (/[^\x20-\x7E]/.test(name)) fail(`name must be English: ${name}`)
+  if (!name) fail('SKILL.md 缺少 name')
+  if (!description) fail('SKILL.md 缺少 description')
+  // 03 §3.2：name 必须纯英文
+  if (/[^\x20-\x7E]/.test(name)) fail(`name 必须是英文：${name}`)
   return { name, description, version: get('version') }
 }
 
@@ -71,8 +73,9 @@ export function toSlug(name: string): string {
     .replace(/[^a-z0-9]/g, '-')
     .replace(/-+/g, '-')
     .replace(/^-|-$/g, '')
-  if (slug.length < 2 || slug.length > 64) fail(`由 name 生成的短名「${slug}」长度须在 2–64 之间`)
-  if (RESERVED_SLUGS.includes(slug)) fail(`短名「${slug}」是保留字`)
+  if (slug.length < 2 || slug.length > 64 || RESERVED_SLUGS.includes(slug)) {
+    fail(`name 无法生成合法的 slug：${name}（需 2–64 位英文字母或数字，且不能是保留字）`)
+  }
   return slug
 }
 
@@ -87,10 +90,10 @@ export function scanWarnings(files: Record<string, Uint8Array>): UploadWarning[]
   for (const [path, bytes] of Object.entries(files)) {
     const ext = path.includes('.') ? path.split('.').pop()!.toLowerCase() : ''
     if (ext && !ALLOWED_EXT.has(ext)) {
-      warnings.push({ code: 'EXTENSION_NOT_ALLOWED', message: `扩展名 .${ext} 不在白名单内`, filePath: path })
+      warnings.push({ code: 'EXTENSION_NOT_ALLOWED', message: `不允许的文件类型：.${ext}`, filePath: path })
     }
     if (SECRET.test(strFromU8(bytes, true))) {
-      warnings.push({ code: 'SECRET_SUSPECTED', message: '疑似包含密钥', filePath: path })
+      warnings.push({ code: 'POSSIBLE_SECRET', message: '疑似包含密钥', filePath: path })
     }
   }
   return warnings
@@ -102,6 +105,6 @@ const TAG_KEYS = new Set<string>([...SCENES, ...STAGES].map((t) => t.key))
 export function parseTags(raw: string | null): TagKey[] {
   const tags = [...new Set((raw ?? '').split(',').map((t) => t.trim()).filter(Boolean))]
   const unknown = tags.filter((t) => !TAG_KEYS.has(t))
-  if (unknown.length > 0) fail(`unknown tags: ${unknown.join(', ')}`)
+  if (unknown.length > 0) fail(`未知标签：${unknown.join('、')}`)
   return tags as TagKey[]
 }
