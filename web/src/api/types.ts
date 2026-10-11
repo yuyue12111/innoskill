@@ -1,4 +1,5 @@
 // 接口文档 03 的数据结构。字段名与 03 逐字一致（03 里蛇形、驼峰混用，随 03 一起改）。
+import type { TagKey } from '@/lib/tags'
 
 export type Visibility = 'PUBLIC' | 'PRIVATE'
 export type SortBy = 'newest' | 'downloads' | 'relevance'
@@ -35,6 +36,7 @@ export interface UploadResult {
   skill_name: string
   summary: string
   visibility: Visibility
+  tags: TagKey[]
   version: string
   status: 'PUBLISHED'
   fileCount: number
@@ -47,6 +49,8 @@ export interface UploadResult {
 export interface SearchParams {
   q?: string
   user_id?: string
+  /** 多个时须同时满足（03 §4.2）；请求里拼成逗号分隔 */
+  tags?: TagKey[]
   sort?: SortBy
   page?: number
   size?: number
@@ -60,6 +64,7 @@ export interface SkillSummary {
   summary: string
   user_name: string
   visibility: Visibility
+  tags: TagKey[]
   downloadCount: number
   headlineVersion: string | null
   publishedAt: string | null
@@ -92,6 +97,7 @@ export interface SkillDetail {
   skill_name: string
   summary: string
   visibility: Visibility
+  tags: TagKey[]
   hidden: boolean
   user_name: string
   downloadCount: number

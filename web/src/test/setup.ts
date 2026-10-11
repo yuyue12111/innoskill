@@ -3,6 +3,7 @@ import { Blob, File } from 'node:buffer'
 import { cleanup } from '@testing-library/react'
 import { afterAll, afterEach, beforeAll } from 'vitest'
 import { useIdentity } from '@/auth/identity'
+import { useTheme } from '@/lib/theme'
 import { resetDb } from '@/mocks/db'
 import { server } from '@/mocks/node'
 
@@ -24,7 +25,18 @@ const CompatFormData = new Proxy(NodeFormData, {
 const NoopResizeObserver = function () {
   return { observe() {}, unobserve() {}, disconnect() {} }
 } as unknown as typeof ResizeObserver
-Object.assign(globalThis, { Blob, File, FormData: CompatFormData, ResizeObserver: NoopResizeObserver })
+// jsdom 没有 matchMedia，sonner 跟随系统主题时要用
+const matchMedia = (query: string) => ({
+  matches: false,
+  media: query,
+  onchange: null,
+  addEventListener() {},
+  removeEventListener() {},
+  addListener() {},
+  removeListener() {},
+  dispatchEvent: () => false,
+})
+Object.assign(globalThis, { Blob, File, FormData: CompatFormData, ResizeObserver: NoopResizeObserver, matchMedia })
 
 beforeAll(() => server.listen({ onUnhandledRequest: 'error' }))
 afterEach(() => {
@@ -32,5 +44,6 @@ afterEach(() => {
   server.resetHandlers()
   resetDb()
   useIdentity.setState({ userId: null })
+  useTheme.setState({ theme: 'system' })
 })
 afterAll(() => server.close())

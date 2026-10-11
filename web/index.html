@@ -3,7 +3,15 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <title>InnoSkill</title>
+    <script>
+      // 首屏渲染前套用用户选的外观，避免先闪一下浅色。键名与 src/lib/theme.ts 的 THEME_STORAGE_KEY 一致
+      try {
+        var theme = JSON.parse(localStorage.getItem('innoskill.theme')).state.theme
+        if (theme === 'light' || theme === 'dark') document.documentElement.dataset.theme = theme
+      } catch (e) {}
+    </script>
   </head>
   <body>
     <div id="root"></div>
