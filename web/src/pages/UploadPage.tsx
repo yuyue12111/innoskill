@@ -99,7 +99,7 @@ export function UploadPage() {
                 onBlur={field.onBlur}
                 onChange={(e) => field.onChange(e.target.files?.[0])}
                 aria-invalid={fieldState.invalid}
-                className="h-auto border-dashed p-3"
+                className="h-auto rounded-card border-dashed p-3"
               />
               <p className="type-body-sm text-ink-muted">
                 zip 根目录要有 SKILL.md，frontmatter 里写 name 和 description（name 必须是英文），version 可省略。整个 zip

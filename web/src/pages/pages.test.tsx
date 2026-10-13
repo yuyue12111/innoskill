@@ -167,7 +167,7 @@ describe('上传页', () => {
     expect(router.state.location.pathname).toBe('/skills/alice/demo-upload')
   })
 
-  it('选的标签随上传提交，详情页按组概括成一行', async () => {
+  it('选的标签随上传提交，详情页场景逐个显示、学段合成一个', async () => {
     as('alice')
     const zip = zipSync({ 'SKILL.md': strToU8('---\nname: demo-tags\ndescription: 测试\n---\n') })
     const { user } = renderApp('/upload')
@@ -178,7 +178,8 @@ describe('上传页', () => {
     await user.click(screen.getByRole('button', { name: '上传' }))
 
     expect(await screen.findByRole('heading', { name: 'demo-tags' })).toBeInTheDocument()
-    expect(screen.getByText('教学 · 小学')).toBeInTheDocument()
+    const tags = within(screen.getByRole('list', { name: '标签' })).getAllByRole('listitem')
+    expect(tags.map((t) => t.textContent)).toEqual(['教学', '小学'])
   })
 
   it('zip 超过 10 MB 就地提示，不发请求', async () => {

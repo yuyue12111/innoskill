@@ -15,13 +15,13 @@ export function AppLayout() {
   const onDetail = useLocation().pathname.startsWith('/skills/')
   return (
     <div className="min-h-svh">
-      <header className="border-b-2 border-ink">
+      <header className="border-b border-line bg-paper">
         <div className="mx-auto flex min-h-16 max-w-[1168px] flex-wrap items-center gap-x-8 gap-y-2 px-4 py-3 sm:px-6">
-          <Link to="/" className="focus-ring flex shrink-0 items-center gap-2 text-lg font-black tracking-[-0.01em]">
-            <img src={logoUrl} alt="" className="h-6 w-auto" />
+          <Link to="/" className="focus-ring flex shrink-0 items-center gap-2 rounded-control text-lg font-extrabold tracking-[-0.01em]">
+            <img src={logoUrl} alt="" className="h-[26px] w-auto" />
             InnoSkill
           </Link>
-          {/* 当前页反色，与筛选标签的选中态一致 */}
+          {/* 当前页用品牌色淡底，与筛选标签的选中态一致 */}
           <nav aria-label="主导航" className="flex shrink-0 gap-1 whitespace-nowrap">
             {NAV.map(({ to, label, end }) => (
               <NavLink
@@ -30,8 +30,10 @@ export function AppLayout() {
                 end={end}
                 className={({ isActive }) =>
                   cn(
-                    'focus-ring px-3 py-1.5 text-[15px] leading-6 font-bold tracking-[0.06em] transition-colors duration-120',
-                    isActive || (onDetail && to === '/') ? 'bg-ink text-on-ink' : 'text-ink hover:bg-panel',
+                    'focus-ring rounded-chip px-3.5 py-1.5 text-[15px] leading-6 transition-colors duration-120',
+                    isActive || (onDetail && to === '/')
+                      ? 'bg-wash font-semibold text-wash-ink'
+                      : 'font-medium text-ink hover:bg-panel',
                   )
                 }
               >
@@ -44,7 +46,7 @@ export function AppLayout() {
             <NavLink
               to="/upload"
               className={({ isActive }) =>
-                cn('focus-ring type-body-sm hover:text-ink', isActive ? 'font-bold text-ink' : 'text-ink-muted')
+                cn('focus-ring rounded-control text-sm hover:text-ink', isActive ? 'font-semibold text-ink' : 'text-ink-muted')
               }
             >
               上传技能
@@ -54,7 +56,7 @@ export function AppLayout() {
           </div>
         </div>
       </header>
-      <main className="mx-auto max-w-[1168px] px-4 pt-6 pb-16 sm:px-6">
+      <main className="mx-auto max-w-[1168px] px-4 pt-7 pb-16 sm:px-6">
         <Outlet />
       </main>
       <Toaster />
