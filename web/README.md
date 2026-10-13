@@ -38,7 +38,8 @@ InnoSkill 前端。技术栈按 `docs/06`，接口契约是 `docs/03`。
 ## 设计
 
 - 以 Claude Design 里的设计系统为准：https://claude.ai/artifact/MxyZfJj2ytGM8d4CWphu14 （黑白、直角、2px 墨线；反色即选中；logo 主色 `signal` 是唯一强调色，只给核心数字）。
-- 变量都在 `src/index.css`：设计系统原名（`canvas`、`paper`、`ink`、`wash`…）直接当 Tailwind 颜色用，如 `bg-paper`、`border-ink`；shadcn 的语义名（`primary`、`muted`…）映射到它们。字号用 `type-display`、`type-body` 等工具类，眉标用 `eyebrow`。
+- 页面布局按设计部门 2026-10-13 的改版稿：https://claude.ai/artifact/9QvjPVCUTBkctMnKM9AYQ9 。已落地不依赖接口的部分（压矮页头、搜索和排序同行、两行紧凑筛选、卡片标签收成一行、详情页右栏主操作、返回链接带筛选、版本记录折叠）；稿子里的「添加到 InnoAgent」「N 人在用」、中文展示名、详情页结构化内容、版本更新说明要等 03 补字段和接口。
+- 变量都在 `src/index.css`：设计系统原名（`canvas`、`paper`、`ink`、`wash`…）直接当 Tailwind 颜色用，如 `bg-paper`、`border-ink`；shadcn 的语义名（`primary`、`muted`…）映射到它们。字号用 `type-page`、`type-title`、`type-body` 等工具类，核心数字用 `type-stat` / `type-stat-lg`。
 - 字体：西文和数字用 Hanken Grotesk；大标题的中文用思源黑体 900（只这一个字重，按字分片加载）；正文中文用系统黑体。都随项目打包（fontsource），不走 Google Fonts。
 - 外观三档：跟随系统（默认）、浅色、深色，在导航栏右侧切换。选择存在 localStorage（`innoskill.theme`），`index.html` 里的内联脚本在首屏前套用，避免闪烁。
 

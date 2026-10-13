@@ -131,16 +131,18 @@
   --radius-4xl: 0;
 }
 
-/* 字号层级（设计系统 type.groups）。字重只用 500 / 700 / 900，正文例外用 400 保证中文长文可读 */
-@utility type-display {
+/* 字号层级（设计系统 type.groups）。字重只用 500 / 700 / 900，正文例外用 400 保证中文长文可读
+ * 页标题、核心数字、导语三档取自 2026-10-13 改版稿（https://claude.ai/artifact/9QvjPVCUTBkctMnKM9AYQ9）：
+ * 页头压矮，让 1366×768 笔记本首屏（约 630px）就能看到卡片 */
+@utility type-page {
   font-family: var(--font-heading);
-  font-size: 40px;
-  line-height: 44px;
+  font-size: 24px;
+  line-height: 32px;
   font-weight: 900;
-  letter-spacing: -0.02em;
+  letter-spacing: -0.01em;
   @media (width >= 40rem) {
-    font-size: 64px;
-    line-height: 64px;
+    font-size: 32px;
+    line-height: 40px;
   }
 }
 @utility type-title {
@@ -154,19 +156,37 @@
     line-height: 44px;
   }
 }
-/* 核心数字：唯一使用强调色 signal 的地方 */
+/* 核心数字：唯一使用强调色 signal 的地方。type-stat 给列表页头，type-stat-lg 给详情页 */
 @utility type-stat {
   font-family: var(--font-heading);
-  font-size: 48px;
-  line-height: 48px;
+  font-size: 36px;
+  line-height: 36px;
   font-weight: 900;
   letter-spacing: -0.02em;
   color: var(--signal);
   font-variant-numeric: tabular-nums;
   @media (width >= 40rem) {
-    font-size: 72px;
-    line-height: 66px;
+    font-size: 48px;
+    line-height: 44px;
   }
+}
+@utility type-stat-lg {
+  font-family: var(--font-heading);
+  font-size: 44px;
+  line-height: 44px;
+  font-weight: 900;
+  letter-spacing: -0.02em;
+  color: var(--signal);
+  font-variant-numeric: tabular-nums;
+  @media (width >= 40rem) {
+    font-size: 56px;
+    line-height: 56px;
+  }
+}
+/* 导语：详情页的技能简介 */
+@utility type-lead {
+  font-size: 17px;
+  line-height: 28px;
 }
 @utility type-heading {
   font-size: 20px;
@@ -204,6 +224,17 @@
   font-weight: 500;
   letter-spacing: 0.16em;
   color: var(--ink-muted);
+}
+/* 次要的文字操作：「清空筛选」这类，灰字下划线，不和按钮抢主次 */
+@utility link-quiet {
+  font-size: 13px;
+  line-height: 20px;
+  color: var(--ink-muted);
+  text-decoration-line: underline;
+  text-underline-offset: 3px;
+  &:hover {
+    color: var(--ink);
+  }
 }
 /* 悬停与键盘焦点统一：盒子外再套一圈 2px 墨线，偏移 2px（强调色只留给数字） */
 @utility box-hover {

@@ -28,8 +28,10 @@ export const isStage = (key: string): key is StageKey => STAGES.some((t) => t.ke
 /** 中文名；词表外的值原样显示（接口不该返回，但不让界面崩） */
 export const tagLabel = (key: string) => LABEL.get(key) ?? key
 
-/** 按词表顺序排：场景在前、学段在后 */
-export function sortTags(keys: readonly string[]): string[] {
-  const order = new Map<string, number>(ALL.map((t, i) => [t.key, i]))
-  return [...keys].sort((a, b) => (order.get(a) ?? 99) - (order.get(b) ?? 99))
+/** 一行文字概括标签，如「评价、教学 · 小学、初中」：组内按词表顺序，场景在前；没打标签的组不出现 */
+export function tagSummary(keys: readonly string[]): string {
+  return [SCENES, STAGES]
+    .map((group) => group.filter((t) => keys.includes(t.key)).map((t) => t.label).join('、'))
+    .filter(Boolean)
+    .join(' · ')
 }

@@ -1,38 +1,29 @@
 import type { ReactNode } from 'react'
-import { cn } from '@/lib/utils'
 
-/** 设计系统 PageHeader：眉标 + 主标题 + 右侧计数（唯一用强调色的地方），下方 2px 墨线。每页一个 */
-export function PageHeader({ eyebrow, title, description, count, countLabel, action, variant = 'display' }: {
-  eyebrow: string
+/** 列表类页面的页头：左侧标题，右侧「数字 + 单位」（数字是唯一用强调色的地方），下方 2px 墨线。每页一个
+ * 改版稿压矮了页头（去掉眉标，标题 32px、数字 48px 同行），让首屏能看到卡片 */
+export function PageHeader({ title, description, count, countLabel, extra }: {
   title: ReactNode
   description?: ReactNode
-  /** 右侧大号数字；undefined 时显示占位 */
+  /** 数字；undefined 时显示占位 */
   count?: number | null
+  /** 不给就不显示数字 */
   countLabel?: string
-  action?: ReactNode
-  /** display 用于列表页；title 用于详情页的技能名（通常是长英文） */
-  variant?: 'display' | 'title'
+  /** 跟在数字后面的次要操作，如「清空筛选」 */
+  extra?: ReactNode
 }) {
-  const showCount = countLabel !== undefined
   return (
-    <header className="flex flex-wrap items-end justify-between gap-6 border-b-2 border-ink pb-7">
-      <div className="min-w-0 space-y-3">
-        <p className="eyebrow">{eyebrow}</p>
-        <h1 className={cn('text-balance [overflow-wrap:anywhere]', variant === 'display' ? 'type-display' : 'type-title')}>
-          {title}
-        </h1>
-        {description && <div className="type-body-sm text-ink-muted">{description}</div>}
+    <header className="flex flex-wrap items-end justify-between gap-x-6 gap-y-2 border-b-2 border-ink pb-4">
+      <div className="min-w-0 space-y-1">
+        <h1 className="type-page text-balance [overflow-wrap:anywhere]">{title}</h1>
+        {description && <p className="type-body-sm text-ink-muted">{description}</p>}
       </div>
-      {(showCount || action) && (
-        <div className="flex items-end gap-6">
-          {action}
-          {showCount && (
-            <div className="sm:text-right">
-              <strong className="type-stat block">{count ?? '—'}</strong>
-              <p className="eyebrow mt-2">{countLabel}</p>
-            </div>
-          )}
-        </div>
+      {countLabel !== undefined && (
+        <p className="flex flex-wrap items-baseline gap-x-2 gap-y-1">
+          <strong className="type-stat">{count ?? '—'}</strong>
+          <span className="type-group font-bold">{countLabel}</span>
+          {extra}
+        </p>
       )}
     </header>
   )
