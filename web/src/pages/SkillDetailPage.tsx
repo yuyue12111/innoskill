@@ -1,31 +1,31 @@
-import { Download } from 'lucide-react'
-import { useParams } from 'react-router'
+import { ArrowLeft, Download } from 'lucide-react'
+import { Link, useLocation, useParams } from 'react-router'
 import { toast } from 'sonner'
 import { useDownloadVersion, useHideSkill, useSkillDetail, useYankVersion } from '@/api/queries'
 import type { SkillDetail, SkillVersion } from '@/api/types'
 import { useIdentity } from '@/auth/identity'
 import { ConfirmAction } from '@/components/ConfirmAction'
-import { PageHeader } from '@/components/PageHeader'
 import { StatusMessage } from '@/components/StatusMessage'
-import { TagList } from '@/components/TagList'
 import { Button } from '@/components/ui/button'
 import { Skeleton } from '@/components/ui/skeleton'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
 import { Tag } from '@/components/ui/tag'
 import { errorText, formatBytes, formatDate } from '@/lib/format'
-import { isScene, isStage } from '@/lib/tags'
+import { backLabel, backTarget } from '@/lib/paths'
+import { tagSummary } from '@/lib/tags'
 import { cn } from '@/lib/utils'
 
 /** 与 03 §6.3 下载门禁里版本那三条一致 */
 const downloadable = (v: SkillVersion) => v.status === 'PUBLISHED' && v.downloadReady && !v.yankedAt
 
 /** 03 §6.1：没有「下最新版」接口，按确切版本号下载 */
-function DownloadButton({ skill, version, label }: { skill: SkillDetail; version: string; label?: string }) {
+function DownloadButton({ skill, version, primary }: { skill: SkillDetail; version: string; primary?: boolean }) {
   const download = useDownloadVersion()
   return (
     <Button
-      variant={label ? 'default' : 'outline'}
-      size={label ? 'default' : 'sm'}
+      variant={primary ? 'default' : 'outline'}
+      size={primary ? 'lg' : 'sm'}
+      className={cn(primary && 'h-[52px] w-full text-base')}
       disabled={download.isPending}
       onClick={() =>
         download.mutate(
@@ -35,8 +35,22 @@ function DownloadButton({ skill, version, label }: { skill: SkillDetail; version
       }
     >
       <Download />
-      {label ?? '下载'}
+      {primary ? `下载 ${version}` : '下载'}
     </Button>
+  )
+}
+
+/** 回到进来时的列表，带着原来的筛选（列表卡片把地址放在路由 state 里） */
+function BackLink() {
+  const target = backTarget(useLocation().state)
+  return (
+    <Link
+      to={target}
+      className="focus-ring type-body-sm inline-flex items-center gap-1.5 text-ink-muted transition-colors duration-120 hover:text-ink"
+    >
+      <ArrowLeft aria-hidden className="size-4" />
+      {backLabel(target)}
+    </Link>
   )
 }
 
@@ -46,7 +60,8 @@ function VersionTable({ skill, isOwner }: { skill: SkillDetail; isOwner: boolean
   const versions = [...skill.versions].sort((a, b) => (b.publishedAt ?? '').localeCompare(a.publishedAt ?? ''))
 
   return (
-    <Table>
+    // 外框由外面的「版本记录」折叠框给，表格自己不再画
+    <Table className="border-0">
       <TableHeader>
         <TableRow>
           <TableHead>版本</TableHead>
@@ -99,24 +114,26 @@ function VersionTable({ skill, isOwner }: { skill: SkillDetail; isOwner: boolean
   )
 }
 
-/** 标签按 03 §1.7 的两组分行显示；某组没打标签就不显示那一行 */
-function SkillTags({ tags }: { tags: readonly string[] }) {
-  const groups = [
-    { label: '场景', tags: tags.filter(isScene) },
-    { label: '学段', tags: tags.filter(isStage) },
-  ].filter((g) => g.tags.length > 0)
-  if (groups.length === 0) return null
+/** 右栏：核心数字 + 主操作。改版稿的主操作是「添加到 InnoAgent」、数字是「人在用」，等 03 有了对应接口再换 */
+function ActionPanel({ skill }: { skill: SkillDetail }) {
+  const headline = skill.versions.find((v) => v.isHeadline)
   return (
-    <dl className="grid gap-2">
-      {groups.map((g) => (
-        <div key={g.label} className="flex flex-wrap items-center gap-2">
-          <dt className="type-group">{g.label}：</dt>
-          <dd>
-            <TagList tags={g.tags} />
-          </dd>
-        </div>
-      ))}
-    </dl>
+    <div className="grid max-w-[340px] min-w-0 flex-[1_1_280px] gap-3">
+      <p className="flex items-baseline gap-2">
+        <strong className="type-stat-lg">{skill.downloadCount}</strong>
+        <span className="type-body text-ink-muted">次下载</span>
+      </p>
+      {headline && downloadable(headline) ? (
+        <>
+          <DownloadButton skill={skill} version={headline.version} primary />
+          <p className="type-body-sm text-ink-muted tabular-nums">
+            zip 包 · {headline.fileCount} 个文件 · {formatBytes(headline.totalSize)}
+          </p>
+        </>
+      ) : (
+        <p className="type-body-sm text-ink-muted">暂时没有可下载的版本</p>
+      )}
+    </div>
   )
 }
 
@@ -129,78 +146,79 @@ export function SkillDetailPage() {
   if (isPending) return <Skeleton className="h-64" />
   if (isError) {
     return (
-      <StatusMessage>
-        {errorText(error, {
-          NOT_FOUND: '技能不存在，请检查地址',
-          FORBIDDEN: '这个技能是私有的或已下架，只有作者能查看',
-        })}
-      </StatusMessage>
+      <div className="space-y-6">
+        <BackLink />
+        <StatusMessage>
+          {errorText(error, {
+            NOT_FOUND: '技能不存在，请检查地址',
+            FORBIDDEN: '这个技能是私有的或已下架，只有作者能查看',
+          })}
+        </StatusMessage>
+      </div>
     )
   }
 
   const isOwner = me === skill.user_id
-  const headline = skill.versions.find((v) => v.isHeadline)
+  const where = tagSummary(skill.tags)
 
   return (
-    <div className="space-y-12 sm:space-y-[72px]">
-      <PageHeader
-        variant="title"
-        eyebrow="SKILL 技能"
-        title={skill.skill_name}
-        description={
-          <span className="flex flex-wrap items-center gap-2">
-            <code className="font-mono">
+    <div className="space-y-8">
+      <BackLink />
+
+      <section className="flex flex-wrap items-end justify-between gap-x-12 gap-y-8 border-b-2 border-ink pb-8">
+        <div className="grid min-w-0 flex-[999_1_520px] gap-3">
+          {where && <p className="type-body-sm text-ink-muted">{where}</p>}
+          <h1 className="type-title text-balance [overflow-wrap:anywhere]">{skill.skill_name}</h1>
+          <p className="type-body-sm flex flex-wrap items-center gap-x-2 gap-y-1 text-ink-muted tabular-nums">
+            <code className="font-mono [overflow-wrap:anywhere]">
               {skill.user_id}/{skill.slug}
             </code>
+            <span>· 作者 {skill.user_name}</span>
+            <span>· 发布于 {formatDate(skill.publishedAt)}</span>
             {skill.visibility === 'PRIVATE' && <Tag variant="muted">私有</Tag>}
             {skill.hidden && <Tag variant="danger">已下架</Tag>}
-          </span>
-        }
-        count={skill.downloadCount}
-        countLabel="DOWNLOADS 下载"
-      />
+          </p>
+          <p className="type-lead mt-1 max-w-[36em] whitespace-pre-line">{skill.summary}</p>
+        </div>
+        <ActionPanel skill={skill} />
+      </section>
 
-      <section className="grid gap-6">
-        <p className="type-body max-w-[65ch] whitespace-pre-line">{skill.summary}</p>
-        <p className="type-body-sm text-ink-muted tabular-nums">
-          作者 {skill.user_name} · 发布于 {formatDate(skill.publishedAt)}
-        </p>
-        <SkillTags tags={skill.tags} />
-        {headline && downloadable(headline) && (
-          <div>
-            <DownloadButton skill={skill} version={headline.version} label={`下载 ${headline.version}`} />
-          </div>
-        )}
+      <div className="grid max-w-[720px] gap-12">
         {skill.hidden && (
           <p className="type-body-sm border border-danger bg-danger-wash px-4 py-3">
             这个技能已下架：其他人搜不到、看不到、下载不了，只有你还能访问。
           </p>
         )}
-      </section>
 
-      <section className="grid gap-4">
-        <p className="eyebrow">VERSIONS 版本</p>
-        <VersionTable skill={skill} isOwner={isOwner} />
-      </section>
+        {/* 改版稿：版本表是给作者和老用户看的，默认收起 */}
+        <details className="border-2 border-ink">
+          <summary className="focus-ring type-body cursor-pointer px-4 py-3 font-bold tabular-nums">
+            版本记录 · {skill.versions.length} 个版本
+          </summary>
+          <div className="border-t border-line">
+            <VersionTable skill={skill} isOwner={isOwner} />
+          </div>
+        </details>
 
-      {isOwner && !skill.hidden && (
-        <section className="grid justify-items-start gap-3 border border-line bg-paper p-6">
-          <h2 className="type-heading">下架技能</h2>
-          <p className="type-body-sm text-ink-muted">
-            下架后其他人搜不到、看不到、下载不了这个技能；你自己仍可通过本页地址访问和下载。
-          </p>
-          {/* 设计系统：危险按钮只出现在确认弹窗里，页面上的入口用普通按钮 */}
-          <ConfirmAction
-            trigger={<Button variant="outline">下架技能</Button>}
-            title={`下架 ${skill.skill_name}？`}
-            description="操作不可撤销，平台没有恢复入口。下架后连你的「我的技能」列表里也不再显示。"
-            confirmLabel="下架技能"
-            onConfirm={() =>
-              hide.mutateAsync({ userId: skill.user_id, slug: skill.slug }).then(() => toast.success('技能已下架'))
-            }
-          />
-        </section>
-      )}
+        {isOwner && !skill.hidden && (
+          <section className="grid justify-items-start gap-3 border border-line bg-paper p-6">
+            <h2 className="type-heading">下架技能</h2>
+            <p className="type-body-sm text-ink-muted">
+              下架后其他人搜不到、看不到、下载不了这个技能；你自己仍可通过本页地址访问和下载。
+            </p>
+            {/* 设计系统：危险按钮只出现在确认弹窗里，页面上的入口用普通按钮 */}
+            <ConfirmAction
+              trigger={<Button variant="outline">下架技能</Button>}
+              title={`下架 ${skill.skill_name}？`}
+              description="操作不可撤销，平台没有恢复入口。下架后连你的「我的技能」列表里也不再显示。"
+              confirmLabel="下架技能"
+              onConfirm={() =>
+                hide.mutateAsync({ userId: skill.user_id, slug: skill.slug }).then(() => toast.success('技能已下架'))
+              }
+            />
+          </section>
+        )}
+      </div>
     </div>
   )
 }

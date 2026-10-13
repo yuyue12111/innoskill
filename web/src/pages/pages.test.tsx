@@ -45,6 +45,45 @@ describe('搜索页 · 标签筛选', () => {
     expect(router.state.location.search).toBe('?scene=assessment&stage=primary')
     expect(screen.getByRole('heading', { level: 1 })).toHaveTextContent('评价 · 小学')
   })
+
+  it('没有结果时说清是哪些条件没有交集，并能一键清空', async () => {
+    const { router, user } = renderApp('/?q=zzzz&scene=research')
+    expect(await screen.findByText('没有同时符合「zzzz」和「科研」的技能')).toBeInTheDocument()
+
+    // 页头和空态各有一个「清空筛选」，点空态里的
+    await user.click(screen.getAllByRole('button', { name: '清空筛选' }).at(-1)!)
+    expect(router.state.location.search).toBe('')
+    expect(await screen.findByText('113')).toBeInTheDocument()
+  })
+})
+
+describe('搜索页 · 排序', () => {
+  it('没有关键词默认下载最多，有关键词默认最相关；改排序写进 URL', async () => {
+    const sorts: (string | null)[] = []
+    server.events.on('request:start', ({ request }) => {
+      const url = new URL(request.url)
+      if (url.pathname === '/api/skills') sorts.push(url.searchParams.get('sort'))
+    })
+    const { router, user } = renderApp('/')
+    await screen.findByText('113')
+    const select = () => screen.getByRole('combobox', { name: '排序' })
+    expect(select()).toHaveValue('downloads')
+    expect(sorts.at(-1)).toBe('downloads')
+    // 没有关键词时「最相关」没有意义
+    expect(within(select()).queryByRole('option', { name: '最相关' })).not.toBeInTheDocument()
+
+    await user.selectOptions(select(), '最新发布')
+    expect(router.state.location.search).toBe('?sort=newest')
+
+    // 新关键词按它自己的默认排序
+    await user.type(screen.getByLabelText('关键词'), 'rubric')
+    await user.click(screen.getByRole('button', { name: '搜索' }))
+    expect(router.state.location.search).toBe('?q=rubric')
+    expect(select()).toHaveValue('relevance')
+    await screen.findByText('single-point-rubric-designer')
+    expect(sorts.at(-1)).toBe('relevance')
+    server.events.removeAllListeners()
+  })
 })
 
 describe('详情页', () => {
@@ -86,6 +125,21 @@ describe('详情页', () => {
     expect(await screen.findByText('38')).toBeInTheDocument()
     expect(saveBlob).toHaveBeenCalledWith(expect.anything(), 'argument-structure-scaffold-generator-1.0.zip')
   })
+
+  it('从筛选后的列表进来，返回链接带着筛选回去', async () => {
+    const { router, user } = renderApp('/?scene=assessment')
+    const [card] = await screen.findAllByRole('article')
+    await user.click(within(card).getByRole('link'))
+
+    await user.click(await screen.findByRole('link', { name: '返回全部技能（评价）' }))
+    expect(router.state.location.pathname).toBe('/')
+    expect(router.state.location.search).toBe('?scene=assessment')
+  })
+
+  it('直接打开详情页，返回全部技能', async () => {
+    renderApp(BOB_SKILL)
+    expect(await screen.findByRole('link', { name: '返回全部技能' })).toHaveAttribute('href', '/')
+  })
 })
 
 describe('上传页', () => {
@@ -113,7 +167,7 @@ describe('上传页', () => {
     expect(router.state.location.pathname).toBe('/skills/alice/demo-upload')
   })
 
-  it('选的标签随上传提交，详情页按组显示', async () => {
+  it('选的标签随上传提交，详情页按组概括成一行', async () => {
     as('alice')
     const zip = zipSync({ 'SKILL.md': strToU8('---\nname: demo-tags\ndescription: 测试\n---\n') })
     const { user } = renderApp('/upload')
@@ -124,9 +178,7 @@ describe('上传页', () => {
     await user.click(screen.getByRole('button', { name: '上传' }))
 
     expect(await screen.findByRole('heading', { name: 'demo-tags' })).toBeInTheDocument()
-    expect(screen.getByText('场景：')).toBeInTheDocument()
-    expect(screen.getByText('教学')).toBeInTheDocument()
-    expect(screen.getByText('小学')).toBeInTheDocument()
+    expect(screen.getByText('教学 · 小学')).toBeInTheDocument()
   })
 
   it('zip 超过 10 MB 就地提示，不发请求', async () => {

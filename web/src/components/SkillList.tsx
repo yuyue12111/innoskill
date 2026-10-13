@@ -8,7 +8,8 @@ import { Skeleton } from '@/components/ui/skeleton'
 import { errorText } from '@/lib/format'
 import { cn } from '@/lib/utils'
 
-const GRID = 'grid gap-6 sm:grid-cols-2 lg:grid-cols-3'
+// 卡片最窄 240px，放得下几列放几列：桌面 4 列，手机 1 列
+const GRID = 'grid grid-cols-[repeat(auto-fill,minmax(240px,1fr))] gap-6'
 
 /** 搜索结果网格：搜索页与「我的技能」共用。查询由页面发起，页头也要用 total */
 export function SkillList({ query, onPageChange, empty, emptyAction }: {
@@ -22,7 +23,7 @@ export function SkillList({ query, onPageChange, empty, emptyAction }: {
   if (isPending) {
     return (
       <div className={GRID}>
-        {Array.from({ length: 6 }, (_, i) => (
+        {Array.from({ length: 8 }, (_, i) => (
           <Skeleton key={i} className="h-44" />
         ))}
       </div>

@@ -73,7 +73,7 @@ export function UploadPage() {
   if (!me) {
     return (
       <div className="space-y-6">
-        <PageHeader eyebrow="UPLOAD 上传" title="上传技能" />
+        <PageHeader title="上传技能" />
         <StatusMessage>登录后才能上传技能</StatusMessage>
       </div>
     )
@@ -81,7 +81,7 @@ export function UploadPage() {
 
   return (
     <div className="space-y-8">
-      <PageHeader eyebrow="UPLOAD 上传" title="上传技能" description="上传即发布，没有审核环节。" />
+      <PageHeader title="上传技能" description="上传即发布，没有审核环节。" />
 
       <form className="grid max-w-[560px] gap-8" onSubmit={form.handleSubmit((values) => submit(values, false))}>
         <Controller
