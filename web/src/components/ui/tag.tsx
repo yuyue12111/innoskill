@@ -2,16 +2,15 @@ import * as React from "react"
 import { cva, type VariantProps } from "class-variance-authority"
 import { cn } from "@/lib/utils"
 
-// 设计系统 Tag：不可点的状态标记，1px 细框（2px 留给可操作的东西）
+// 温柔版 Tag：不可点的状态标记，胶囊形淡底、无边框
 const tagVariants = cva(
-  "inline-flex h-[22px] shrink-0 items-center border px-2 text-xs font-bold tracking-[0.06em] whitespace-nowrap",
+  "inline-flex h-6 shrink-0 items-center rounded-tag px-2.5 text-xs font-semibold whitespace-nowrap",
   {
     variants: {
       variant: {
-        default: "border-ink bg-paper text-ink",
-        muted: "border-line bg-paper text-ink-muted",
-        special: "border-wash-ink bg-wash text-wash-ink",
-        danger: "border-danger bg-paper text-danger",
+        default: "bg-wash text-wash-ink",
+        muted: "bg-panel text-ink-muted",
+        danger: "bg-danger-wash text-danger",
       },
     },
     defaultVariants: { variant: "default" },

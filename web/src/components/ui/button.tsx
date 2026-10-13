@@ -3,23 +3,25 @@ import { cva, type VariantProps } from "class-variance-authority"
 import { Slot } from "radix-ui"
 import { cn } from "@/lib/utils"
 
-// 设计系统 Button：直角、2px 墨线，悬停外加一圈墨线；主按钮每屏最多一个，危险按钮只放在确认弹窗里
+// 温柔版 Button：胶囊形。主按钮品牌色填充，每屏最多一个；soft 是品牌色淡底，给次一级的正向操作；
+// 危险按钮只放在确认弹窗里
 const buttonVariants = cva(
-  "focus-ring inline-flex shrink-0 items-center justify-center gap-2 border-2 font-bold whitespace-nowrap transition-colors duration-120 ease-out select-none disabled:pointer-events-none disabled:border-line disabled:bg-panel disabled:text-ink-muted [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4",
+  "focus-ring inline-flex shrink-0 items-center justify-center gap-2 rounded-control font-semibold whitespace-nowrap transition-colors duration-120 ease-out select-none disabled:pointer-events-none disabled:border-transparent disabled:bg-panel disabled:text-ink-muted [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4",
   {
     variants: {
       variant: {
-        default: "box-hover border-ink bg-ink text-on-ink",
-        outline: "box-hover border-ink bg-paper text-ink",
-        ghost: "border-transparent bg-transparent text-ink-muted hover:text-ink",
-        destructive: "border-danger bg-danger text-on-danger hover:outline-2 hover:outline-offset-2 hover:outline-danger",
-        link: "border-transparent bg-transparent px-0 text-ink underline underline-offset-4 hover:text-ink-muted",
+        default: "bg-signal text-on-signal hover:bg-signal-hover",
+        soft: "bg-wash text-wash-ink hover:bg-wash-hover",
+        outline: "border border-field bg-paper text-ink hover:bg-panel",
+        ghost: "bg-transparent text-ink-muted hover:bg-panel hover:text-ink",
+        destructive: "bg-danger text-on-danger hover:opacity-90",
+        link: "px-0 text-wash-ink underline-offset-4 hover:underline",
       },
       size: {
-        default: "h-[43px] px-4 text-[15px] tracking-[0.06em]",
-        sm: "h-8 px-3 text-[13px] tracking-[0.04em]",
-        lg: "h-12 px-5 text-[15px] tracking-[0.06em]",
-        icon: "size-[43px]",
+        default: "h-10 px-[18px] text-[15px]",
+        sm: "h-9 px-4 text-sm",
+        lg: "h-12 px-5 text-[15px]",
+        icon: "size-10",
       },
     },
     defaultVariants: { variant: "default", size: "default" },

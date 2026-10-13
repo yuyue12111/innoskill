@@ -1,10 +1,10 @@
-import { ArrowLeft, Download } from 'lucide-react'
 import { Link, useLocation, useParams } from 'react-router'
 import { toast } from 'sonner'
 import { useDownloadVersion, useHideSkill, useSkillDetail, useYankVersion } from '@/api/queries'
 import type { SkillDetail, SkillVersion } from '@/api/types'
 import { useIdentity } from '@/auth/identity'
 import { ConfirmAction } from '@/components/ConfirmAction'
+import { ArrowLeftIcon, DownloadIcon } from '@/components/icons/doodle'
 import { StatusMessage } from '@/components/StatusMessage'
 import { Button } from '@/components/ui/button'
 import { Skeleton } from '@/components/ui/skeleton'
@@ -12,7 +12,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { Tag } from '@/components/ui/tag'
 import { errorText, formatBytes, formatDate } from '@/lib/format'
 import { backLabel, backTarget } from '@/lib/paths'
-import { tagSummary } from '@/lib/tags'
+import { isScene, isStage, tagLabel } from '@/lib/tags'
 import { cn } from '@/lib/utils'
 
 /** 与 03 §6.3 下载门禁里版本那三条一致 */
@@ -34,7 +34,7 @@ function DownloadButton({ skill, version, primary }: { skill: SkillDetail; versi
         )
       }
     >
-      <Download />
+      <DownloadIcon className={primary ? 'size-[22px]' : undefined} />
       {primary ? `下载 ${version}` : '下载'}
     </Button>
   )
@@ -46,9 +46,9 @@ function BackLink() {
   return (
     <Link
       to={target}
-      className="focus-ring type-body-sm inline-flex items-center gap-1.5 text-ink-muted transition-colors duration-120 hover:text-ink"
+      className="focus-ring inline-flex items-center gap-1.5 rounded-control text-sm text-ink-muted transition-colors duration-120 hover:text-ink"
     >
-      <ArrowLeft aria-hidden className="size-4" />
+      <ArrowLeftIcon />
       {backLabel(target)}
     </Link>
   )
@@ -60,8 +60,7 @@ function VersionTable({ skill, isOwner }: { skill: SkillDetail; isOwner: boolean
   const versions = [...skill.versions].sort((a, b) => (b.publishedAt ?? '').localeCompare(a.publishedAt ?? ''))
 
   return (
-    // 外框由外面的「版本记录」折叠框给，表格自己不再画
-    <Table className="border-0">
+    <Table>
       <TableHeader>
         <TableRow>
           <TableHead>版本</TableHead>
@@ -114,6 +113,24 @@ function VersionTable({ skill, isOwner }: { skill: SkillDetail; isOwner: boolean
   )
 }
 
+/** 标签：每个场景一个淡底胶囊，学段合成一个灰字胶囊（「小学、初中、高中」）；没打标签就不显示 */
+function SkillTags({ tags }: { tags: readonly string[] }) {
+  const scenes = tags.filter(isScene).map(tagLabel)
+  const stages = tags.filter(isStage).map(tagLabel)
+  if (scenes.length + stages.length === 0) return null
+  const pill = 'inline-flex h-[26px] items-center rounded-tag bg-panel px-2.5 text-[13px] leading-[18px]'
+  return (
+    <ul aria-label="标签" className="flex flex-wrap gap-1.5">
+      {scenes.map((s) => (
+        <li key={s} className={pill}>
+          {s}
+        </li>
+      ))}
+      {stages.length > 0 && <li className={cn(pill, 'text-ink-muted')}>{stages.join('、')}</li>}
+    </ul>
+  )
+}
+
 /** 右栏：核心数字 + 主操作。改版稿的主操作是「添加到 InnoAgent」、数字是「人在用」，等 03 有了对应接口再换 */
 function ActionPanel({ skill }: { skill: SkillDetail }) {
   const headline = skill.versions.find((v) => v.isHeadline)
@@ -159,15 +176,15 @@ export function SkillDetailPage() {
   }
 
   const isOwner = me === skill.user_id
-  const where = tagSummary(skill.tags)
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-6">
       <BackLink />
 
-      <section className="flex flex-wrap items-end justify-between gap-x-12 gap-y-8 border-b-2 border-ink pb-8">
+      {/* 温柔版：头部是一张卡片，左栏技能信息，右栏核心数字和主操作 */}
+      <section className="flex flex-wrap items-end justify-between gap-x-12 gap-y-8 surface-card p-6 sm:p-8">
         <div className="grid min-w-0 flex-[999_1_520px] gap-3">
-          {where && <p className="type-body-sm text-ink-muted">{where}</p>}
+          <SkillTags tags={skill.tags} />
           <h1 className="type-title text-balance [overflow-wrap:anywhere]">{skill.skill_name}</h1>
           <p className="type-body-sm flex flex-wrap items-center gap-x-2 gap-y-1 text-ink-muted tabular-nums">
             <code className="font-mono [overflow-wrap:anywhere]">
@@ -183,30 +200,30 @@ export function SkillDetailPage() {
         <ActionPanel skill={skill} />
       </section>
 
-      <div className="grid max-w-[720px] gap-12">
+      <div className="grid max-w-[760px] gap-10 pt-4">
         {skill.hidden && (
-          <p className="type-body-sm border border-danger bg-danger-wash px-4 py-3">
+          <p className="type-body-sm rounded-2xl bg-danger-wash px-5 py-3.5 text-danger">
             这个技能已下架：其他人搜不到、看不到、下载不了，只有你还能访问。
           </p>
         )}
 
         {/* 改版稿：版本表是给作者和老用户看的，默认收起 */}
-        <details className="border-2 border-ink">
-          <summary className="focus-ring type-body cursor-pointer px-4 py-3 font-bold tabular-nums">
+        <details className="overflow-hidden surface-card">
+          <summary className="focus-ring type-body cursor-pointer rounded-card px-5 py-3.5 font-semibold tabular-nums">
             版本记录 · {skill.versions.length} 个版本
           </summary>
-          <div className="border-t border-line">
+          <div className="border-t border-line-soft">
             <VersionTable skill={skill} isOwner={isOwner} />
           </div>
         </details>
 
         {isOwner && !skill.hidden && (
-          <section className="grid justify-items-start gap-3 border border-line bg-paper p-6">
+          <section className="grid justify-items-start gap-3 surface-card p-6">
             <h2 className="type-heading">下架技能</h2>
             <p className="type-body-sm text-ink-muted">
               下架后其他人搜不到、看不到、下载不了这个技能；你自己仍可通过本页地址访问和下载。
             </p>
-            {/* 设计系统：危险按钮只出现在确认弹窗里，页面上的入口用普通按钮 */}
+            {/* 危险按钮只出现在确认弹窗里，页面上的入口用普通按钮 */}
             <ConfirmAction
               trigger={<Button variant="outline">下架技能</Button>}
               title={`下架 ${skill.skill_name}？`}

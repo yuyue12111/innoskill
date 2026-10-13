@@ -11,8 +11,8 @@ function FilterRow<K extends string>({ name, options, value, onChange }: {
   const items = [{ key: null, label: '全部' }, ...options]
   return (
     <div role="radiogroup" aria-label={name} className="flex flex-wrap items-center gap-2">
-      <span aria-hidden className="type-group w-16 shrink-0">
-        {name}：
+      <span aria-hidden className="type-group w-12 shrink-0">
+        {name}
       </span>
       {items.map((item) => (
         <Chip
@@ -36,7 +36,7 @@ export function TagFilters({ scene, stage, onChange }: {
   onChange: (patch: { scene?: SceneKey | null; stage?: StageKey | null }) => void
 }) {
   return (
-    <div className="grid gap-2">
+    <div className="grid gap-2.5">
       <FilterRow name="场景" options={SCENES} value={scene} onChange={(v) => onChange({ scene: v })} />
       <FilterRow name="学段" options={STAGES} value={stage} onChange={(v) => onChange({ stage: v })} />
     </div>

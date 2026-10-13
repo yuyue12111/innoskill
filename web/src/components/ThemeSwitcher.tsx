@@ -8,11 +8,11 @@ const OPTIONS: { value: ThemePreference; label: string; Icon: typeof Sun }[] = [
   { value: 'dark', label: '深色', Icon: Moon },
 ]
 
-/** 外观切换：设计系统的分段控件（相邻方格、2px 外框，选中黑底） */
+/** 外观切换：胶囊形分段控件，选中项用品牌色淡底 */
 export function ThemeSwitcher() {
   const { theme, setTheme } = useTheme()
   return (
-    <div role="radiogroup" aria-label="外观" className="inline-flex border-2 border-ink">
+    <div role="radiogroup" aria-label="外观" className="inline-flex gap-0.5 rounded-control border border-line bg-paper p-0.5">
       {OPTIONS.map(({ value, label, Icon }) => {
         const selected = theme === value
         return (
@@ -25,8 +25,8 @@ export function ThemeSwitcher() {
             title={label}
             onClick={() => setTheme(value)}
             className={cn(
-              'focus-ring grid size-8 place-items-center transition-colors duration-120 [&_svg]:size-4',
-              selected ? 'bg-ink text-on-ink' : 'bg-paper text-ink-muted hover:text-ink',
+              'focus-ring grid size-7 place-items-center rounded-control transition-colors duration-120 [&_svg]:size-4',
+              selected ? 'bg-wash text-wash-ink' : 'text-ink-muted hover:text-ink',
             )}
           >
             <Icon aria-hidden />

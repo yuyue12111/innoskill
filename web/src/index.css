@@ -2,13 +2,11 @@
 @import "tw-animate-css";
 @import "shadcn/tailwind.css";
 @import "@fontsource-variable/hanken-grotesk";
-/* 思源黑体只取 900，只给大标题用；按 unicode-range 分片，页面用到哪些字才下载哪几片 */
-@import "@fontsource/noto-sans-sc/900.css";
 
 /*
- * 取值以设计系统为准：https://claude.ai/artifact/MxyZfJj2ytGM8d4CWphu14（project/tokens.json）
- * 黑白、直角、2px 墨线；反色即选中；logo 主色（signal）是唯一强调色，只给核心数字。
- * 外观可选跟随系统 / 浅色 / 深色。
+ * 取值以设计部门 2026-10-13 的「温柔版」为准：https://claude.ai/artifact/9QvjPVCUTBkctMnKM9AYQ9
+ * 暖白底、白卡片、1px 浅线 + 柔和阴影、圆角（档位「大」）；品牌色 signal 给主按钮、选中态和核心数字。
+ * 稿子只给了浅色，深色是按同一套关系推出来的，对比度都过 WCAG AA。外观可选跟随系统 / 浅色 / 深色。
  */
 /* 深色：手动选了深色，或「跟随系统」且系统是深色（见 src/lib/theme.ts） */
 @custom-variant dark {
@@ -23,164 +21,191 @@
 }
 
 :root {
-  --canvas: #ffffff;
+  --canvas: #f7f5f2;
   --paper: #ffffff;
-  --panel: #f5f5f5;
-  --line: #dcdce1;
-  --ink: #111114;
-  --ink-muted: #5e5e68;
-  --on-ink: #ffffff;
+  --panel: #f1eee9;
+  --line: #ece7e0;
+  --line-soft: #f0ece6;
+  --line-strong: #e0dad2;
+  --line-dashed: #cfc8bf;
+  --field: #9a938a;
+  --ink: #2b2833;
+  --ink-muted: #6e6875;
   --signal: #584cff;
-  --wash: #eef0ff;
-  --wash-ink: #4b47d6;
+  --signal-hover: #4a3fd9;
+  --on-signal: #ffffff;
+  --wash: #efedff;
+  --wash-hover: #e3e0ff;
+  --wash-ink: #4a3fd9;
+  --wash-line: #b9b1ff;
   --danger: #c8322b;
   --on-danger: #ffffff;
   --danger-wash: #fbeae8;
-  --overlay: rgb(17 17 20 / 0.45);
+  --overlay: rgb(43 40 51 / 0.4);
+  --card-shadow: 0 1px 2px rgb(43 40 51 / 0.04), 0 6px 20px rgb(43 40 51 / 0.05);
   color-scheme: light;
 }
 
 /* 深色取值写两遍：一处给「跟随系统」，一处给手动选择深色；改值时两处一起改 */
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme="light"]) {
-    --canvas: #0f0f12;
-    --paper: #18181c;
-    --panel: #222227;
-    --line: #34343b;
-    --ink: #ededf0;
-    --ink-muted: #a3a3ae;
-    --on-ink: #111114;
-    --signal: #6b93ff;
-    --wash: #23244a;
-    --wash-ink: #aeb0ff;
+    --canvas: #141215;
+    --paper: #1d1a1f;
+    --panel: #29252b;
+    --line: #322e35;
+    --line-soft: #2a262d;
+    --line-strong: #3d3840;
+    --line-dashed: #4b4650;
+    --field: #7c7582;
+    --ink: #eeebf1;
+    --ink-muted: #a9a3ae;
+    --signal: #8a80ff;
+    --signal-hover: #a39bff;
+    --on-signal: #141215;
+    --wash: #2a2750;
+    --wash-hover: #332f60;
+    --wash-ink: #c4bfff;
+    --wash-line: #5a52b0;
     --danger: #ff7a70;
-    --on-danger: #111114;
+    --on-danger: #141215;
     --danger-wash: #3a1715;
     --overlay: rgb(0 0 0 / 0.6);
+    --card-shadow: 0 1px 2px rgb(0 0 0 / 0.3), 0 6px 20px rgb(0 0 0 / 0.25);
     color-scheme: dark;
   }
 }
 
 :root[data-theme="dark"] {
-  --canvas: #0f0f12;
-  --paper: #18181c;
-  --panel: #222227;
-  --line: #34343b;
-  --ink: #ededf0;
-  --ink-muted: #a3a3ae;
-  --on-ink: #111114;
-  --signal: #6b93ff;
-  --wash: #23244a;
-  --wash-ink: #aeb0ff;
+  --canvas: #141215;
+  --paper: #1d1a1f;
+  --panel: #29252b;
+  --line: #322e35;
+  --line-soft: #2a262d;
+  --line-strong: #3d3840;
+  --line-dashed: #4b4650;
+  --field: #7c7582;
+  --ink: #eeebf1;
+  --ink-muted: #a9a3ae;
+  --signal: #8a80ff;
+  --signal-hover: #a39bff;
+  --on-signal: #141215;
+  --wash: #2a2750;
+  --wash-hover: #332f60;
+  --wash-ink: #c4bfff;
+  --wash-line: #5a52b0;
   --danger: #ff7a70;
-  --on-danger: #111114;
+  --on-danger: #141215;
   --danger-wash: #3a1715;
   --overlay: rgb(0 0 0 / 0.6);
+  --card-shadow: 0 1px 2px rgb(0 0 0 / 0.3), 0 6px 20px rgb(0 0 0 / 0.25);
   color-scheme: dark;
 }
 
 @theme inline {
-  /* 西文与数字走 Hanken Grotesk，中文回落到系统黑体；大标题的中文用思源黑体 900 */
-  /* 正文栈里不能出现 "Noto Sans SC"：网页只加载了它的 900，否则缺苹方 / 雅黑的系统会把正文渲染成粗体 */
+  /* 西文与数字走 Hanken Grotesk，中文回落到系统黑体 */
   --font-sans: "Hanken Grotesk Variable", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", "Noto Sans CJK SC", system-ui, sans-serif;
-  --font-heading: "Hanken Grotesk Variable", "Noto Sans SC", "PingFang SC", "Microsoft YaHei", sans-serif;
   --font-mono: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
 
-  /* 设计系统原名，组件里优先用这些 */
+  /* 设计稿原名，组件里优先用这些 */
   --color-canvas: var(--canvas);
   --color-paper: var(--paper);
   --color-panel: var(--panel);
   --color-line: var(--line);
+  --color-line-soft: var(--line-soft);
+  --color-line-strong: var(--line-strong);
+  --color-line-dashed: var(--line-dashed);
+  --color-field: var(--field);
   --color-ink: var(--ink);
   --color-ink-muted: var(--ink-muted);
-  --color-on-ink: var(--on-ink);
   --color-signal: var(--signal);
+  --color-signal-hover: var(--signal-hover);
+  --color-on-signal: var(--on-signal);
   --color-wash: var(--wash);
+  --color-wash-hover: var(--wash-hover);
   --color-wash-ink: var(--wash-ink);
+  --color-wash-line: var(--wash-line);
   --color-danger: var(--danger);
   --color-on-danger: var(--on-danger);
   --color-danger-wash: var(--danger-wash);
 
-  /* shadcn 语义名映射到设计系统，供未改写的 shadcn 组件使用 */
+  /* shadcn 语义名映射到设计稿，供未改写的 shadcn 组件使用 */
   --color-background: var(--canvas);
   --color-foreground: var(--ink);
   --color-card: var(--paper);
   --color-card-foreground: var(--ink);
   --color-popover: var(--paper);
   --color-popover-foreground: var(--ink);
-  --color-primary: var(--ink);
-  --color-primary-foreground: var(--on-ink);
+  --color-primary: var(--signal);
+  --color-primary-foreground: var(--on-signal);
   --color-secondary: var(--panel);
   --color-secondary-foreground: var(--ink);
   --color-muted: var(--panel);
   --color-muted-foreground: var(--ink-muted);
-  --color-accent: var(--panel);
-  --color-accent-foreground: var(--ink);
+  --color-accent: var(--wash);
+  --color-accent-foreground: var(--wash-ink);
   --color-destructive: var(--danger);
   --color-border: var(--line);
-  --color-input: var(--ink);
-  --color-ring: var(--ink);
+  --color-input: var(--field);
+  --color-ring: var(--signal);
 
-  /* 全系统直角 */
-  --radius-sm: 0;
-  --radius-md: 0;
-  --radius-lg: 0;
-  --radius-xl: 0;
-  --radius-2xl: 0;
-  --radius-3xl: 0;
-  --radius-4xl: 0;
+  /* 圆角档位「大」。设计稿三档：
+   *        card  control  chip   tag
+   *   小    8px   6px      6px    4px
+   *   中    16px  12px     999px  999px
+   *   大    24px  999px    999px  999px
+   * 换档只改这四个值 */
+  --radius-card: 24px;
+  --radius-control: 9999px;
+  --radius-chip: 9999px;
+  --radius-tag: 9999px;
+
+  --shadow-card: var(--card-shadow);
 }
 
-/* 字号层级（设计系统 type.groups）。字重只用 500 / 700 / 900，正文例外用 400 保证中文长文可读
- * 页标题、核心数字、导语三档取自 2026-10-13 改版稿（https://claude.ai/artifact/9QvjPVCUTBkctMnKM9AYQ9）：
- * 页头压矮，让 1366×768 笔记本首屏（约 630px）就能看到卡片 */
+/* 字号层级。字重用 400 / 500 / 600 / 700 / 800，核心数字 800 */
 @utility type-page {
-  font-family: var(--font-heading);
   font-size: 24px;
   line-height: 32px;
-  font-weight: 900;
+  font-weight: 700;
   letter-spacing: -0.01em;
   @media (width >= 40rem) {
-    font-size: 32px;
-    line-height: 40px;
+    font-size: 30px;
+    line-height: 38px;
   }
 }
 @utility type-title {
-  font-family: var(--font-heading);
   font-size: 28px;
-  line-height: 34px;
-  font-weight: 900;
-  letter-spacing: -0.02em;
+  line-height: 36px;
+  font-weight: 700;
+  letter-spacing: -0.01em;
   @media (width >= 40rem) {
-    font-size: 40px;
+    font-size: 36px;
     line-height: 44px;
   }
 }
-/* 核心数字：唯一使用强调色 signal 的地方。type-stat 给列表页头，type-stat-lg 给详情页 */
+/* 核心数字：type-stat 给列表页头，type-stat-lg 给详情页 */
 @utility type-stat {
-  font-family: var(--font-heading);
-  font-size: 36px;
-  line-height: 36px;
-  font-weight: 900;
+  font-size: 32px;
+  line-height: 32px;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  color: var(--signal);
+  font-variant-numeric: tabular-nums;
+  @media (width >= 40rem) {
+    font-size: 40px;
+    line-height: 40px;
+  }
+}
+@utility type-stat-lg {
+  font-size: 40px;
+  line-height: 40px;
+  font-weight: 800;
   letter-spacing: -0.02em;
   color: var(--signal);
   font-variant-numeric: tabular-nums;
   @media (width >= 40rem) {
     font-size: 48px;
-    line-height: 44px;
-  }
-}
-@utility type-stat-lg {
-  font-family: var(--font-heading);
-  font-size: 44px;
-  line-height: 44px;
-  font-weight: 900;
-  letter-spacing: -0.02em;
-  color: var(--signal);
-  font-variant-numeric: tabular-nums;
-  @media (width >= 40rem) {
-    font-size: 56px;
-    line-height: 56px;
+    line-height: 48px;
   }
 }
 /* 导语：详情页的技能简介 */
@@ -201,51 +226,46 @@
   font-size: 13px;
   line-height: 20px;
 }
-/* 可点的盒子（标签、按钮、分段）上的文字 */
+/* 按钮上的文字 */
 @utility type-label {
   font-size: 15px;
   line-height: 20px;
-  font-weight: 700;
-  letter-spacing: 0.06em;
+  font-weight: 600;
 }
-/* 眉标：英文全大写在前，可接中文，如 SKILLS 技能 */
-@utility eyebrow {
+/* 表头 */
+@utility type-caption {
   font-size: 12px;
   line-height: 16px;
-  font-weight: 700;
-  letter-spacing: 0.28em;
-  text-transform: uppercase;
+  font-weight: 600;
   color: var(--ink-muted);
 }
-/* 分组名：工具栏里的「排序：」「每页：」 */
+/* 分组名：「场景」「学段」「排序」 */
 @utility type-group {
-  font-size: 13px;
-  line-height: 20px;
-  font-weight: 500;
-  letter-spacing: 0.16em;
-  color: var(--ink-muted);
-}
-/* 次要的文字操作：「清空筛选」这类，灰字下划线，不和按钮抢主次 */
-@utility link-quiet {
-  font-size: 13px;
+  font-size: 14px;
   line-height: 20px;
   color: var(--ink-muted);
-  text-decoration-line: underline;
-  text-underline-offset: 3px;
+}
+/* 文字操作：「清空筛选」这类，品牌色文字，不做成按钮 */
+@utility link-text {
+  font-size: 14px;
+  line-height: 20px;
+  color: var(--wash-ink);
   &:hover {
-    color: var(--ink);
+    text-decoration-line: underline;
+    text-underline-offset: 3px;
   }
 }
-/* 悬停与键盘焦点统一：盒子外再套一圈 2px 墨线，偏移 2px（强调色只留给数字） */
-@utility box-hover {
-  &:hover {
-    outline: 2px solid var(--ink);
-    outline-offset: 2px;
-  }
+/* 卡片：白底、1px 浅线、柔和阴影、大圆角 */
+@utility surface-card {
+  background-color: var(--paper);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-card);
+  box-shadow: var(--card-shadow);
 }
+/* 键盘焦点：2px 品牌色外框，偏移 2px */
 @utility focus-ring {
   &:focus-visible {
-    outline: 2px solid var(--ink);
+    outline: 2px solid var(--signal);
     outline-offset: 2px;
   }
 }

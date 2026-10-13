@@ -2,7 +2,7 @@ import { CircleCheckIcon, InfoIcon, Loader2Icon, OctagonXIcon, TriangleAlertIcon
 import { Toaster as Sonner, type ToasterProps } from "sonner"
 import { useTheme } from "@/lib/theme"
 
-// 设计系统：直角、2px 墨线、无阴影
+// 温柔版：白卡片、1px 浅线、柔和阴影、圆角
 const Toaster = (props: ToasterProps) => {
   const theme = useTheme((s) => s.theme)
   return (
@@ -19,13 +19,13 @@ const Toaster = (props: ToasterProps) => {
         {
           "--normal-bg": "var(--paper)",
           "--normal-text": "var(--ink)",
-          "--normal-border": "var(--ink)",
-          "--border-radius": "0px",
+          "--normal-border": "var(--line)",
+          "--border-radius": "16px",
         } as React.CSSProperties
       }
       toastOptions={{
         classNames: {
-          toast: "!border-2 !shadow-none !font-sans",
+          toast: "!shadow-card !font-sans",
           description: "!text-ink-muted",
         },
       }}

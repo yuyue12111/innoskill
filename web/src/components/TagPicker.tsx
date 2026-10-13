@@ -13,7 +13,7 @@ export function TagPicker({ value, onChange }: { value: TagKey[]; onChange: (val
         { label: '学段', options: STAGES },
       ].map((group) => (
         <div key={group.label} role="group" aria-label={group.label} className="flex flex-wrap items-center gap-2">
-          <span className="type-group w-16 shrink-0">{group.label}：</span>
+          <span className="type-group w-12 shrink-0">{group.label}</span>
           {group.options.map((t) => (
             <Chip key={t.key} aria-pressed={value.includes(t.key)} selected={value.includes(t.key)} onClick={() => toggle(t.key)}>
               {t.label}

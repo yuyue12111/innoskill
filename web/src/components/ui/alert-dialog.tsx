@@ -3,7 +3,7 @@ import { AlertDialog as AlertDialogPrimitive } from "radix-ui"
 import { Button } from "@/components/ui/button"
 import { cn } from "@/lib/utils"
 
-// 设计系统 ConfirmDialog：overlay 遮罩上一个 2px 墨线框的弹窗，无阴影；只淡入淡出，不缩放
+// ConfirmDialog：遮罩上一张卡片（同 surface-card），只淡入淡出，不缩放
 
 function AlertDialog(props: React.ComponentProps<typeof AlertDialogPrimitive.Root>) {
   return <AlertDialogPrimitive.Root data-slot="alert-dialog" {...props} />
@@ -23,7 +23,7 @@ function AlertDialogContent({ className, ...props }: React.ComponentProps<typeof
       <AlertDialogPrimitive.Content
         data-slot="alert-dialog-content"
         className={cn(
-          "fixed top-1/2 left-1/2 z-50 grid w-[calc(100%-2rem)] max-w-[440px] -translate-x-1/2 -translate-y-1/2 gap-4 border-2 border-ink bg-paper p-6 text-ink outline-none duration-120 data-open:animate-in data-open:fade-in-0 data-closed:animate-out data-closed:fade-out-0",
+          "fixed top-1/2 left-1/2 z-50 grid w-[calc(100%-2rem)] max-w-[440px] -translate-x-1/2 -translate-y-1/2 gap-4 surface-card p-6 text-ink outline-none duration-120 data-open:animate-in data-open:fade-in-0 data-closed:animate-out data-closed:fade-out-0",
           className
         )}
         {...props}
@@ -75,7 +75,7 @@ function AlertDialogAction({
   )
 }
 
-/** 设计系统：取消用幽灵按钮 */
+/** 取消用幽灵按钮 */
 function AlertDialogCancel({
   className,
   variant = "ghost",

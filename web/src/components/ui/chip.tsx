@@ -1,9 +1,10 @@
 import * as React from "react"
+import { CheckCircleIcon } from "@/components/icons/doodle"
 import { cn } from "@/lib/utils"
 
-/** 设计系统 Chip：2px 墨线，选中反色，悬停外加一圈墨线。选中语义（aria-pressed / aria-checked）由调用方给
- * default 64×43 给表单；sm 56×36 给列表页的筛选行（改版稿：筛选压成两行，给卡片让出首屏） */
-function Chip({ selected, size = "default", className, ...props }: React.ComponentProps<"button"> & {
+/** 温柔版 Chip：胶囊形、1px 浅线；选中换品牌色淡底、加粗、前面加一个勾。选中语义（aria-pressed / aria-checked）由调用方给
+ * sm 36px 高给列表页的筛选行，default 40px 给表单 */
+function Chip({ selected, size = "default", className, children, ...props }: React.ComponentProps<"button"> & {
   selected: boolean
   size?: "default" | "sm"
 }) {
@@ -12,13 +13,18 @@ function Chip({ selected, size = "default", className, ...props }: React.Compone
       type="button"
       data-slot="chip"
       className={cn(
-        "focus-ring box-hover type-label inline-flex items-center justify-center border-2 border-ink transition-colors duration-120",
-        size === "sm" ? "h-9 min-w-14 px-3.5" : "h-[43px] min-w-16 px-4",
-        selected ? "bg-ink text-on-ink" : "bg-paper text-ink",
+        "focus-ring inline-flex items-center justify-center gap-1 rounded-chip border text-[15px] leading-5 transition-colors duration-120",
+        size === "sm" ? "h-9 min-w-14 px-4" : "h-10 min-w-16 px-[18px]",
+        selected
+          ? "border-wash-line bg-wash font-semibold text-wash-ink"
+          : "border-line-strong bg-paper text-ink hover:border-field",
         className
       )}
       {...props}
-    />
+    >
+      {selected && <CheckCircleIcon className="size-4" />}
+      {children}
+    </button>
   )
 }
 

@@ -12,7 +12,7 @@ export function DevIdentitySwitcher() {
     <div className="flex items-center gap-2 text-sm">
       <span className="hidden text-muted-foreground sm:inline">开发身份</span>
       <Select value={userId ?? ANONYMOUS} onValueChange={(v) => setUserId(v === ANONYMOUS ? null : v)}>
-        <SelectTrigger size="sm" className="w-24" aria-label="开发身份">
+        <SelectTrigger size="sm" className="w-24 rounded-control px-3" aria-label="开发身份">
           <SelectValue />
         </SelectTrigger>
         <SelectContent>
