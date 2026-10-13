@@ -1,6 +1,7 @@
 import { Link, NavLink, Outlet, useLocation } from 'react-router'
 import logoUrl from '@/assets/logo.svg'
 import { DevIdentitySwitcher } from '@/components/DevIdentitySwitcher'
+import { HeaderSearch } from '@/components/HeaderSearch'
 import { ThemeSwitcher } from '@/components/ThemeSwitcher'
 import { Toaster } from '@/components/ui/sonner'
 import { cn } from '@/lib/utils'
@@ -42,6 +43,7 @@ export function AppLayout() {
               </NavLink>
             ))}
           </nav>
+          <HeaderSearch />
           <div className="ml-auto flex items-center gap-4">
             {/* 上传是作者的事，大多数人来找技能，所以降成次要链接 */}
             <NavLink

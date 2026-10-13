@@ -1,3 +1,4 @@
+import { quote } from '@/lib/format'
 import { isScene, isStage, tagLabel } from '@/lib/tags'
 
 export const skillUrl = (userId: string, slug: string) =>
@@ -21,6 +22,6 @@ export function backLabel(target: string): string {
   const q = url.searchParams.get('q')
   const scene = url.searchParams.get('scene') ?? ''
   const stage = url.searchParams.get('stage') ?? ''
-  const parts = [q && `「${q}」`, isScene(scene) && tagLabel(scene), isStage(stage) && tagLabel(stage)].filter(Boolean)
+  const parts = [q && quote(q), isScene(scene) && tagLabel(scene), isStage(stage) && tagLabel(stage)].filter(Boolean)
   return parts.length > 0 ? `返回全部技能（${parts.join(' · ')}）` : '返回全部技能'
 }

@@ -7,6 +7,7 @@ import { PageHeader } from '@/components/PageHeader'
 import { SkillList } from '@/components/SkillList'
 import { TagFilters } from '@/components/TagFilters'
 import { Button } from '@/components/ui/button'
+import { quote } from '@/lib/format'
 import { PAGE_SIZE, useListParams } from '@/lib/searchParams'
 import { tagLabel, type TagKey } from '@/lib/tags'
 
@@ -15,9 +16,9 @@ const SORT_LABEL: Record<SortBy, string> = { relevance: '最相关', downloads: 
 /** 没有关键词时「最相关」没有意义，不给这个选项；默认值取列表里的第一个 */
 const sortOptions = (q: string): SortBy[] => (q ? ['relevance', 'downloads', 'newest'] : ['downloads', 'newest'])
 
-/** [a] →「a」；[a, b] →「a」和「b」；[a, b, c] →「a」、「b」和「c」 */
+/** [a] → “a”；[a, b] → “a”和“b”；[a, b, c] → “a”、“b”和“c” */
 function quoteAll(parts: string[]): string {
-  const quoted = parts.map((p) => `「${p}」`)
+  const quoted = parts.map(quote)
   return quoted.length > 1 ? `${quoted.slice(0, -1).join('、')}和${quoted.at(-1)}` : quoted.join('')
 }
 
@@ -80,7 +81,7 @@ export function SearchPage() {
   const query = useSearchSkills({ q: q || undefined, tags, sort: effectiveSort, page, size: PAGE_SIZE })
 
   // 页头标题就是用户此刻所在的位置：关键词 > 标签 > 全部
-  const title = q ? `「${q}」` : tags.length > 0 ? tags.map(tagLabel).join(' · ') : '全部技能'
+  const title = q ? quote(q) : tags.length > 0 ? tags.map(tagLabel).join(' · ') : '全部技能'
   const conditions = [q, ...tags.map(tagLabel)].filter(Boolean)
   const filtered = conditions.length > 0
   // 排序不算筛选条件，但关键词清掉后「最相关」也就失效了，一起复位

@@ -25,7 +25,29 @@ describe('搜索页', () => {
     expect(await screen.findByText('single-point-rubric-designer')).toBeInTheDocument()
     expect(screen.queryByText('argument-structure-scaffold-generator')).not.toBeInTheDocument()
     expect(router.state.location.search).toBe('?q=rubric')
-    expect(screen.getByRole('heading', { level: 1 })).toHaveTextContent('「rubric」')
+    expect(screen.getByRole('heading', { level: 1 })).toHaveTextContent('“rubric”')
+  })
+})
+
+describe('导航栏搜索', () => {
+  it('在详情页搜：跳到列表页按关键词搜', async () => {
+    const { router, user } = renderApp(BOB_SKILL)
+    await screen.findByRole('heading', { name: 'argument-structure-scaffold-generator' })
+
+    await user.type(screen.getByRole('textbox', { name: '搜索技能' }), 'rubric{Enter}')
+    expect(router.state.location.pathname).toBe('/')
+    expect(router.state.location.search).toBe('?q=rubric')
+    expect(await screen.findByText('single-point-rubric-designer')).toBeInTheDocument()
+  })
+
+  it('在列表页搜：保留场景、学段筛选，排序和页码复位', async () => {
+    const { router, user } = renderApp('/?scene=assessment&sort=newest&page=1')
+    const box = screen.getByRole('textbox', { name: '搜索技能' })
+
+    await user.type(box, 'rubric{Enter}')
+    expect(router.state.location.search).toBe('?scene=assessment&q=rubric')
+    // 页内搜索框跟着显示同一个关键词
+    expect(screen.getByLabelText('关键词')).toHaveValue('rubric')
   })
 })
 
@@ -48,7 +70,7 @@ describe('搜索页 · 标签筛选', () => {
 
   it('没有结果时说清是哪些条件没有交集，并能一键清空', async () => {
     const { router, user } = renderApp('/?q=zzzz&scene=research')
-    expect(await screen.findByText('没有同时符合「zzzz」和「科研」的技能')).toBeInTheDocument()
+    expect(await screen.findByText('没有同时符合“zzzz”和“科研”的技能')).toBeInTheDocument()
 
     // 页头和空态各有一个「清空筛选」，点空态里的
     await user.click(screen.getAllByRole('button', { name: '清空筛选' }).at(-1)!)
