@@ -15,7 +15,8 @@ export function AppLayout() {
   const onDetail = useLocation().pathname.startsWith('/skills/')
   return (
     <div className="min-h-svh">
-      <header className="border-b border-line bg-paper">
+      {/* 吸顶：页面往下滚时导航栏固定在最上方。层级低于弹窗遮罩和下拉框（z-50） */}
+      <header className="sticky top-0 z-40 border-b border-line bg-paper">
         <div className="mx-auto flex min-h-16 max-w-[1168px] flex-wrap items-center gap-x-8 gap-y-2 px-4 py-3 sm:px-6">
           <Link to="/" className="focus-ring flex shrink-0 items-center gap-2 rounded-control text-lg font-extrabold tracking-[-0.01em]">
             <img src={logoUrl} alt="" className="h-[26px] w-auto" />
