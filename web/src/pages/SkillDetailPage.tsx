@@ -86,25 +86,28 @@ function VersionTable({ skill, isOwner }: { skill: SkillDetail; isOwner: boolean
               {v.fileCount} 个 · {formatBytes(v.totalSize)}
             </TableCell>
             <TableCell className="hidden sm:table-cell">{formatDate(v.publishedAt)}</TableCell>
-            <TableCell className="space-x-2 text-right">
-              {downloadable(v) && <DownloadButton skill={skill} version={v.version} />}
-              {isOwner && downloadable(v) && (
-                <ConfirmAction
-                  trigger={
-                    <Button variant="ghost" size="sm">
-                      下架
-                    </Button>
-                  }
-                  title={`下架版本 ${v.version}？`}
-                  description="下架后任何人（包括你）都不能再下载这个版本，操作不可撤销。之后可以用同一版本号重新上传。"
-                  confirmLabel="下架版本"
-                  onConfirm={() =>
-                    yank
-                      .mutateAsync({ userId: skill.user_id, slug: skill.slug, version: v.version })
-                      .then(() => toast.success(`已下架版本 ${v.version}`))
-                  }
-                />
-              )}
+            <TableCell>
+              {/* 用 flex 垂直居中：两个按钮按文字基线排会错开（带图标的那个基线落在图标底部） */}
+              <div className="flex items-center justify-end gap-2">
+                {downloadable(v) && <DownloadButton skill={skill} version={v.version} />}
+                {isOwner && downloadable(v) && (
+                  <ConfirmAction
+                    trigger={
+                      <Button variant="ghost" size="sm">
+                        下架
+                      </Button>
+                    }
+                    title={`下架版本 ${v.version}？`}
+                    description="下架后任何人（包括你）都不能再下载这个版本，操作不可撤销。之后可以用同一版本号重新上传。"
+                    confirmLabel="下架版本"
+                    onConfirm={() =>
+                      yank
+                        .mutateAsync({ userId: skill.user_id, slug: skill.slug, version: v.version })
+                        .then(() => toast.success(`已下架版本 ${v.version}`))
+                    }
+                  />
+                )}
+              </div>
             </TableCell>
           </TableRow>
         ))}
