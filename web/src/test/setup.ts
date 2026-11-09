@@ -36,6 +36,8 @@ const matchMedia = (query: string) => ({
   removeListener() {},
   dispatchEvent: () => false,
 })
+// jsdom 没有 scrollIntoView，指南页带锚点进来时要用
+Element.prototype.scrollIntoView = () => {}
 Object.assign(globalThis, { Blob, File, FormData: CompatFormData, ResizeObserver: NoopResizeObserver, matchMedia })
 
 beforeAll(() => server.listen({ onUnhandledRequest: 'error' }))

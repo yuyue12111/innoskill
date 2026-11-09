@@ -1,5 +1,7 @@
 import type { RouteObject } from 'react-router'
 import { AppLayout } from '@/components/AppLayout'
+import { ContributePage } from '@/pages/ContributePage'
+import { GuidePage } from '@/pages/GuidePage'
 import { MySkillsPage } from '@/pages/MySkillsPage'
 import { NotFoundPage, RouteError } from '@/pages/NotFoundPage'
 import { SearchPage } from '@/pages/SearchPage'
@@ -13,6 +15,8 @@ export const routes: RouteObject[] = [
     errorElement: <RouteError />,
     children: [
       { index: true, element: <SearchPage /> },
+      { path: 'contribute', element: <ContributePage /> },
+      { path: 'guide', element: <GuidePage /> },
       { path: 'me', element: <MySkillsPage /> },
       { path: 'upload', element: <UploadPage /> },
       // 详情页地址与 03 的资源路径一一对应：/api/skills/{user_id}/{slug}

@@ -1,7 +1,7 @@
 // 上传包的解析与校验，规则照 03 §3.2、§3.4；报错文案与后端 server/src 一字不差。出错时抛出 PackageError，由上传 handler 转成 400。
 import { strFromU8, unzipSync } from 'fflate'
 import type { UploadWarning } from '@/api/types'
-import { SCENES, STAGES, type TagKey } from '@/lib/tags'
+import { ALL_TAGS, type TagKey } from '@/lib/tags'
 
 export interface PackageError {
   kind: 'package'
@@ -99,7 +99,7 @@ export function scanWarnings(files: Record<string, Uint8Array>): UploadWarning[]
   return warnings
 }
 
-const TAG_KEYS = new Set<string>([...SCENES, ...STAGES].map((t) => t.key))
+const TAG_KEYS = new Set<string>(ALL_TAGS.map((t) => t.key))
 
 /** 解析逗号分隔的标签：去空白、去重，词表外的值报错（03 §1.7，与后端 parseTags 一致） */
 export function parseTags(raw: string | null): TagKey[] {

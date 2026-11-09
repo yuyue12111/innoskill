@@ -12,7 +12,8 @@
   "description": "Generate argument structure scaffolds using Toulmin, PEEL, or CER frameworks for a specific claim or question. Use when teaching argumentative or analytical writing across any subject.",
   "version": "1.0",
   "tags": [
-   "teaching"
+   "teaching",
+   "chinese"
   ]
  },
  {
@@ -60,7 +61,9 @@
   "description": "Design a complete document-based history lesson using the Reading Like a Historian four-part structure. Use when planning a primary source inquiry lesson or converting a textbook lesson into document-based investigation.",
   "version": "1.0",
   "tags": [
-   "teaching"
+   "teaching",
+   "chinese",
+   "history"
   ]
  },
  {
@@ -77,7 +80,8 @@
   "version": "0.10.0",
   "tags": [
    "teaching",
-   "junior"
+   "junior",
+   "chinese"
   ]
  },
  {
@@ -86,7 +90,8 @@
   "version": "0.10.0",
   "tags": [
    "teaching",
-   "junior"
+   "junior",
+   "math"
   ]
  },
  {
@@ -137,7 +142,8 @@
   "version": "0.10.0",
   "tags": [
    "teaching",
-   "primary"
+   "primary",
+   "math"
   ]
  },
  {
@@ -146,7 +152,8 @@
   "version": "0.10.0",
   "tags": [
    "teaching",
-   "primary"
+   "primary",
+   "chinese"
   ]
  },
  {
@@ -171,7 +178,8 @@
   "version": "0.10.0",
   "tags": [
    "teaching",
-   "senior"
+   "senior",
+   "chinese"
   ]
  },
  {
@@ -180,7 +188,8 @@
   "version": "0.14.0",
   "tags": [
    "teaching",
-   "senior"
+   "senior",
+   "physics"
   ]
  },
  {
@@ -199,7 +208,8 @@
   "description": "Analyse text complexity across quantitative, qualitative, and reader-task dimensions with scaffolding recommendations. Use when selecting texts, assessing readability, or planning reading support.",
   "version": "1.0",
   "tags": [
-   "teaching"
+   "teaching",
+   "chinese"
   ]
  },
  {
@@ -207,7 +217,8 @@
   "description": "Script a teacher think-aloud demonstrating expert reasoning processes for a specific task. Use when modelling problem-solving, writing, reading comprehension, or analytical processes.",
   "version": "1.0",
   "tags": [
-   "teaching"
+   "teaching",
+   "chinese"
   ]
  },
  {
@@ -239,7 +250,8 @@
   "description": "Tier vocabulary from a text or topic into everyday, academic, and technical categories with teaching priorities. Use when pre-teaching vocabulary or identifying language barriers in a text.",
   "version": "1.0",
   "tags": [
-   "teaching"
+   "teaching",
+   "english"
   ]
  },
  {
@@ -247,7 +259,8 @@
   "description": "Design a worked example fading sequence from fully worked examples through to independent practice. Use when teaching procedures, algorithms, or multi-step processes to novice learners.",
   "version": "1.0",
   "tags": [
-   "teaching"
+   "teaching",
+   "it"
   ]
  },
  {
@@ -365,7 +378,8 @@
   "version": "0.10.0",
   "tags": [
    "learning",
-   "university"
+   "university",
+   "it"
   ]
  },
  {
@@ -415,7 +429,8 @@
    "learning",
    "preschool",
    "primary",
-   "junior"
+   "junior",
+   "chinese"
   ]
  },
  {
@@ -761,7 +776,8 @@
   "description": "Design formative assessments that make students' historical thinking visible — revealing whether they source, close-read, contextualise, and corroborate. Use when assessing historical thinking skills or planning a diagnostic.",
   "version": "1.0",
   "tags": [
-   "assessment"
+   "assessment",
+   "history"
   ]
  },
  {
@@ -884,7 +900,8 @@
   "description": "協助研究者設計嚴謹的準實驗研究，從研究架構規劃、測量工具選擇、統計方法決策到研究效度提升。特別適合教育現場無法完全隨機分派的實驗情境，確保研究設計的科學性與內外在效度。適用於研究方法相關的教學設計與實施場景。",
   "version": null,
   "tags": [
-   "research"
+   "research",
+   "science"
   ]
  },
  {

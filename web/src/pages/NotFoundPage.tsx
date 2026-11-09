@@ -1,4 +1,5 @@
 import { Link, useRouteError } from 'react-router'
+import { Container } from '@/components/Page'
 import { StatusMessage } from '@/components/StatusMessage'
 import { Button } from '@/components/ui/button'
 
@@ -9,7 +10,11 @@ const backHome = (
 )
 
 export function NotFoundPage() {
-  return <StatusMessage action={backHome}>页面不存在</StatusMessage>
+  return (
+    <Container className="pt-10">
+      <StatusMessage action={backHome}>页面不存在</StatusMessage>
+    </Container>
+  )
 }
 
 /** 渲染期未捕获的异常 */

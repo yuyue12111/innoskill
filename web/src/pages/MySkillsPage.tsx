@@ -1,6 +1,7 @@
 import { Link } from 'react-router'
 import { useSearchSkills } from '@/api/queries'
 import { useIdentity } from '@/auth/identity'
+import { Container } from '@/components/Page'
 import { PageHeader } from '@/components/PageHeader'
 import { SkillList } from '@/components/SkillList'
 import { StatusMessage } from '@/components/StatusMessage'
@@ -11,7 +12,7 @@ function MySkillList() {
   const { page, update } = useListParams()
   const query = useSearchSkills({ user_id: 'me', page, size: PAGE_SIZE })
   return (
-    <div className="space-y-6">
+    <>
       <PageHeader
         title="我的技能"
         // 03 §8.4：技能级下架后 user_id=me 也列不出
@@ -19,7 +20,8 @@ function MySkillList() {
         count={query.data?.total}
         countLabel="个技能"
       />
-      <SkillList
+      <Container className="pt-8">
+        <SkillList
         query={query}
         onPageChange={(p) => update({ page: p })}
         empty="你还没有上传过技能"
@@ -28,8 +30,9 @@ function MySkillList() {
             <Link to="/upload">上传技能</Link>
           </Button>
         }
-      />
-    </div>
+        />
+      </Container>
+    </>
   )
 }
 
@@ -37,9 +40,11 @@ export function MySkillsPage() {
   const userId = useIdentity((s) => s.userId)
   if (userId) return <MySkillList />
   return (
-    <div className="space-y-6">
+    <>
       <PageHeader title="我的技能" />
-      <StatusMessage>登录后可以查看自己上传的技能</StatusMessage>
-    </div>
+      <Container className="pt-8">
+        <StatusMessage>登录后可以查看自己上传的技能</StatusMessage>
+      </Container>
+    </>
   )
 }

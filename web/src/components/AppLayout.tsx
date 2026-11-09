@@ -2,29 +2,32 @@ import { Link, NavLink, Outlet, useLocation } from 'react-router'
 import logoUrl from '@/assets/logo.svg'
 import { DevIdentitySwitcher } from '@/components/DevIdentitySwitcher'
 import { HeaderSearch } from '@/components/HeaderSearch'
+import { Container } from '@/components/Page'
 import { ThemeSwitcher } from '@/components/ThemeSwitcher'
+import { Button } from '@/components/ui/button'
 import { Toaster } from '@/components/ui/sonner'
 import { cn } from '@/lib/utils'
 
 const NAV = [
-  { to: '/', label: '全部技能', end: true },
-  { to: '/me', label: '我的技能' },
+  { to: '/', label: '技能', end: true },
+  { to: '/contribute', label: '贡献' },
+  { to: '/guide', label: '指南' },
 ]
 
 export function AppLayout() {
-  // 详情页归在「全部技能」下（改版稿），只做视觉高亮，不设 aria-current
-  const onDetail = useLocation().pathname.startsWith('/skills/')
+  const { pathname } = useLocation()
+  // 详情页归在「技能」下，只做视觉高亮，不设 aria-current
+  const onDetail = pathname.startsWith('/skills/')
   return (
     <div className="min-h-svh">
-      {/* 吸顶：页面往下滚时导航栏固定在最上方。层级低于弹窗遮罩和下拉框（z-50） */}
-      <header className="sticky top-0 z-40 border-b border-line bg-paper">
-        <div className="mx-auto flex min-h-16 max-w-[1168px] flex-wrap items-center gap-x-8 gap-y-2 px-4 py-3 sm:px-6">
-          <Link to="/" className="focus-ring flex shrink-0 items-center gap-2 rounded-control text-lg font-extrabold tracking-[-0.01em]">
+      {/* 吸顶白底导航栏 + 轻阴影；当前页品牌色文字 + 底部 2px 横线（参考 openEuler SkillHub）。层级低于弹窗（z-50） */}
+      <header className="sticky top-0 z-40 border-b border-line bg-paper shadow-[0_2px_8px_rgb(43_40_51/0.04)]">
+        <Container className="flex min-h-16 flex-wrap items-center gap-x-8 gap-y-2">
+          <Link to="/" className="focus-ring flex shrink-0 items-center gap-2 rounded-control text-xl font-extrabold tracking-[-0.01em]">
             <img src={logoUrl} alt="" className="h-[26px] w-auto" />
             InnoSkill
           </Link>
-          {/* 当前页用品牌色淡底，与筛选标签的选中态一致 */}
-          <nav aria-label="主导航" className="flex shrink-0 gap-1 whitespace-nowrap">
+          <nav aria-label="主导航" className="flex shrink-0 gap-6 self-stretch whitespace-nowrap">
             {NAV.map(({ to, label, end }) => (
               <NavLink
                 key={to}
@@ -32,10 +35,10 @@ export function AppLayout() {
                 end={end}
                 className={({ isActive }) =>
                   cn(
-                    'focus-ring rounded-chip px-3.5 py-1.5 text-[15px] leading-6 transition-colors duration-120',
+                    'focus-ring relative flex items-center text-[15px] transition-colors duration-120 after:absolute after:inset-x-0 after:bottom-0 after:h-0.5 after:rounded-full',
                     isActive || (onDetail && to === '/')
-                      ? 'bg-wash font-semibold text-wash-ink'
-                      : 'font-medium text-ink hover:bg-panel',
+                      ? 'font-semibold text-signal after:bg-signal'
+                      : 'text-ink hover:text-signal',
                   )
                 }
               >
@@ -43,23 +46,26 @@ export function AppLayout() {
               </NavLink>
             ))}
           </nav>
-          <HeaderSearch />
-          <div className="ml-auto flex items-center gap-4">
-            {/* 上传是作者的事，大多数人来找技能，所以降成次要链接 */}
+          {/* 首页的页头里已有大搜索框，导航栏就不再放 */}
+          {pathname !== '/' && <HeaderSearch />}
+          <div className="ml-auto flex items-center gap-4 py-2">
             <NavLink
-              to="/upload"
+              to="/me"
               className={({ isActive }) =>
                 cn('focus-ring rounded-control text-sm hover:text-ink', isActive ? 'font-semibold text-ink' : 'text-ink-muted')
               }
             >
-              上传技能
+              我的技能
             </NavLink>
+            <Button asChild variant="soft" size="sm">
+              <Link to="/upload">上传技能</Link>
+            </Button>
             <ThemeSwitcher />
             {import.meta.env.DEV && <DevIdentitySwitcher />}
           </div>
-        </div>
+        </Container>
       </header>
-      <main className="mx-auto max-w-[1168px] px-4 pt-7 pb-16 sm:px-6">
+      <main className="pb-16">
         <Outlet />
       </main>
       <Toaster />

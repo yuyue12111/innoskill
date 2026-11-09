@@ -257,9 +257,9 @@ describe('03 §1.7 标签', () => {
   })
 
   it('词表外的标签 → 400（搜索与上传都是）', async () => {
-    expect(await statusOf(searchSkills({ tags: ['math' as never] }))).toBe(400)
+    expect(await statusOf(searchSkills({ tags: ['cooking' as never] }))).toBe(400)
     as('alice')
-    await expect(upload('teaching,math')).rejects.toMatchObject({ status: 400, message: '未知标签：math' })
+    await expect(upload('teaching,cooking')).rejects.toMatchObject({ status: 400, message: '未知标签：cooking' })
   })
 
   it('上传带回 tags；每次上传整体覆盖，不传即清空', async () => {
