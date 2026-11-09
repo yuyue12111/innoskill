@@ -8,6 +8,7 @@ import { isApiError } from '@/api/client'
 import { useUploadSkill } from '@/api/queries'
 import type { UploadWarning } from '@/api/types'
 import { useIdentity } from '@/auth/identity'
+import { Container } from '@/components/Page'
 import { PageHeader } from '@/components/PageHeader'
 import { StatusMessage } from '@/components/StatusMessage'
 import { TagPicker } from '@/components/TagPicker'
@@ -27,7 +28,7 @@ import { Label } from '@/components/ui/label'
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group'
 import { errorText } from '@/lib/format'
 import { skillUrl } from '@/lib/paths'
-import { SCENES, STAGES, type TagKey } from '@/lib/tags'
+import { ALL_TAGS, type TagKey } from '@/lib/tags'
 
 /**
  * 后端整个请求体上限 10 MB（03 §3.4）。超限时后端会立刻断开连接，浏览器只能看到网络错误、拿不到 400，
@@ -41,7 +42,7 @@ const schema = z.object({
     .refine((f) => f.name.toLowerCase().endsWith('.zip'), '只能上传 .zip 文件')
     .refine((f) => f.size <= MAX_ZIP_BYTES, 'zip 文件不能超过 10 MB，请精简后再上传'),
   visibility: z.enum(['PUBLIC', 'PRIVATE']),
-  tags: z.array(z.enum([...SCENES, ...STAGES].map((t) => t.key) as [TagKey, ...TagKey[]])),
+  tags: z.array(z.enum(ALL_TAGS.map((t) => t.key) as [TagKey, ...TagKey[]])),
 })
 type Values = z.infer<typeof schema>
 
@@ -72,18 +73,21 @@ export function UploadPage() {
 
   if (!me) {
     return (
-      <div className="space-y-6">
+      <>
         <PageHeader title="上传技能" />
-        <StatusMessage>登录后才能上传技能</StatusMessage>
-      </div>
+        <Container className="pt-8">
+          <StatusMessage>登录后才能上传技能</StatusMessage>
+        </Container>
+      </>
     )
   }
 
   return (
-    <div className="space-y-8">
-      <PageHeader title="上传技能" description="上传即发布，没有审核环节。" />
+    <>
+      <PageHeader title="上传技能" description="上传即发布，没有审核环节。不清楚怎么准备技能包，先看「指南 · 贡献你的技能」。" />
 
-      <form className="grid max-w-[560px] gap-8" onSubmit={form.handleSubmit((values) => submit(values, false))}>
+      <Container className="pt-8">
+      <form className="grid max-w-[640px] gap-8 surface-card p-6 sm:p-8" onSubmit={form.handleSubmit((values) => submit(values, false))}>
         <Controller
           control={form.control}
           name="file"
@@ -146,7 +150,7 @@ export function UploadPage() {
         />
 
         {serverError && (
-          <p role="alert" className="type-body-sm border border-danger bg-danger-wash px-4 py-3">
+          <p role="alert" className="type-body-sm rounded-control border border-danger bg-danger-wash px-4 py-3">
             {serverError}
           </p>
         )}
@@ -155,6 +159,7 @@ export function UploadPage() {
           {upload.isPending ? '上传中…' : '上传'}
         </Button>
       </form>
+      </Container>
 
       <AlertDialog open={warnings !== null} onOpenChange={(open) => !open && setWarnings(null)}>
         <AlertDialogContent>
@@ -182,6 +187,6 @@ export function UploadPage() {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
-    </div>
+    </>
   )
 }

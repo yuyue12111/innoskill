@@ -5,7 +5,7 @@
 
 /*
  * 取值以设计部门 2026-10-13 的「温柔版」为准：https://claude.ai/artifact/9QvjPVCUTBkctMnKM9AYQ9
- * 暖白底、白卡片、1px 浅线 + 柔和阴影、圆角（档位「大」）；品牌色 signal 给主按钮、选中态和核心数字。
+ * 暖白底、白卡片、1px 浅线 + 柔和阴影、圆角（档位见 --radius-*）；品牌色 signal 给主按钮、选中态和核心数字。
  * 稿子只给了浅色，深色是按同一套关系推出来的，对比度都过 WCAG AA。外观可选跟随系统 / 浅色 / 深色。
  */
 /* 深色：手动选了深色，或「跟随系统」且系统是深色（见 src/lib/theme.ts） */
@@ -153,11 +153,11 @@
    *   小    8px   6px      6px    4px
    *   中    16px  12px     999px  999px
    *   大    24px  999px    999px  999px
-   * 换档只改这四个值 */
-  --radius-card: 24px;
-  --radius-control: 9999px;
-  --radius-chip: 9999px;
-  --radius-tag: 9999px;
+   * 换档只改这四个值。2026-11 按 leader 偏好的 openEuler SkillHub 风格改用「小」 */
+  --radius-card: 8px;
+  --radius-control: 6px;
+  --radius-chip: 6px;
+  --radius-tag: 4px;
 
   --shadow-card: var(--card-shadow);
 }
@@ -181,6 +181,17 @@
   @media (width >= 40rem) {
     font-size: 36px;
     line-height: 44px;
+  }
+}
+/* 首页大标题 */
+@utility type-hero {
+  font-size: 30px;
+  line-height: 40px;
+  font-weight: 800;
+  letter-spacing: -0.01em;
+  @media (width >= 40rem) {
+    font-size: 44px;
+    line-height: 56px;
   }
 }
 /* 核心数字：type-stat 给列表页头，type-stat-lg 给详情页 */
@@ -261,6 +272,12 @@
   border: 1px solid var(--line);
   border-radius: var(--radius-card);
   box-shadow: var(--card-shadow);
+}
+/* 页面顶部的品牌色渐变带：首页、贡献、指南、详情的页头都铺在上面（参考 openEuler SkillHub） */
+@utility hero-band {
+  background-image:
+    radial-gradient(60% 120% at 85% 0%, var(--wash-hover) 0%, transparent 60%),
+    linear-gradient(180deg, var(--wash) 0%, var(--canvas) 100%);
 }
 /* 键盘焦点：2px 品牌色外框，偏移 2px */
 @utility focus-ring {

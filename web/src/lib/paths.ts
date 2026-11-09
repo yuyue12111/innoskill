@@ -1,5 +1,5 @@
 import { quote } from '@/lib/format'
-import { isScene, isStage, tagLabel } from '@/lib/tags'
+import { isScene, isStage, isSubject, tagLabel } from '@/lib/tags'
 
 export const skillUrl = (userId: string, slug: string) =>
   `/skills/${encodeURIComponent(userId)}/${encodeURIComponent(slug)}`
@@ -15,13 +15,17 @@ export function backTarget(state: unknown): string {
   return typeof from === 'string' && from.startsWith('/') && !from.startsWith('//') ? from : '/'
 }
 
-/** 返回链接的文字带上筛选条件，如「返回全部技能（评价 · 初中）」 */
+/** 面包屑第一级的文字带上筛选条件，如「全部技能（评价 · 初中）」 */
 export function backLabel(target: string): string {
   const url = new URL(target, 'http://local')
-  if (url.pathname === '/me') return '返回我的技能'
-  const q = url.searchParams.get('q')
-  const scene = url.searchParams.get('scene') ?? ''
-  const stage = url.searchParams.get('stage') ?? ''
-  const parts = [q && quote(q), isScene(scene) && tagLabel(scene), isStage(stage) && tagLabel(stage)].filter(Boolean)
-  return parts.length > 0 ? `返回全部技能（${parts.join(' · ')}）` : '返回全部技能'
+  if (url.pathname === '/me') return '我的技能'
+  const get = (key: string) => url.searchParams.get(key) ?? ''
+  const [q, scene, stage, subject] = [get('q'), get('scene'), get('stage'), get('subject')]
+  const parts = [
+    q && quote(q),
+    isScene(scene) && tagLabel(scene),
+    isStage(stage) && tagLabel(stage),
+    isSubject(subject) && tagLabel(subject),
+  ].filter(Boolean)
+  return parts.length > 0 ? `全部技能（${parts.join(' · ')}）` : '全部技能'
 }

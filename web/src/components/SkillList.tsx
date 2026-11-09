@@ -6,14 +6,17 @@ import { StatusMessage } from '@/components/StatusMessage'
 import { Button } from '@/components/ui/button'
 import { Skeleton } from '@/components/ui/skeleton'
 import { errorText } from '@/lib/format'
+import type { ListView } from '@/lib/searchParams'
 import { cn } from '@/lib/utils'
 
-// 卡片最窄 240px，放得下几列放几列：桌面 4 列，手机 1 列
-const GRID = 'grid grid-cols-[repeat(auto-fill,minmax(240px,1fr))] gap-5'
+// 卡片最窄 260px，放得下几列放几列：首页（左侧有筛选栏）桌面 3 列，手机 1 列
+const GRID = 'grid grid-cols-[repeat(auto-fill,minmax(260px,1fr))] gap-4'
+const LIST = 'grid gap-3'
 
 /** 搜索结果网格：搜索页与「我的技能」共用。查询由页面发起，页头也要用 total */
-export function SkillList({ query, onPageChange, empty, emptyAction }: {
+export function SkillList({ query, view = 'grid', onPageChange, empty, emptyAction }: {
   query: ReturnType<typeof useSearchSkills>
+  view?: ListView
   onPageChange: (page: number) => void
   empty: ReactNode
   emptyAction?: ReactNode
@@ -23,8 +26,8 @@ export function SkillList({ query, onPageChange, empty, emptyAction }: {
   if (isPending) {
     return (
       <div className={GRID}>
-        {Array.from({ length: 8 }, (_, i) => (
-          <Skeleton key={i} className="h-44" />
+        {Array.from({ length: 6 }, (_, i) => (
+          <Skeleton key={i} className="h-48" />
         ))}
       </div>
     )
@@ -46,9 +49,9 @@ export function SkillList({ query, onPageChange, empty, emptyAction }: {
           这一页没有内容
         </StatusMessage>
       ) : (
-        <div className={cn(GRID, isPlaceholderData && 'opacity-60')}>
+        <div className={cn(view === 'list' ? LIST : GRID, isPlaceholderData && 'opacity-60')}>
           {data.items.map((skill) => (
-            <SkillCard key={`${skill.user_id}/${skill.slug}`} skill={skill} />
+            <SkillCard key={`${skill.user_id}/${skill.slug}`} skill={skill} view={view} />
           ))}
         </div>
       )}
